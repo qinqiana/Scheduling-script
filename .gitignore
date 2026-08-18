@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-server
+data.db
+data.db.bak
+.DS_Store
+*.log
+uploads
+.vscode
