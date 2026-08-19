@@ -1,15 +1,16 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { createServer } from "node:http";
+import { join } from "node:path";
+import type { AddressInfo } from "node:net";
 import cors from "cors";
 import express from "express";
 import multer from "multer";
 import { DEFAULT_SETTINGS, type Person, type Settings } from "../shared/types.ts";
 import {
   backupTo,
-  DB_PATH,
   execSql,
   getDb,
+  getDbPath,
   getSettings,
   persist,
   queryAll,
@@ -19,10 +20,10 @@ import {
   runMany,
   saveSettings,
 } from "./db.ts";
-import { currentRoster, generateRoster, persistGenerated } from "./engine.ts";
+import { clearMonth, currentRoster, generateRoster, persistGenerated } from "./engine.ts";
 import { exportWorkbook } from "./excel.ts";
+import { distDir } from "./paths.ts";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = Number(process.env.PORT ?? 8787);
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
@@ -118,6 +119,7 @@ app.delete("/api/people/:id", (req, res) => {
   runMany(() => {
     execSql("DELETE FROM assignments WHERE person_id = ?", [id]);
     execSql("DELETE FROM leaves WHERE person_id = ?", [id]);
+    execSql("DELETE FROM rest_wishes WHERE person_id = ?", [id]);
     execSql("DELETE FROM people WHERE id = ?", [id]);
   });
   res.json({ ok: true });
@@ -251,6 +253,52 @@ app.post("/api/roster/generate", (req, res) => {
   res.json(currentRoster(year, month));
 });
 
+app.post("/api/roster/clear", (req, res) => {
+  const year = Number(req.body?.year);
+  const month = Number(req.body?.month);
+  if (!year || !month) {
+    res.status(400).json({ error: "需要 year 和 month" });
+    return;
+  }
+  clearMonth(year, month);
+  res.json(currentRoster(year, month));
+});
+
+app.put("/api/roster/wish", (req, res) => {
+  const { personId, date, want } = req.body ?? {};
+  if (!personId || !date) {
+    res.status(400).json({ error: "人员和日期必填" });
+    return;
+  }
+  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
+  runMany(() => {
+    if (want) {
+      execSql(
+        "INSERT INTO rest_wishes (person_id, date) VALUES (?, ?) ON CONFLICT(person_id, date) DO NOTHING",
+        [personId, date],
+      );
+      if (!leave) {
+        const locked = queryOne<{ locked: number }>(
+          "SELECT locked FROM assignments WHERE person_id = ? AND date = ?",
+          [personId, date],
+        );
+        if (!locked?.locked) {
+          execSql(
+            `INSERT INTO assignments (person_id, date, shift, locked)
+             VALUES (?, ?, '休', 0)
+             ON CONFLICT(person_id, date) DO UPDATE SET shift = '休'`,
+            [personId, date],
+          );
+        }
+      }
+    } else {
+      execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
+    }
+  });
+  const [year, month] = String(date).split("-").map(Number);
+  res.json(currentRoster(year, month));
+});
+
 app.put("/api/roster/cell", (req, res) => {
   const { personId, date, shift, locked } = req.body ?? {};
   if (!personId || !date || !shift) {
@@ -292,11 +340,11 @@ app.get("/api/export", async (req, res) => {
 
 app.get("/api/backup", (_req, res) => {
   persist();
-  const bak = `${DB_PATH}.bak`;
+  const bak = `${getDbPath()}.bak`;
   backupTo(bak);
   res.setHeader("Content-Type", "application/octet-stream");
   res.setHeader("Content-Disposition", "attachment; filename=data.db");
-  res.send(readFileSync(DB_PATH));
+  res.send(readFileSync(getDbPath()));
 });
 
 app.post("/api/restore", upload.single("file"), async (req, res) => {
@@ -309,15 +357,45 @@ app.post("/api/restore", upload.single("file"), async (req, res) => {
   res.json({ ok: true });
 });
 
-const dist = join(ROOT, "dist");
-if (existsSync(dist)) {
-  app.use(express.static(dist));
-  app.get("*", (_req, res) => {
-    res.sendFile(join(dist, "index.html"));
-  });
+const dist = distDir();
+app.use(express.static(dist));
+app.use((req, res) => {
+  if (req.path.startsWith("/api")) {
+    res.status(404).json({ error: "接口不存在" });
+    return;
+  }
+  const indexFile = join(dist, "index.html");
+  if (existsSync(indexFile)) {
+    res.sendFile(indexFile);
+    return;
+  }
+  res.status(503).type("html").send(`<!doctype html><meta charset="utf-8"><p>界面尚未打包。请先运行启动脚本或执行 npm run build。</p>`);
+});
+
+export async function startServer(preferredPort = PORT): Promise<number> {
+  await getDb();
+  const listen = (port: number) =>
+    new Promise<number>((resolve, reject) => {
+      const server = createServer(app);
+      server.once("error", (err: NodeJS.ErrnoException) => {
+        if (err.code === "EADDRINUSE" && port !== 0) {
+          void listen(0).then(resolve, reject);
+          return;
+        }
+        reject(err);
+      });
+      server.listen(port, "127.0.0.1", () => {
+        resolve((server.address() as AddressInfo).port);
+      });
+    });
+  const actual = await listen(preferredPort);
+  console.log(`入网审核排班  http://127.0.0.1:${actual}`);
+  return actual;
 }
 
-await getDb();
-app.listen(PORT, () => {
-  console.log(`入网审核排班  http://127.0.0.1:${PORT}`);
-});
+if (!process.env.ELECTRON_RUN) {
+  startServer().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

@@ -52,6 +52,15 @@ export function isOffDay(cell: MonthCell): boolean {
   return cell.kind === "weekend" || cell.kind === "holiday";
 }
 
+/** 法定工作日：普通工作日或调休上班，不含周末和放假 */
+export function isLegalWorkDay(cell: MonthCell): boolean {
+  return cell.kind === "workday" || cell.kind === "makeup";
+}
+
+export function legalWorkDayCount(cells: MonthCell[]): number {
+  return cells.filter(isLegalWorkDay).length;
+}
+
 /** 该日所在自然周（周一到周日）的周一日期 */
 export function mondayKey(date: string): string {
   const [y, m, d] = date.split("-").map(Number);

@@ -1,4 +1,4 @@
-export type ShiftMark = "早" | "晚" | "休" | "假";
+export type ShiftMark = "早" | "晚" | "休" | "假" | "";
 export type WeekPref = "less" | "more" | "normal";
 export type ConflictSeverity = "hard" | "soft";
 
@@ -17,6 +17,8 @@ export interface Settings {
   monthEndExtraNights: number;
   weekendNeedWork: boolean;
   nightRestRequired: boolean;
+  noMorningAfterNight: boolean;
+  preferPairedRest: boolean;
   week2Preference: WeekPref;
   lastWeekPreference: WeekPref;
   title: string;
@@ -25,7 +27,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   requiredWorkDays: 23,
-  maxNightDiff: 5,
+  maxNightDiff: 3,
   maxConsecutiveWork: 6,
   minPerGroupPerDay: 2,
   minMorningPerGroupPerDay: 1,
@@ -38,6 +40,8 @@ export const DEFAULT_SETTINGS: Settings = {
   monthEndExtraNights: 1,
   weekendNeedWork: true,
   nightRestRequired: false,
+  noMorningAfterNight: true,
+  preferPairedRest: true,
   week2Preference: "less",
   lastWeekPreference: "more",
   title: "外包-省综调（入网审核岗考勤）",
@@ -98,6 +102,7 @@ export interface RosterCell {
   mark: ShiftMark;
   locked: boolean;
   leaveReason?: string;
+  wantRest?: boolean;
 }
 
 export interface PersonStat {

@@ -59,8 +59,15 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ year, month, keepLocked }),
     }),
+  clear: (year: number, month: number) =>
+    req<RosterPayload>("/api/roster/clear", {
+      method: "POST",
+      body: JSON.stringify({ year, month }),
+    }),
   setCell: (body: { personId: number; date: string; shift: "早" | "晚" | "休"; locked: boolean }) =>
     req<RosterPayload>("/api/roster/cell", { method: "PUT", body: JSON.stringify(body) }),
+  setWish: (body: { personId: number; date: string; want: boolean }) =>
+    req<RosterPayload>("/api/roster/wish", { method: "PUT", body: JSON.stringify(body) }),
 };
 
 export function exportUrl(year: number, month: number): string {

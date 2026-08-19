@@ -21,8 +21,21 @@ export function StatsPage({
     void api.roster(year, month).then(setData);
   }, [year, month, tick]);
 
-  const nights = data?.stats.people.map((p) => p.night) ?? [];
-  const nightDiff = nights.length ? Math.max(...nights) - Math.min(...nights) : 0;
+  const nightDiff = (() => {
+    if (!data?.stats.people.length) return 0;
+    const byGroup = new Map<string, number[]>();
+    for (const p of data.stats.people) {
+      const list = byGroup.get(p.groupName) ?? [];
+      list.push(p.night);
+      byGroup.set(p.groupName, list);
+    }
+    let best = 0;
+    for (const nights of byGroup.values()) {
+      if (nights.length < 2) continue;
+      best = Math.max(best, Math.max(...nights) - Math.min(...nights));
+    }
+    return best;
+  })();
   const gaps = data?.stats.days.filter((d) => d.gap) ?? [];
 
   return (
@@ -30,7 +43,13 @@ export function StatsPage({
       <div className="topbar">
         <div>
           <h1>统计</h1>
-          <p className="hint">看出勤、早/晚、周末次数、连班和缺口。改格子后这里会重算冲突。</p>
+          <p className="hint">
+            看出勤、早/晚、周末次数、连班和缺口。无请假时目标为当月法定工作日
+            {data
+              ? ` ${data.cells.filter((c) => c.kind === "workday" || c.kind === "makeup").length} 天`
+              : ""}
+            。
+          </p>
         </div>
         <div className="actions">
           <label className="field">
@@ -51,7 +70,7 @@ export function StatsPage({
       </div>
 
       <div className="legend">
-        <span>晚班极差 {nightDiff} 天</span>
+        <span>同组晚班极差 {nightDiff} 天</span>
         <span>缺口天数 {gaps.length}</span>
         <span>硬冲突 {data?.conflicts.filter((c) => c.severity === "hard").length ?? 0}</span>
       </div>

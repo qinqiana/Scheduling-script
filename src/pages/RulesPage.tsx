@@ -55,14 +55,7 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
       <div className="grid-2">
         <div className="card form">
           <strong>硬约束 / 软约束</strong>
-          <label>
-            默认出勤天数
-            <input
-              type="number"
-              value={settings.requiredWorkDays}
-              onChange={(e) => setSettings({ ...settings, requiredWorkDays: Number(e.target.value) })}
-            />
-          </label>
+          <p className="hint">无请假时，每人每月出勤必须等于当月法定工作日（普通工作日 + 调休上班，不含周末和放假）。有请假则减去请假占用的法定工作日。</p>
           <label>
             每组每天最少出勤
             <input
@@ -88,7 +81,7 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             />
           </label>
           <label>
-            每人每周最多上班
+            每周上班天数（硬，满周须正好这些天）
             <input
               type="number"
               value={settings.maxWorkPerWeek}
@@ -144,7 +137,7 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             />
           </label>
           <label>
-            晚班极差上限（软）
+            同组晚班极差上限（硬，天）
             <input
               type="number"
               value={settings.maxNightDiff}
@@ -165,10 +158,30 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             <span>
               <input
                 type="checkbox"
+                checked={settings.noMorningAfterNight}
+                onChange={(e) => setSettings({ ...settings, noMorningAfterNight: e.target.checked })}
+              />{" "}
+              晚班后不接早班（可休或再晚）
+            </span>
+          </label>
+          <label>
+            <span>
+              <input
+                type="checkbox"
+                checked={settings.preferPairedRest}
+                onChange={(e) => setSettings({ ...settings, preferPairedRest: e.target.checked })}
+              />{" "}
+              每周两天休息尽量连在一起（软，优先级最低）
+            </span>
+          </label>
+          <label>
+            <span>
+              <input
+                type="checkbox"
                 checked={settings.nightRestRequired}
                 onChange={(e) => setSettings({ ...settings, nightRestRequired: e.target.checked })}
               />{" "}
-              晚班后强制休息（默认关，晚班不是通宵）
+              晚班后强制休息（默认关，比「不接早班」更严）
             </span>
           </label>
           <label>
@@ -183,10 +196,14 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             <ul className="conflict-list">
               <li>班次写「早」「晚」「休」，请假写「假」。</li>
               <li>每组每天至少 1 个早班、1 个晚班（因此每天至少 2 人）。</li>
-              <li>每人每个自然周（周一至周日）最多上班 5 天。</li>
+              <li>无请假时，本月出勤必须等于当月法定工作日；有请假则减去请假占用的法定工作日。</li>
+              <li>同一个自然周（周一至周日）必须上班 5 天、休息 2 天；有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
               <li>10～20 号可以少人；20 号以后尽量多人。</li>
               <li>20 号以后每组在能留下早班的前提下多排晚班。</li>
-              <li>晚班次数尽量均分；请假和锁定格子生成时不改。</li>
+              <li>晚班后不接早班，可休或再排晚班。</li>
+              <li>每周两天休息尽量连在一起（软约束，覆盖和周 5 天优先）。</li>
+              <li>同组每人每月晚班数量相差不超过 3 天（硬约束）。</li>
+              <li>请假和锁定格子生成时不改。</li>
             </ul>
           </div>
           <div className="card form" style={{ marginTop: 12 }}>

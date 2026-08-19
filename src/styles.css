@@ -163,6 +163,9 @@ table.roster td.weekend { background: var(--weekend); }
 table.roster td.holiday { background: var(--holiday); }
 table.roster td.gap { box-shadow: inset 0 0 0 2px #f3b4ae; }
 table.roster .lock { font-size: 9px; color: var(--muted); }
+table.roster .wish-mark,
+.wish-mark { font-size: 9px; color: var(--leave); }
+.legend .wish-mark { font-size: 12px; }
 
 .drawer-back {
   position: fixed; inset: 0; background: rgba(27, 23, 18, 0.28);

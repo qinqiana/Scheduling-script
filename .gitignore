@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-server
+release
 data.db
 data.db.bak
 .DS_Store

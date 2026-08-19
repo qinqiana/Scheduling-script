@@ -156,7 +156,7 @@ export function PeoplePage({ onChange }: { onChange: () => void }) {
               <input value={form.groupName} onChange={(e) => setForm({ ...form, groupName: e.target.value })} />
             </label>
             <label>
-              目标出勤（空则用规则默认）
+              目标出勤（空则按当月法定工作日）
               <input value={form.targetDays} onChange={(e) => setForm({ ...form, targetDays: e.target.value })} />
             </label>
             <label>

@@ -64,6 +64,20 @@ export function CalendarPage({
   const soft = data?.conflicts.filter((c) => c.severity === "soft") ?? [];
   const gapDates = new Set((data?.stats.days ?? []).filter((d) => d.gap).map((d) => d.date));
 
+  const clearMonthRoster = async () => {
+    if (!confirm(`确定清空 ${year} 年 ${month} 月的全部排班和想休？请假、人员和规则会保留。`)) return;
+    setBusy("正在清空本月…");
+    setError("");
+    try {
+      setData(await api.clear(year, month));
+      onChange();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "清空失败");
+    } finally {
+      setBusy("");
+    }
+  };
+
   const run = async (keepLocked: boolean) => {
     setBusy(keepLocked ? "正在重排未锁定格子…" : "正在生成本月…");
     setError("");
@@ -112,7 +126,7 @@ export function CalendarPage({
       <div className="topbar">
         <div>
           <h1>月历班表</h1>
-          <p className="hint">点格子改早/晚/休，可锁定后再重排其余。请假是硬约束。</p>
+          <p className="hint">点格子改早/晚/休，可锁定后再重排其余。请假是硬约束，「想休」生成时优先排休。</p>
         </div>
         <div className="actions">
           <label className="field">
@@ -146,6 +160,9 @@ export function CalendarPage({
           <button className="btn" disabled={!!busy} onClick={() => void run(true)}>
             重排未锁定
           </button>
+          <button className="btn danger" disabled={!!busy} onClick={() => void clearMonthRoster()}>
+            清空本月
+          </button>
           <a className="btn" href={exportUrl(year, month)}>
             导出 Excel
           </a>
@@ -161,7 +178,7 @@ export function CalendarPage({
         <div className="banner">
           {hard.length} 条硬约束未满足
           <ul className="conflict-list">
-            {hard.slice(0, 6).map((c) => (
+            {hard.slice(0, 8).map((c) => (
               <li key={c.message} className="hard">
                 {c.message}
               </li>
@@ -175,7 +192,9 @@ export function CalendarPage({
           <span className="chip morning">早</span>
           <span className="chip night">晚</span>
           <span className="chip rest">休</span>
+          <span>未生成时留空</span>
           <span className="chip leave">假</span>
+          <span className="wish-mark">想休</span>
           <span className="chip gap">缺口</span>
           {soft.length > 0 && <span>软约束 {soft.length} 条，见统计页</span>}
         </div>
@@ -204,14 +223,15 @@ export function CalendarPage({
                   </td>
                   {data?.cells.map((c) => {
                     const cell = map.get(`${p.id}|${c.date}`);
-                    const mark = cell?.mark ?? "休";
+                    const mark = cell?.mark ?? "";
                     return (
                       <td
                         key={c.date}
                         className={cellClass(c.kind, gapDates.has(c.date))}
                         onClick={() => cell && setEdit({ person: p, date: c.date, cell })}
                       >
-                        <span className={markChip(mark)}>{mark}</span>
+                        {mark ? <span className={markChip(mark)}>{mark}</span> : null}
+                        {cell?.wantRest && <div className="wish-mark">想</div>}
                         {cell?.locked && <div className="lock">锁</div>}
                       </td>
                     );
@@ -232,6 +252,7 @@ export function CalendarPage({
             <p className="hint">
               {edit.person.groupName}
               {edit.cell.leaveReason ? ` · 请假：${edit.cell.leaveReason}` : ""}
+              {edit.cell.wantRest ? " · 已标想休" : ""}
             </p>
             {edit.cell.mark === "假" ? (
               <>
@@ -264,7 +285,17 @@ export function CalendarPage({
                     </button>
                   ))}
                 </div>
-                <button className="btn" onClick={() => void saveCell(edit.cell.mark === "假" ? "休" : edit.cell.mark === "休" ? "休" : edit.cell.mark, !edit.cell.locked)}>
+                <button
+                  className="btn"
+                  onClick={() =>
+                    void saveCell(
+                      edit.cell.mark === "早" || edit.cell.mark === "晚" || edit.cell.mark === "休"
+                        ? edit.cell.mark
+                        : "休",
+                      !edit.cell.locked,
+                    )
+                  }
+                >
                   {edit.cell.locked ? "解锁此格" : "锁定此格"}
                 </button>
               </>
@@ -276,6 +307,30 @@ export function CalendarPage({
               </label>
               <button className="btn" onClick={() => void addLeave()}>
                 登记请假
+              </button>
+              <button
+                className={edit.cell.wantRest ? "btn primary" : "btn"}
+                disabled={!!busy}
+                onClick={async () => {
+                  setBusy(edit.cell.wantRest ? "取消想休…" : "标记想休…");
+                  try {
+                    setData(
+                      await api.setWish({
+                        personId: edit.person.id,
+                        date: edit.date,
+                        want: !edit.cell.wantRest,
+                      }),
+                    );
+                    setEdit(null);
+                    onChange();
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "想休失败");
+                  } finally {
+                    setBusy("");
+                  }
+                }}
+              >
+                {edit.cell.wantRest ? "取消想休" : "想休"}
               </button>
             </div>
           </aside>

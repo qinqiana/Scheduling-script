@@ -1,12 +1,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import initSqlJs, { type Database } from "sql.js";
 import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
 import { HOLIDAYS_2026 } from "./holidays.ts";
+import { dataDir, dbPath, sqlWasmPath } from "./paths.ts";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-export const DB_PATH = join(ROOT, "data.db");
+export function getDbPath(): string {
+  return dbPath();
+}
 
 let db: Database | null = null;
 
@@ -29,9 +29,13 @@ const SEED_PEOPLE: { name: string; groupName: string }[] = [
 
 export async function getDb(): Promise<Database> {
   if (db) return db;
-  const SQL = await initSqlJs();
-  if (existsSync(DB_PATH)) {
-    db = new SQL.Database(readFileSync(DB_PATH));
+  const wasm = sqlWasmPath();
+  const SQL = await initSqlJs({
+    locateFile: (file) => (file.endsWith(".wasm") ? wasm : file),
+  });
+  const path = dbPath();
+  if (existsSync(path)) {
+    db = new SQL.Database(readFileSync(path));
     migrate(db);
   } else {
     db = new SQL.Database();
@@ -44,8 +48,8 @@ export async function getDb(): Promise<Database> {
 
 export function persist(): void {
   if (!db) return;
-  mkdirSync(dirname(DB_PATH), { recursive: true });
-  writeFileSync(DB_PATH, Buffer.from(db.export()));
+  mkdirSync(dataDir(), { recursive: true });
+  writeFileSync(dbPath(), Buffer.from(db.export()));
 }
 
 function exec(database: Database, sql: string): void {
@@ -89,8 +93,31 @@ function migrate(database: Database): void {
       locked INTEGER NOT NULL DEFAULT 0,
       UNIQUE(person_id, date)
     );
+    CREATE TABLE IF NOT EXISTS rest_wishes (
+      person_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      PRIMARY KEY (person_id, date)
+    );
     `,
   );
+  const row = database.prepare("SELECT value FROM settings WHERE key = 'settings'");
+  if (row.step()) {
+    const raw = row.getAsObject() as { value?: string };
+    row.free();
+    if (raw.value) {
+      const parsed = JSON.parse(raw.value) as Settings;
+      if (parsed.maxNightDiff === 5) {
+        parsed.maxNightDiff = 3;
+        const upd = database.prepare(
+          "UPDATE settings SET value = ? WHERE key = 'settings'",
+        );
+        upd.run([JSON.stringify(parsed)]);
+        upd.free();
+      }
+    }
+  } else {
+    row.free();
+  }
 }
 
 function seed(database: Database): void {
@@ -166,12 +193,12 @@ export function saveSettings(next: Settings): Settings {
 
 export function backupTo(target: string): void {
   persist();
-  copyFileSync(DB_PATH, target);
+  copyFileSync(dbPath(), target);
 }
 
 export function restoreFrom(source: Buffer): void {
   persist();
-  writeFileSync(DB_PATH, source);
+  writeFileSync(dbPath(), source);
   db?.close();
   db = null;
 }

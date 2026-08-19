@@ -1,7 +1,7 @@
 {
   "name": "network-access-roster",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "入网审核排班：早/晚两班，按组覆盖，导出考勤表",
   "type": "module",
   "scripts": {
@@ -9,8 +9,7 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:web": "vite",
     "build": "tsc -p tsconfig.server.json && vite build",
-    "start": "tsx server/index.ts",
-    "preview": "vite preview"
+    "start": "tsx server/index.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

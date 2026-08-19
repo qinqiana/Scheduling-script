@@ -1,14 +1,12 @@
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import ExcelJS from "exceljs";
 import type { MonthCell, Person, RosterCell, Settings } from "../shared/types.ts";
 import type { currentRoster } from "./engine.ts";
-
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { templatesDir } from "./paths.ts";
 
 const TEMPLATE_CANDIDATES = [
-  join(ROOT, "templates", "考勤表模板.xlsx"),
+  join(templatesDir(), "考勤表模板.xlsx"),
   "d:\\个人文件\\项目\\排班\\考勤表模板.xlsx",
   "D:\\工作\\2026\\综调集中化\\考核绩效相关\\考勤表\\考勤表模板.xlsx",
 ];
@@ -30,9 +28,9 @@ function findTemplate(): string | undefined {
   return TEMPLATE_CANDIDATES.find((p) => existsSync(p));
 }
 
-function excelMark(mark: RosterCell["mark"]): string {
+function excelMark(mark: RosterCell["mark"] | undefined): string | undefined {
   if (mark === "早" || mark === "晚" || mark === "假" || mark === "休") return mark;
-  return "休";
+  return undefined;
 }
 
 function styleHeader(cell: ExcelJS.Cell): void {
@@ -78,7 +76,7 @@ async function fillExistingTemplate(
     for (const cell of data.cells) {
       const col = 3 + cell.day;
       const mark = data.roster.find((r) => r.personId === person.id && r.date === cell.date);
-      ws.getCell(rowNumber, col).value = excelMark(mark?.mark ?? "休");
+      ws.getCell(rowNumber, col).value = excelMark(mark?.mark) ?? null;
     }
   }
 
@@ -143,8 +141,8 @@ function buildWorkbook(
     for (const c of cells) {
       const mark = lookup.get(`${p.id}|${c.date}`);
       const cell = sheet.getCell(row, 3 + c.day);
-      cell.value = excelMark(mark?.mark ?? "休");
-      if (mark?.mark === "休" || !mark) {
+      cell.value = excelMark(mark?.mark) ?? null;
+      if (mark?.mark === "休") {
         cell.font = { name: "微软雅黑", color: { argb: "FF6B6258" } };
       }
       cell.alignment = { horizontal: "center", vertical: "middle" };
@@ -238,7 +236,7 @@ function addPersonSheet(
   const lookup = new Map(roster.map((r) => [`${r.personId}|${r.date}`, r]));
   for (const p of people) {
     for (const c of cells) {
-      const mark = lookup.get(`${p.id}|${c.date}`)?.mark ?? "休";
+      const mark = lookup.get(`${p.id}|${c.date}`)?.mark ?? "";
       sheet.addRow([p.name, p.groupName, c.date, WEEKDAY[c.weekday], mark]);
     }
   }
@@ -288,7 +286,7 @@ function addStatsSheet(
     ]);
   }
   sheet.addRow([]);
-  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；每人每周≤${settings.maxWorkPerWeek}天；${settings.leanStartDay}～${settings.leanEndDay}号少人，${settings.busyAfterDay}号后加人；${settings.monthEndNightAfterDay}号后多晚班`]);
+  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；满自然周必须上班${settings.maxWorkPerWeek}天休息2天；${settings.leanStartDay}～${settings.leanEndDay}号少人，${settings.busyAfterDay}号后加人；${settings.monthEndNightAfterDay}号后多晚班`]);
   sheet.addRow(["冲突"]);
   if (!conflicts.length) sheet.addRow(["无"]);
   for (const c of conflicts) sheet.addRow([c.severity === "hard" ? "硬" : "软", c.message]);
