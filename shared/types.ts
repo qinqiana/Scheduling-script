@@ -87,6 +87,8 @@ export interface RosterCell {
   leaveReason?: string;
   wantRest?: boolean;
   overtime?: boolean;
+  manualOvertime?: boolean;
+  compRest?: boolean;
 }
 
 export interface PersonStat {

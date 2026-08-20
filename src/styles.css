@@ -171,6 +171,9 @@ table.roster .ot-mark,
 .ot-mark { font-size: 9px; color: #8a2b12; font-weight: 700; }
 .legend .ot-mark { font-size: 12px; }
 .legend .wish-mark { font-size: 12px; }
+table.roster .comp-mark,
+.comp-mark { font-size: 9px; color: #1f6b4a; font-weight: 700; }
+.legend .comp-mark { font-size: 12px; }
 
 .drawer-back {
   position: fixed; inset: 0; background: rgba(27, 23, 18, 0.28);

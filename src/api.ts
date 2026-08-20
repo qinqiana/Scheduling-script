@@ -7,13 +7,18 @@ import type {
 import type { RosterPayload } from "./types";
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+  } catch {
+    throw new Error("连不上服务。请先双击「启动排班.bat」，并保持黑色窗口开着。");
+  }
   if (!res.ok) {
     let message = res.statusText;
     try {
@@ -68,6 +73,8 @@ export const api = {
     req<RosterPayload>("/api/roster/cell", { method: "PUT", body: JSON.stringify(body) }),
   setWish: (body: { personId: number; date: string; want: boolean }) =>
     req<RosterPayload>("/api/roster/wish", { method: "PUT", body: JSON.stringify(body) }),
+  setFlag: (body: { personId: number; date: string; kind: "overtime" | "comp_rest" | null }) =>
+    req<RosterPayload>("/api/roster/flag", { method: "PUT", body: JSON.stringify(body) }),
 };
 
 export function exportUrl(year: number, month: number): string {

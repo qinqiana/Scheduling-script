@@ -99,6 +99,12 @@ function migrate(database: Database): void {
       date TEXT NOT NULL,
       PRIMARY KEY (person_id, date)
     );
+    CREATE TABLE IF NOT EXISTS attendance_flags (
+      person_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      PRIMARY KEY (person_id, date)
+    );
     `,
   );
   ensureOfficialHolidays(database);

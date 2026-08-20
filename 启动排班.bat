@@ -1,7 +1,7 @@
 @echo off
 setlocal
 chcp 65001 >nul
-title 入网审核排班 1.3
+title 入网审核排班 1.4
 cd /d "%~dp0"
 
 where node >nul 2>&1
@@ -22,9 +22,16 @@ if not exist "node_modules" (
   )
 )
 
-if not exist "dist\index.html" (
-  echo 正在打包界面...
-  call npm run build
+set NEED_BUILD=0
+if not exist "dist\index.html" set NEED_BUILD=1
+if "%NEED_BUILD%"=="0" (
+  powershell -NoProfile -WindowStyle Hidden -Command "$d=(Get-Item 'dist\index.html').LastWriteTime; $n=@(Get-ChildItem 'src','shared','index.html','vite.config.ts' -Recurse -File -EA SilentlyContinue | Where-Object { $_.LastWriteTime -gt $d } | Select-Object -First 1); if ($n.Count) { exit 1 } else { exit 0 }"
+  if errorlevel 1 set NEED_BUILD=1
+)
+
+if "%NEED_BUILD%"=="1" (
+  echo 界面有更新，正在打包...
+  call npx --yes vite build
   if errorlevel 1 (
     echo 打包失败。
     pause
@@ -41,6 +48,6 @@ if %errorlevel%==0 (
 
 echo 正在启动入网审核排班...
 echo 关闭本窗口即停止程序。
-start "" cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:8787/"
+start /b powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep 2; Start-Process 'http://127.0.0.1:8787/'"
 call npx --yes tsx server/index.ts
 pause

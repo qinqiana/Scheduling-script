@@ -30,6 +30,7 @@ function findTemplate(): string | undefined {
 
 function excelMark(cell: RosterCell | undefined): string | undefined {
   if (!cell) return undefined;
+  if (cell.compRest) return "补休";
   if (cell.overtime && (cell.mark === "早" || cell.mark === "晚")) return "加班";
   if (cell.mark === "早" || cell.mark === "晚" || cell.mark === "假" || cell.mark === "休") return cell.mark;
   return undefined;
@@ -241,7 +242,7 @@ function addPersonSheet(
   for (const p of people) {
     for (const c of cells) {
       const cell = lookup.get(`${p.id}|${c.date}`);
-      const mark = cell?.overtime ? "加班" : (cell?.mark ?? "");
+      const mark = excelMark(cell) ?? "";
       sheet.addRow([p.name, p.groupName, c.date, WEEKDAY[c.weekday], mark]);
     }
   }
@@ -293,7 +294,7 @@ function addStatsSheet(
     ]);
   }
   sheet.addRow([]);
-  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚（全年法定节假日 13 天不排班，其余周末正常排班）；满自然周默认上班${settings.maxWorkPerWeek}天，和其他硬约束冲突时可多排并记加班；无请假时出勤=当月法定工作日`]);
+  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；月末最后三天每组最多休1人且至少2晚（法定假日除外）；全年法定节假日 13 天不排班，其余周末正常排班；满自然周默认上班${settings.maxWorkPerWeek}天，和其他硬约束冲突时可多排并记加班；无请假时出勤=当月法定工作日`]);
   sheet.addRow(["冲突"]);
   if (!conflicts.length) sheet.addRow(["无"]);
   for (const c of conflicts) sheet.addRow([c.severity === "hard" ? "硬" : "软", c.message]);

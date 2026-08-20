@@ -92,34 +92,34 @@ export function CalendarPage({
     }
   };
 
-  const saveCell = async (shift: "早" | "晚" | "休", locked: boolean) => {
-    if (!edit) return;
-    setBusy("保存中…");
+  const runEdit = async (label: string, action: () => Promise<RosterPayload | void>) => {
+    setBusy(label);
     try {
-      setData(await api.setCell({ personId: edit.person.id, date: edit.date, shift, locked }));
+      const next = await action();
+      if (next) setData(next);
+      else await load();
       setEdit(null);
       onChange();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "保存失败");
+      setError(e instanceof Error ? e.message : label);
     } finally {
       setBusy("");
     }
   };
 
+  const saveCell = async (shift: "早" | "晚" | "休", locked: boolean) => {
+    if (!edit) return;
+    await runEdit("保存中…", () =>
+      api.setCell({ personId: edit.person.id, date: edit.date, shift, locked }),
+    );
+  };
+
   const addLeave = async () => {
     if (!edit) return;
-    setBusy("登记请假…");
-    try {
+    await runEdit("登记请假…", async () => {
       await api.addLeave({ personId: edit.person.id, date: edit.date, reason: leaveReason });
-      await load();
-      setEdit(null);
       setLeaveReason("");
-      onChange();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "请假失败");
-    } finally {
-      setBusy("");
-    }
+    });
   };
 
   return (
@@ -130,7 +130,7 @@ export function CalendarPage({
           <p className="hint">
             点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
             {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。请假是硬约束，「想休」生成时优先排休。
+            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。请假是硬约束，「想休」生成时优先排休。「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。
           </p>
         </div>
         <div className="actions">
@@ -201,6 +201,7 @@ export function CalendarPage({
           <span className="chip leave">假</span>
           <span className="wish-mark">想休</span>
           <span className="ot-mark">加班</span>
+          <span className="comp-mark">补休</span>
           <span className="chip gap">缺口</span>
           {soft.length > 0 && <span>软约束 {soft.length} 条，见统计页</span>}
         </div>
@@ -242,7 +243,11 @@ export function CalendarPage({
                         className={`${cellClass(c.kind, gapDates.has(c.date))}${c.kind === "makeup" ? " makeup" : ""}`}
                         onClick={() => cell && setEdit({ person: p, date: c.date, cell })}
                       >
-                        {mark ? <span className={markChip(mark)}>{mark}</span> : null}
+                        {mark ? (
+                          <span className={cell?.compRest ? "chip rest" : markChip(mark)}>
+                            {cell?.compRest ? "补" : mark}
+                          </span>
+                        ) : null}
                         {cell?.overtime && <div className="ot-mark">加</div>}
                         {cell?.wantRest && <div className="wish-mark">想</div>}
                         {cell?.locked && <div className="lock">锁</div>}
@@ -266,7 +271,8 @@ export function CalendarPage({
               {edit.person.groupName}
               {edit.cell.leaveReason ? ` · 请假：${edit.cell.leaveReason}` : ""}
               {edit.cell.wantRest ? " · 已标想休" : ""}
-              {edit.cell.overtime ? " · 加班" : ""}
+              {edit.cell.manualOvertime ? " · 加班（应出勤+1）" : ""}
+              {edit.cell.compRest ? " · 补休（应出勤−1）" : ""}
             </p>
             {edit.cell.mark === "假" ? (
               <>
@@ -322,30 +328,51 @@ export function CalendarPage({
               <button className="btn" onClick={() => void addLeave()}>
                 登记请假
               </button>
-              <button
-                className={edit.cell.wantRest ? "btn primary" : "btn"}
-                disabled={!!busy}
-                onClick={async () => {
-                  setBusy(edit.cell.wantRest ? "取消想休…" : "标记想休…");
-                  try {
-                    setData(
-                      await api.setWish({
-                        personId: edit.person.id,
-                        date: edit.date,
-                        want: !edit.cell.wantRest,
-                      }),
-                    );
-                    setEdit(null);
-                    onChange();
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "想休失败");
-                  } finally {
-                    setBusy("");
-                  }
-                }}
-              >
-                {edit.cell.wantRest ? "取消想休" : "想休"}
-              </button>
+              <div className="shift-picks">
+                {(
+                  [
+                    {
+                      on: !!edit.cell.wantRest,
+                      label: "想休",
+                      run: () =>
+                        api.setWish({
+                          personId: edit.person.id,
+                          date: edit.date,
+                          want: !edit.cell.wantRest,
+                        }),
+                    },
+                    {
+                      on: !!edit.cell.manualOvertime,
+                      label: "加班",
+                      run: () =>
+                        api.setFlag({
+                          personId: edit.person.id,
+                          date: edit.date,
+                          kind: edit.cell.manualOvertime ? null : "overtime",
+                        }),
+                    },
+                    {
+                      on: !!edit.cell.compRest,
+                      label: "补休",
+                      run: () =>
+                        api.setFlag({
+                          personId: edit.person.id,
+                          date: edit.date,
+                          kind: edit.cell.compRest ? null : "comp_rest",
+                        }),
+                    },
+                  ] as const
+                ).map((btn) => (
+                  <button
+                    key={btn.label}
+                    className={btn.on ? "btn primary" : "btn"}
+                    disabled={!!busy}
+                    onClick={() => void runEdit(btn.on ? `取消${btn.label}…` : `标记${btn.label}…`, btn.run)}
+                  >
+                    {btn.on ? `取消${btn.label}` : btn.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </aside>
         </div>

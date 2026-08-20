@@ -49,7 +49,7 @@ export function StatsPage({
             {data
               ? ` ${data.cells.filter((c) => c.kind === "workday" || c.kind === "makeup").length} 天`
               : "（按该自然月自动识别）"}
-            。
+            。格子上的加班 / 补休会加减应出勤，其它规则不变。
           </p>
         </div>
         <div className="actions">
