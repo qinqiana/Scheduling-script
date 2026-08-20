@@ -11,7 +11,7 @@ import type {
   ShiftMark,
 } from "../shared/types.ts";
 import { addDays, buildMonthCells, isHoliday, isLegalWorkDay, isOffDay, legalWorkDayCount, mondayKey } from "./calendar.ts";
-import { execSql, getSettings, persist, queryAll, run, runMany } from "./db.ts";
+import { execSql, getSettings, persist, queryAll, queryOne, run, runMany } from "./db.ts";
 
 export interface GenerateInput {
   year: number;
@@ -101,6 +101,7 @@ function applyAttendanceFlags(
       cell.overtime = true;
       cell.compRest = false;
       if (!isWork(cell.mark)) cell.mark = "早";
+      cell.locked = true;
     } else if (f.kind === "comp_rest") {
       cell.compRest = true;
       cell.manualOvertime = false;
@@ -239,7 +240,7 @@ function restOfficialHolidays(
 function monthHasSchedule(grid: Map<number, Map<string, GridMark>>): boolean {
   for (const row of grid.values()) {
     for (const cell of row.values()) {
-      if (cell.mark === "早" || cell.mark === "晚" || cell.mark === "休") return true;
+      if (cell.mark === "早" || cell.mark === "晚") return true;
     }
   }
   return false;
@@ -2360,9 +2361,23 @@ function applyUserMarks(
   grid: Map<number, Map<string, GridMark>>,
   start: string,
   end: string,
+  assignments: Assignment[],
 ): void {
+  const flags = loadAttendanceFlags(start, end);
+  const overtime = new Set(
+    flags.filter((f) => f.kind === "overtime").map((f) => `${f.personId}|${f.date}`),
+  );
+  for (const a of assignments) {
+    if (!overtime.has(`${a.personId}|${a.date}`)) continue;
+    const cell = grid.get(a.personId)?.get(a.date);
+    if (!cell || cell.mark === "假") continue;
+    if (a.shift === "早" || a.shift === "晚") {
+      cell.mark = a.shift;
+      cell.locked = true;
+    }
+  }
   applyRestWishes(grid, loadRestWishes(start, end));
-  applyAttendanceFlags(grid, loadAttendanceFlags(start, end));
+  applyAttendanceFlags(grid, flags);
 }
 
 function repairSoftRound(
@@ -2404,15 +2419,15 @@ export function currentRoster(year: number, month: number) {
     if (!cell || cell.mark === "假") continue;
     if (!cell.locked) row.set(a.date, { mark: a.shift, locked: false, wantRest: cell.wantRest });
   }
-  applyUserMarks(grid, start, end);
-  return materialize(people, cells, grid, settings);
+  applyUserMarks(grid, start, end, assignments);
+  return materialize(people, cells, grid, settings, isMonthGenerated(year, month));
 }
 
 export function generateRoster(input: GenerateInput) {
   const { settings, people, cells, start, end, leaves, assignments } = openMonth(input.year, input.month);
   const grid = emptyGrid(people, cells);
   applyFixed(grid, leaves, assignments, input.keepLocked);
-  applyUserMarks(grid, start, end);
+  applyUserMarks(grid, start, end, assignments);
   restOfficialHolidays(grid, people, cells);
   const prev = loadPrevWeekWork(start);
   const prevDayShifts = loadPrevDayShifts(start);
@@ -2432,10 +2447,10 @@ export function generateRoster(input: GenerateInput) {
   repairWeekFill(grid, people, cells, settings, prev, prevDayShifts);
   trimPass(grid, people, cells, settings, prev, prevDayShifts);
   enforceHardConstraints(grid, people, cells, settings, prev, prevDayShifts);
-  applyUserMarks(grid, start, end);
+  applyUserMarks(grid, start, end, assignments);
   restOfficialHolidays(grid, people, cells);
   fillRestAfterGenerate(grid, people, cells);
-  return materialize(people, cells, grid, settings);
+  return materialize(people, cells, grid, settings, true);
 }
 
 function maxCountedRun(
@@ -2610,11 +2625,16 @@ function applyOvertimeFlags(
   }
 }
 
+function isMonthGenerated(year: number, month: number): boolean {
+  return !!queryOne("SELECT 1 AS ok FROM generated_months WHERE year = ? AND month = ?", [year, month]);
+}
+
 function materialize(
   people: Person[],
   cells: MonthCell[],
   grid: Map<number, Map<string, GridMark>>,
   settings: Settings,
+  generated: boolean,
 ) {
   applyOvertimeFlags(grid, people, cells, settings);
   const roster: RosterCell[] = [];
@@ -2638,22 +2658,33 @@ function materialize(
   for (const p of stats.people) {
     p.overtimeDays = roster.filter((r) => r.personId === p.personId && r.overtime).length;
   }
+  if (!generated) {
+    for (const d of stats.days) {
+      d.gap = false;
+      for (const g of Object.values(d.groups)) g.gap = false;
+    }
+  }
   return {
     people,
     cells,
     roster,
-    conflicts: validateRoster(people, cells, grid, settings),
+    conflicts: generated ? validateRoster(people, cells, grid, settings) : [],
     stats,
     settings,
+    generated,
   };
 }
 
-export function clearMonth(year: number, month: number): void {
-  const start = `${year}-${String(month).padStart(2, "0")}-01`;
-  const end = `${year}-${String(month).padStart(2, "0")}-31`;
+export function clearMonth(year: number, month: number, all = false): void {
+  const prefix = `${year}-${String(month).padStart(2, "0")}-%`;
   runMany(() => {
-    execSql("DELETE FROM assignments WHERE date >= ? AND date <= ?", [start, end]);
-    execSql("DELETE FROM rest_wishes WHERE date >= ? AND date <= ?", [start, end]);
+    execSql("DELETE FROM assignments WHERE date LIKE ?", [prefix]);
+    execSql("DELETE FROM rest_wishes WHERE date LIKE ?", [prefix]);
+    execSql("DELETE FROM generated_months WHERE year = ? AND month = ?", [year, month]);
+    if (all) {
+      execSql("DELETE FROM attendance_flags WHERE date LIKE ?", [prefix]);
+      execSql("DELETE FROM leaves WHERE date LIKE ?", [prefix]);
+    }
   });
 }
 
@@ -2687,6 +2718,10 @@ export function persistGenerated(
         cell.locked ? 1 : 0,
       ]);
     }
+    execSql(
+      "INSERT INTO generated_months (year, month) VALUES (?, ?) ON CONFLICT(year, month) DO NOTHING",
+      [year, month],
+    );
     persist();
   });
 }

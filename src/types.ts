@@ -20,6 +20,7 @@ export interface RosterPayload {
   conflicts: Conflict[];
   stats: { people: PersonStat[]; days: DayCover[] };
   settings: Settings;
+  generated?: boolean;
 }
 
 export type {

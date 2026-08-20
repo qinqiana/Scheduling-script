@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import ExcelJS from "exceljs";
 import type { MonthCell, Person, RosterCell, Settings } from "../shared/types.ts";
+import { daysInMonth } from "./calendar.ts";
 import type { currentRoster } from "./engine.ts";
 import { templatesDir } from "./paths.ts";
 
@@ -26,6 +27,48 @@ function colLetter(n: number): string {
 
 function findTemplate(): string | undefined {
   return TEMPLATE_CANDIDATES.find((p) => existsSync(p));
+}
+
+function headerDay(value: unknown): number | null {
+  if (value == null) return null;
+  let text = "";
+  if (typeof value === "number") text = String(value);
+  else if (typeof value === "string") text = value;
+  else if (typeof value === "object" && value && "richText" in value) {
+    text = (value as ExcelJS.CellRichTextValue).richText.map((part) => part.text).join("");
+  } else if (typeof value === "object" && value && "result" in value) {
+    text = String((value as ExcelJS.CellFormulaValue).result ?? "");
+  } else {
+    text = String(value);
+  }
+  const n = Number(text.trim().split(/\D/)[0]);
+  return Number.isInteger(n) && n >= 1 && n <= 31 ? n : null;
+}
+
+function extraDayColumns(ws: ExcelJS.Worksheet, days: number): number[] {
+  const found = new Map<number, number>();
+  for (const rowNumber of [1, 2, 3]) {
+    ws.getRow(rowNumber).eachCell({ includeEmpty: false }, (cell, col) => {
+      const day = headerDay(cell.value);
+      if (day != null && day > days && !found.has(day)) found.set(day, col);
+    });
+  }
+  if (found.size === 0) {
+    return Array.from({ length: 31 - days }, (_, i) => 4 + days + i);
+  }
+  return [...found.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, col]) => col);
+}
+
+function removeExtraDayColumns(ws: ExcelJS.Worksheet, days: number): void {
+  for (const col of extraDayColumns(ws, days)) {
+    const column = ws.getColumn(col);
+    column.hidden = true;
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      cell.value = null;
+    });
+  }
 }
 
 function excelMark(cell: RosterCell | undefined): string | undefined {
@@ -87,6 +130,7 @@ async function fillExistingTemplate(
   if (typeof title.value === "string" || title.value == null) {
     title.value = `${data.settings.title} ${year}年${month}月`;
   }
+  removeExtraDayColumns(ws, daysInMonth(year, month));
   return wb;
 }
 

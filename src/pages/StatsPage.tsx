@@ -36,7 +36,8 @@ export function StatsPage({
     }
     return best;
   })();
-  const gaps = data?.stats.days.filter((d) => d.gap) ?? [];
+  const generated = data?.generated === true;
+  const gaps = generated ? (data?.stats.days.filter((d) => d.gap) ?? []) : [];
 
   return (
     <section>
@@ -73,7 +74,7 @@ export function StatsPage({
       <div className="legend">
         <span>同组每人晚班极差 {nightDiff} 天（上限 {data?.settings.maxNightDiff ?? 3}）</span>
         <span>缺口天数 {gaps.length}</span>
-        <span>硬冲突 {data?.conflicts.filter((c) => c.severity === "hard").length ?? 0}</span>
+        <span>硬冲突 {generated ? (data?.conflicts.filter((c) => c.severity === "hard").length ?? 0) : 0}</span>
       </div>
 
       <div className="card">
@@ -150,13 +151,14 @@ export function StatsPage({
         <div className="card">
           <strong>冲突清单</strong>
           <ul className="conflict-list">
-            {(data?.conflicts.length ?? 0) === 0 && <li>当前没有冲突</li>}
-            {data?.conflicts.map((c) => (
-              <li key={c.message} className={c.severity}>
-                {c.severity === "hard" ? "硬 · " : "软 · "}
-                {c.message}
-              </li>
-            ))}
+            {(!generated || (data?.conflicts.length ?? 0) === 0) && <li>当前没有冲突</li>}
+            {generated &&
+              data?.conflicts.map((c) => (
+                <li key={c.message} className={c.severity}>
+                  {c.severity === "hard" ? "硬 · " : "软 · "}
+                  {c.message}
+                </li>
+              ))}
           </ul>
         </div>
       </div>

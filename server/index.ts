@@ -263,7 +263,7 @@ app.post("/api/roster/clear", (req, res) => {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
   }
-  clearMonth(year, month);
+  clearMonth(year, month, req.body?.all === true || req.body?.includeFlags === true);
   res.json(currentRoster(year, month));
 });
 
@@ -321,12 +321,17 @@ app.put("/api/roster/cell", (req, res) => {
     res.status(400).json({ error: "该日已请假，先撤销请假再改班" });
     return;
   }
+  const flag = queryOne<{ kind: string }>(
+    "SELECT kind FROM attendance_flags WHERE person_id = ? AND date = ?",
+    [personId, date],
+  );
+  const lock = Boolean(locked) || flag?.kind === "overtime";
   runMany(() => {
     execSql(
       `INSERT INTO assignments (person_id, date, shift, locked)
        VALUES (?, ?, ?, ?)
        ON CONFLICT(person_id, date) DO UPDATE SET shift = excluded.shift, locked = excluded.locked`,
-      [personId, date, shift, locked ? 1 : 0],
+      [personId, date, shift, lock ? 1 : 0],
     );
     if (shift === "休") {
       execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ? AND kind = 'overtime'", [
@@ -341,6 +346,26 @@ app.put("/api/roster/cell", (req, res) => {
     }
   });
   const [year, month] = date.split("-").map(Number);
+  res.json(currentRoster(year, month));
+});
+
+app.post("/api/roster/cell/clear", (req, res) => {
+  const { personId, date } = req.body ?? {};
+  if (!personId || !date) {
+    res.status(400).json({ error: "人员和日期必填" });
+    return;
+  }
+  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
+  if (leave) {
+    res.status(400).json({ error: "该日已请假，先撤销请假再清空" });
+    return;
+  }
+  runMany(() => {
+    execSql("DELETE FROM assignments WHERE person_id = ? AND date = ?", [personId, date]);
+    execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
+    execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ?", [personId, date]);
+  });
+  const [year, month] = String(date).split("-").map(Number);
   res.json(currentRoster(year, month));
 });
 
@@ -371,12 +396,17 @@ app.put("/api/roster/flag", (req, res) => {
         "SELECT shift, locked FROM assignments WHERE person_id = ? AND date = ?",
         [personId, date],
       );
-      if (!cur || cur.shift === "休") {
+      if (cur && (cur.shift === "早" || cur.shift === "晚")) {
+        execSql("UPDATE assignments SET locked = 1 WHERE person_id = ? AND date = ?", [
+          personId,
+          date,
+        ]);
+      } else {
         execSql(
           `INSERT INTO assignments (person_id, date, shift, locked)
-           VALUES (?, ?, '早', ?)
-           ON CONFLICT(person_id, date) DO UPDATE SET shift = '早'`,
-          [personId, date, cur?.locked ?? 0],
+           VALUES (?, ?, '早', 1)
+           ON CONFLICT(person_id, date) DO UPDATE SET shift = '早', locked = 1`,
+          [personId, date],
         );
       }
     } else if (kind === "comp_rest") {

@@ -105,6 +105,11 @@ function migrate(database: Database): void {
       kind TEXT NOT NULL,
       PRIMARY KEY (person_id, date)
     );
+    CREATE TABLE IF NOT EXISTS generated_months (
+      year INTEGER NOT NULL,
+      month INTEGER NOT NULL,
+      PRIMARY KEY (year, month)
+    );
     `,
   );
   ensureOfficialHolidays(database);
