@@ -159,12 +159,17 @@ table.roster .sticky { position: sticky; left: 0; background: #fffaf3; z-index: 
 table.roster th.sticky { z-index: 3; }
 table.roster td.day { min-width: 36px; cursor: pointer; }
 table.roster td.day:hover { outline: 2px solid var(--teal); outline-offset: -2px; }
-table.roster td.weekend { background: var(--weekend); }
-table.roster td.holiday { background: var(--holiday); }
+table.roster th.weekend, table.roster td.weekend { background: var(--weekend); }
+table.roster th.holiday, table.roster td.holiday { background: var(--holiday); }
+table.roster th.makeup, table.roster td.makeup { background: #e8f3ea; }
+table.roster .day-tag { font-size: 9px; color: var(--leave); line-height: 1.1; }
 table.roster td.gap { box-shadow: inset 0 0 0 2px #f3b4ae; }
 table.roster .lock { font-size: 9px; color: var(--muted); }
 table.roster .wish-mark,
 .wish-mark { font-size: 9px; color: var(--leave); }
+table.roster .ot-mark,
+.ot-mark { font-size: 9px; color: #8a2b12; font-weight: 700; }
+.legend .ot-mark { font-size: 12px; }
 .legend .wish-mark { font-size: 12px; }
 
 .drawer-back {

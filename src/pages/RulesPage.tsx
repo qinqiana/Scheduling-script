@@ -2,12 +2,41 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { Holiday, Leave, Person, Settings } from "../types";
 
-export function RulesPage({ year, onChange }: { year: number; onChange: () => void }) {
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function legalWorkDaysOfMonth(year: number, month: number, holidays: Holiday[]): number {
+  const map = new Map(holidays.map((h) => [h.date, h]));
+  const n = new Date(year, month, 0).getDate();
+  let count = 0;
+  for (let day = 1; day <= n; day += 1) {
+    const date = `${year}-${pad(month)}-${pad(day)}`;
+    const weekday = new Date(year, month - 1, day).getDay();
+    const h = map.get(date);
+    let kind: "workday" | "weekend" | "holiday" | "makeup" = weekday === 0 || weekday === 6 ? "weekend" : "workday";
+    if (h?.kind === "holiday") kind = "holiday";
+    if (h?.kind === "workday_makeup") kind = "makeup";
+    if (kind === "workday" || kind === "makeup") count += 1;
+  }
+  return count;
+}
+
+export function RulesPage({
+  year,
+  month,
+  setMonth,
+  onChange,
+}: {
+  year: number;
+  month: number;
+  setMonth: (n: number) => void;
+  onChange: () => void;
+}) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [h, setH] = useState({ date: "", name: "", kind: "holiday" as Holiday["kind"] });
   const [leave, setLeave] = useState({ personId: 0, date: "", reason: "" });
   const [msg, setMsg] = useState("");
@@ -55,7 +84,10 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
       <div className="grid-2">
         <div className="card form">
           <strong>硬约束 / 软约束</strong>
-          <p className="hint">无请假时，每人每月出勤必须等于当月法定工作日（普通工作日 + 调休上班，不含周末和放假）。有请假则减去请假占用的法定工作日。</p>
+          <p className="hint">
+            无请假时，每人每月出勤必须等于所选自然月的法定工作日（普通工作日，不含周末和 13 天法定节假日）。有请假则减去请假占用的法定工作日。
+            {year} 年 {month} 月自动识别为 {legalWorkDaysOfMonth(year, month, holidays)} 天。
+          </p>
           <label>
             每组每天最少出勤
             <input
@@ -81,51 +113,11 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             />
           </label>
           <label>
-            每周上班天数（硬，满周须正好这些天）
+            每周上班天数（满周默认这些天，超过记加班）
             <input
               type="number"
               value={settings.maxWorkPerWeek}
               onChange={(e) => setSettings({ ...settings, maxWorkPerWeek: Number(e.target.value) })}
-            />
-          </label>
-          <label>
-            少人区间（号）
-            <span className="actions">
-              <input
-                type="number"
-                value={settings.leanStartDay}
-                onChange={(e) => setSettings({ ...settings, leanStartDay: Number(e.target.value) })}
-              />
-              <span>至</span>
-              <input
-                type="number"
-                value={settings.leanEndDay}
-                onChange={(e) => setSettings({ ...settings, leanEndDay: Number(e.target.value) })}
-              />
-            </span>
-          </label>
-          <label>
-            此人日起加人
-            <input
-              type="number"
-              value={settings.busyAfterDay}
-              onChange={(e) => setSettings({ ...settings, busyAfterDay: Number(e.target.value) })}
-            />
-          </label>
-          <label>
-            此人日后多排晚班
-            <input
-              type="number"
-              value={settings.monthEndNightAfterDay}
-              onChange={(e) => setSettings({ ...settings, monthEndNightAfterDay: Number(e.target.value) })}
-            />
-          </label>
-          <label>
-            月末每组额外晚班
-            <input
-              type="number"
-              value={settings.monthEndExtraNights}
-              onChange={(e) => setSettings({ ...settings, monthEndExtraNights: Number(e.target.value) })}
             />
           </label>
           <label>
@@ -137,7 +129,7 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             />
           </label>
           <label>
-            同组晚班极差上限（硬，天）
+            每个人每月晚班与同组相差上限（硬，天）
             <input
               type="number"
               value={settings.maxNightDiff}
@@ -151,7 +143,7 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
                 checked={settings.weekendNeedWork}
                 onChange={(e) => setSettings({ ...settings, weekendNeedWork: e.target.checked })}
               />{" "}
-              周末 / 节假日必须有人
+              周末必须有人（法定节假日不用上班）
             </span>
           </label>
           <label>
@@ -195,19 +187,17 @@ export function RulesPage({ year, onChange }: { year: number; onChange: () => vo
             <strong>已对齐的业务规则</strong>
             <ul className="conflict-list">
               <li>班次写「早」「晚」「休」，请假写「假」。</li>
-              <li>每组每天至少 1 个早班、1 个晚班（因此每天至少 2 人）。</li>
-              <li>无请假时，本月出勤必须等于当月法定工作日；有请假则减去请假占用的法定工作日。</li>
-              <li>同一个自然周（周一至周日）必须上班 5 天、休息 2 天；有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
-              <li>10～20 号可以少人；20 号以后尽量多人。</li>
-              <li>20 号以后每组在能留下早班的前提下多排晚班。</li>
+              <li>每组每天至少 1 个早班、1 个晚班（因此每天至少 2 人）。全年法定节假日共 13 天（元旦 1、春节 4、清明 1、劳动节 2、端午 1、中秋 1、国庆 3），这 13 天全员休息、不排班。国务院连休多放的日子按周末或工作日正常排班。</li>
+              <li>无请假时，出勤必须等于所选月份的法定工作日（普通工作日，不含周末和上述 13 天）；有请假则减去请假占用的法定工作日。</li>
+              <li>同一个自然周（周一至周日）默认上班 5 天、休息 2 天；周内的法定节假日不算应出勤。和其他硬约束冲突时可以多排，多出来的日期记加班。有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
               <li>晚班后不接早班，可休或再排晚班。</li>
               <li>每周两天休息尽量连在一起（软约束，覆盖和周 5 天优先）。</li>
-              <li>同组每人每月晚班数量相差不超过 3 天（硬约束）。</li>
+              <li>同组每个人每月晚班数量相差不能超过 3 天（硬约束）。</li>
               <li>请假和锁定格子生成时不改。</li>
             </ul>
           </div>
           <div className="card form" style={{ marginTop: 12 }}>
-            <strong>{year} 年节假日</strong>
+            <strong>{year} 年法定节假日（全年 13 天）</strong>
             <div className="actions">
               <input type="date" value={h.date} onChange={(e) => setH({ ...h, date: e.target.value })} />
               <input placeholder="名称" value={h.name} onChange={(e) => setH({ ...h, name: e.target.value })} />

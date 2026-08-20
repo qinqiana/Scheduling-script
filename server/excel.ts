@@ -28,8 +28,10 @@ function findTemplate(): string | undefined {
   return TEMPLATE_CANDIDATES.find((p) => existsSync(p));
 }
 
-function excelMark(mark: RosterCell["mark"] | undefined): string | undefined {
-  if (mark === "早" || mark === "晚" || mark === "假" || mark === "休") return mark;
+function excelMark(cell: RosterCell | undefined): string | undefined {
+  if (!cell) return undefined;
+  if (cell.overtime && (cell.mark === "早" || cell.mark === "晚")) return "加班";
+  if (cell.mark === "早" || cell.mark === "晚" || cell.mark === "假" || cell.mark === "休") return cell.mark;
   return undefined;
 }
 
@@ -76,7 +78,7 @@ async function fillExistingTemplate(
     for (const cell of data.cells) {
       const col = 3 + cell.day;
       const mark = data.roster.find((r) => r.personId === person.id && r.date === cell.date);
-      ws.getCell(rowNumber, col).value = excelMark(mark?.mark) ?? null;
+      ws.getCell(rowNumber, col).value = excelMark(mark) ?? null;
     }
   }
 
@@ -141,7 +143,7 @@ function buildWorkbook(
     for (const c of cells) {
       const mark = lookup.get(`${p.id}|${c.date}`);
       const cell = sheet.getCell(row, 3 + c.day);
-      cell.value = excelMark(mark?.mark) ?? null;
+      cell.value = excelMark(mark) ?? null;
       if (mark?.mark === "休") {
         cell.font = { name: "微软雅黑", color: { argb: "FF6B6258" } };
       }
@@ -152,10 +154,12 @@ function buildWorkbook(
       if (c.kind === "holiday") {
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF8E4D4" } };
       }
-      if (mark?.mark === "晚") {
+      if (mark?.overtime) {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF8D0C0" } };
+        cell.font = { name: "微软雅黑", color: { argb: "FF8A2B12" }, bold: true };
+      } else if (mark?.mark === "晚") {
         cell.font = { name: "微软雅黑", color: { argb: "FF2A3A9A" }, bold: true };
-      }
-      if (mark?.mark === "早") {
+      } else if (mark?.mark === "早") {
         cell.font = { name: "微软雅黑", color: { argb: "FF1B5E45" } };
       }
       if (mark?.mark === "假") {
@@ -163,7 +167,7 @@ function buildWorkbook(
       }
     }
     sheet.getCell(row, attendCol).value = {
-      formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"晚")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"8")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*出差*")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*节加*")`,
+      formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"晚")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"加班")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"8")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*出差*")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*节加*")`,
     };
     sheet.getCell(row, morningCol).value = {
       formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")`,
@@ -236,7 +240,8 @@ function addPersonSheet(
   const lookup = new Map(roster.map((r) => [`${r.personId}|${r.date}`, r]));
   for (const p of people) {
     for (const c of cells) {
-      const mark = lookup.get(`${p.id}|${c.date}`)?.mark ?? "";
+      const cell = lookup.get(`${p.id}|${c.date}`);
+      const mark = cell?.overtime ? "加班" : (cell?.mark ?? "");
       sheet.addRow([p.name, p.groupName, c.date, WEEKDAY[c.weekday], mark]);
     }
   }
@@ -268,6 +273,7 @@ function addStatsSheet(
     "节假日出勤",
     "休息",
     "请假",
+    "加班",
     "最长连班",
   ]);
   for (const p of stats.people) {
@@ -282,11 +288,12 @@ function addStatsSheet(
       p.holidayWork,
       p.restDays,
       p.leaveDays,
+      p.overtimeDays,
       p.maxConsecutive,
     ]);
   }
   sheet.addRow([]);
-  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；满自然周必须上班${settings.maxWorkPerWeek}天休息2天；${settings.leanStartDay}～${settings.leanEndDay}号少人，${settings.busyAfterDay}号后加人；${settings.monthEndNightAfterDay}号后多晚班`]);
+  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚（全年法定节假日 13 天不排班，其余周末正常排班）；满自然周默认上班${settings.maxWorkPerWeek}天，和其他硬约束冲突时可多排并记加班；无请假时出勤=当月法定工作日`]);
   sheet.addRow(["冲突"]);
   if (!conflicts.length) sheet.addRow(["无"]);
   for (const c of conflicts) sheet.addRow([c.severity === "hard" ? "硬" : "软", c.message]);

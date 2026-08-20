@@ -63,10 +63,11 @@ export function CalendarPage({
   const hard = data?.conflicts.filter((c) => c.severity === "hard") ?? [];
   const soft = data?.conflicts.filter((c) => c.severity === "soft") ?? [];
   const gapDates = new Set((data?.stats.days ?? []).filter((d) => d.gap).map((d) => d.date));
+  const legalDays = (data?.cells ?? []).filter((c) => c.kind === "workday" || c.kind === "makeup").length;
 
   const clearMonthRoster = async () => {
     if (!confirm(`确定清空 ${year} 年 ${month} 月的全部排班和想休？请假、人员和规则会保留。`)) return;
-    setBusy("正在清空本月…");
+    setBusy(`正在清空 ${month} 月…`);
     setError("");
     try {
       setData(await api.clear(year, month));
@@ -79,7 +80,7 @@ export function CalendarPage({
   };
 
   const run = async (keepLocked: boolean) => {
-    setBusy(keepLocked ? "正在重排未锁定格子…" : "正在生成本月…");
+    setBusy(keepLocked ? `正在重排 ${month} 月未锁定格子…` : `正在生成 ${year} 年 ${month} 月…`);
     setError("");
     try {
       setData(await api.generate(year, month, keepLocked));
@@ -126,7 +127,11 @@ export function CalendarPage({
       <div className="topbar">
         <div>
           <h1>月历班表</h1>
-          <p className="hint">点格子改早/晚/休，可锁定后再重排其余。请假是硬约束，「想休」生成时优先排休。</p>
+          <p className="hint">
+            点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
+            {data ? `${legalDays} 天` : "按该自然月自动识别"}
+            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。请假是硬约束，「想休」生成时优先排休。
+          </p>
         </div>
         <div className="actions">
           <label className="field">
@@ -155,13 +160,13 @@ export function CalendarPage({
             </select>
           </label>
           <button className="btn primary" disabled={!!busy} onClick={() => void run(false)}>
-            生成本月
+            生成 {month} 月
           </button>
           <button className="btn" disabled={!!busy} onClick={() => void run(true)}>
             重排未锁定
           </button>
           <button className="btn danger" disabled={!!busy} onClick={() => void clearMonthRoster()}>
-            清空本月
+            清空 {month} 月
           </button>
           <a className="btn" href={exportUrl(year, month)}>
             导出 Excel
@@ -195,6 +200,7 @@ export function CalendarPage({
           <span>未生成时留空</span>
           <span className="chip leave">假</span>
           <span className="wish-mark">想休</span>
+          <span className="ot-mark">加班</span>
           <span className="chip gap">缺口</span>
           {soft.length > 0 && <span>软约束 {soft.length} 条，见统计页</span>}
         </div>
@@ -207,9 +213,15 @@ export function CalendarPage({
                   组别
                 </th>
                 {data?.cells.map((c) => (
-                  <th key={c.date} title={c.holidayName}>
+                  <th
+                    key={c.date}
+                    className={c.kind === "workday" ? "" : c.kind}
+                    title={c.holidayName ?? (c.kind === "makeup" ? "调休上班" : "")}
+                  >
                     {c.day}
                     <div>{WEEK[c.weekday]}</div>
+                    {c.kind === "makeup" ? <div className="day-tag">班</div> : null}
+                    {c.kind === "holiday" ? <div className="day-tag">假</div> : null}
                   </th>
                 ))}
               </tr>
@@ -227,10 +239,11 @@ export function CalendarPage({
                     return (
                       <td
                         key={c.date}
-                        className={cellClass(c.kind, gapDates.has(c.date))}
+                        className={`${cellClass(c.kind, gapDates.has(c.date))}${c.kind === "makeup" ? " makeup" : ""}`}
                         onClick={() => cell && setEdit({ person: p, date: c.date, cell })}
                       >
                         {mark ? <span className={markChip(mark)}>{mark}</span> : null}
+                        {cell?.overtime && <div className="ot-mark">加</div>}
                         {cell?.wantRest && <div className="wish-mark">想</div>}
                         {cell?.locked && <div className="lock">锁</div>}
                       </td>
@@ -253,6 +266,7 @@ export function CalendarPage({
               {edit.person.groupName}
               {edit.cell.leaveReason ? ` · 请假：${edit.cell.leaveReason}` : ""}
               {edit.cell.wantRest ? " · 已标想休" : ""}
+              {edit.cell.overtime ? " · 加班" : ""}
             </p>
             {edit.cell.mark === "假" ? (
               <>

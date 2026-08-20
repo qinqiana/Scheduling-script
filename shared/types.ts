@@ -1,49 +1,32 @@
 export type ShiftMark = "早" | "晚" | "休" | "假" | "";
-export type WeekPref = "less" | "more" | "normal";
 export type ConflictSeverity = "hard" | "soft";
 
 export interface Settings {
-  requiredWorkDays: number;
   maxNightDiff: number;
   maxConsecutiveWork: number;
   minPerGroupPerDay: number;
   minMorningPerGroupPerDay: number;
   minNightPerGroupPerDay: number;
   maxWorkPerWeek: number;
-  leanStartDay: number;
-  leanEndDay: number;
-  busyAfterDay: number;
-  monthEndNightAfterDay: number;
-  monthEndExtraNights: number;
   weekendNeedWork: boolean;
   nightRestRequired: boolean;
   noMorningAfterNight: boolean;
   preferPairedRest: boolean;
-  week2Preference: WeekPref;
-  lastWeekPreference: WeekPref;
   title: string;
   sheetName: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  requiredWorkDays: 23,
   maxNightDiff: 3,
   maxConsecutiveWork: 6,
   minPerGroupPerDay: 2,
   minMorningPerGroupPerDay: 1,
   minNightPerGroupPerDay: 1,
   maxWorkPerWeek: 5,
-  leanStartDay: 10,
-  leanEndDay: 20,
-  busyAfterDay: 20,
-  monthEndNightAfterDay: 20,
-  monthEndExtraNights: 1,
   weekendNeedWork: true,
   nightRestRequired: false,
   noMorningAfterNight: true,
   preferPairedRest: true,
-  week2Preference: "less",
-  lastWeekPreference: "more",
   title: "外包-省综调（入网审核岗考勤）",
   sheetName: "外包-省综调（入网审核岗考勤）",
 };
@@ -103,6 +86,7 @@ export interface RosterCell {
   locked: boolean;
   leaveReason?: string;
   wantRest?: boolean;
+  overtime?: boolean;
 }
 
 export interface PersonStat {
@@ -119,6 +103,7 @@ export interface PersonStat {
   maxConsecutive: number;
   maxWeekWork: number;
   targetDays: number;
+  overtimeDays: number;
 }
 
 export interface DayCover {

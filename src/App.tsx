@@ -47,7 +47,9 @@ export function App() {
           <CalendarPage year={year} month={month} setYear={setYear} setMonth={setMonth} tick={tick} onChange={refresh} />
         )}
         {page === "people" && <PeoplePage onChange={refresh} />}
-        {page === "rules" && <RulesPage year={year} onChange={refresh} />}
+        {page === "rules" && (
+          <RulesPage year={year} month={month} setMonth={setMonth} onChange={refresh} />
+        )}
         {page === "stats" && <StatsPage year={year} month={month} setYear={setYear} setMonth={setMonth} tick={tick} />}
       </main>
     </div>

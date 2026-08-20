@@ -44,10 +44,11 @@ export function StatsPage({
         <div>
           <h1>统计</h1>
           <p className="hint">
-            看出勤、早/晚、周末次数、连班和缺口。无请假时目标为当月法定工作日
+            看出勤、早/晚、周末次数、连班、加班和缺口。全年法定节假日 13 天不用上班，其余周末正常排班。无请假时目标为所选{" "}
+            {year} 年 {month} 月法定工作日
             {data
               ? ` ${data.cells.filter((c) => c.kind === "workday" || c.kind === "makeup").length} 天`
-              : ""}
+              : "（按该自然月自动识别）"}
             。
           </p>
         </div>
@@ -70,7 +71,7 @@ export function StatsPage({
       </div>
 
       <div className="legend">
-        <span>同组晚班极差 {nightDiff} 天</span>
+        <span>同组每人晚班极差 {nightDiff} 天（上限 {data?.settings.maxNightDiff ?? 3}）</span>
         <span>缺口天数 {gaps.length}</span>
         <span>硬冲突 {data?.conflicts.filter((c) => c.severity === "hard").length ?? 0}</span>
       </div>
@@ -89,6 +90,7 @@ export function StatsPage({
               <th>节假日</th>
               <th>休息</th>
               <th>请假</th>
+              <th>加班</th>
               <th>最长连班</th>
               <th>单周最多</th>
             </tr>
@@ -106,10 +108,11 @@ export function StatsPage({
                 <td>{p.holidayWork}</td>
                 <td>{p.restDays}</td>
                 <td>{p.leaveDays}</td>
+                <td>{p.overtimeDays}</td>
                 <td style={{ color: p.maxConsecutive > (data.settings.maxConsecutiveWork) ? "#b42318" : undefined }}>
                   {p.maxConsecutive}
                 </td>
-                <td style={{ color: p.maxWeekWork > data.settings.maxWorkPerWeek ? "#b42318" : undefined }}>
+                <td style={{ color: p.maxWeekWork > data.settings.maxWorkPerWeek ? "#8a2b12" : undefined }}>
                   {p.maxWeekWork}
                 </td>
               </tr>

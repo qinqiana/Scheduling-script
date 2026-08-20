@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import initSqlJs, { type Database } from "sql.js";
 import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
-import { HOLIDAYS_2026 } from "./holidays.ts";
+import { HOLIDAYS_2026, RETIRED_OFFICIAL_DATES_2026 } from "./holidays.ts";
 import { dataDir, dbPath, sqlWasmPath } from "./paths.ts";
 
 export function getDbPath(): string {
@@ -37,6 +37,7 @@ export async function getDb(): Promise<Database> {
   if (existsSync(path)) {
     db = new SQL.Database(readFileSync(path));
     migrate(db);
+    persist();
   } else {
     db = new SQL.Database();
     migrate(db);
@@ -100,6 +101,7 @@ function migrate(database: Database): void {
     );
     `,
   );
+  ensureOfficialHolidays(database);
   const row = database.prepare("SELECT value FROM settings WHERE key = 'settings'");
   if (row.step()) {
     const raw = row.getAsObject() as { value?: string };
@@ -120,6 +122,23 @@ function migrate(database: Database): void {
   }
 }
 
+/** 只保留全年 13 天法定节假日；原先连休多放、调休日删掉，按周末/工作日排班 */
+function ensureOfficialHolidays(database: Database): void {
+  const keep = new Set(HOLIDAYS_2026.map((h) => h.date));
+  const del = database.prepare("DELETE FROM holidays WHERE date = ?");
+  for (const date of RETIRED_OFFICIAL_DATES_2026) {
+    if (!keep.has(date)) del.run([date]);
+  }
+  del.free();
+  const upsert = database.prepare(
+    "INSERT INTO holidays (date, name, kind) VALUES (?, ?, ?) ON CONFLICT(date) DO UPDATE SET name = excluded.name, kind = excluded.kind",
+  );
+  for (const h of HOLIDAYS_2026) {
+    upsert.run([h.date, h.name, h.kind]);
+  }
+  upsert.free();
+}
+
 function seed(database: Database): void {
   const stmt = database.prepare(
     "INSERT INTO settings (key, value) VALUES (?, ?)",
@@ -134,14 +153,6 @@ function seed(database: Database): void {
     person.run([p.name, p.groupName, i + 1]);
   });
   person.free();
-
-  const holiday = database.prepare(
-    "INSERT INTO holidays (date, name, kind) VALUES (?, ?, ?)",
-  );
-  for (const h of HOLIDAYS_2026) {
-    holiday.run([h.date, h.name, h.kind]);
-  }
-  holiday.free();
 }
 
 export function queryAll<T>(sql: string, params: unknown[] = []): T[] {
@@ -180,7 +191,14 @@ export function runMany(actions: () => void): void {
 export function getSettings(): Settings {
   const row = queryOne<{ value: string }>("SELECT value FROM settings WHERE key = 'settings'");
   if (!row) return { ...DEFAULT_SETTINGS };
-  return { ...DEFAULT_SETTINGS, ...JSON.parse(row.value) };
+  const parsed = JSON.parse(row.value) as Partial<Settings> & Record<string, unknown>;
+  delete parsed.lateCoverAfterDay;
+  delete parsed.lateCoverRatio;
+  delete parsed.lateMaxRestPerGroup;
+  delete parsed.requiredWorkDays;
+  delete parsed.week2Preference;
+  delete parsed.lastWeekPreference;
+  return { ...DEFAULT_SETTINGS, ...parsed };
 }
 
 export function saveSettings(next: Settings): Settings {

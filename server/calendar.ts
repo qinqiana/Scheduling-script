@@ -52,7 +52,11 @@ export function isOffDay(cell: MonthCell): boolean {
   return cell.kind === "weekend" || cell.kind === "holiday";
 }
 
-/** 法定工作日：普通工作日或调休上班，不含周末和放假 */
+export function isHoliday(cell: MonthCell): boolean {
+  return cell.kind === "holiday";
+}
+
+/** 法定工作日：普通工作日或手工添加的调休上班，不含周末和 13 天法定节假日 */
 export function isLegalWorkDay(cell: MonthCell): boolean {
   return cell.kind === "workday" || cell.kind === "makeup";
 }
