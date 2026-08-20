@@ -12,6 +12,7 @@ export interface Settings {
   nightRestRequired: boolean;
   noMorningAfterNight: boolean;
   preferPairedRest: boolean;
+  preferBalancedShifts: boolean;
   title: string;
   sheetName: string;
 }
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
   nightRestRequired: false,
   noMorningAfterNight: true,
   preferPairedRest: true,
+  preferBalancedShifts: true,
   title: "外包-省综调（入网审核岗考勤）",
   sheetName: "外包-省综调（入网审核岗考勤）",
 };

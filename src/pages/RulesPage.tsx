@@ -170,6 +170,16 @@ export function RulesPage({
             <span>
               <input
                 type="checkbox"
+                checked={settings.preferBalancedShifts}
+                onChange={(e) => setSettings({ ...settings, preferBalancedShifts: e.target.checked })}
+              />{" "}
+              除月末三天外，每组每天早晚尽量平均（软）
+            </span>
+          </label>
+          <label>
+            <span>
+              <input
+                type="checkbox"
                 checked={settings.nightRestRequired}
                 onChange={(e) => setSettings({ ...settings, nightRestRequired: e.target.checked })}
               />{" "}
@@ -193,7 +203,10 @@ export function RulesPage({
               <li>无请假时，出勤必须等于所选月份的法定工作日（普通工作日，不含周末和上述 13 天）；有请假则减去请假占用的法定工作日。</li>
               <li>同一个自然周（周一至周日）默认上班 5 天、休息 2 天；周内的法定节假日不算应出勤。和其他硬约束冲突时可以多排，多出来的日期记加班。有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
               <li>晚班后不接早班，可休或再排晚班。</li>
+              <li>不要工作一天休息一天，单天上班要连着其他上班日。法定节假日夹在中间的不算。</li>
+              <li>连续上班含加班也不能到 7 天；连满 6 天后至少再连休 2 天。</li>
               <li>每周两天休息尽量连在一起（软约束，覆盖和周 5 天优先）。</li>
+              <li>除月末最后三天外，每组每天早晚班尽量平均（软约束）。月末三天仍按硬约束多排晚班。</li>
               <li>同组每个人每月晚班数量相差不能超过 3 天（硬约束）。</li>
               <li>格子上标「加班」当月应出勤 +1，标「补休」当月应出勤 −1，其它硬约束不变。请假和锁定格子生成时不改。</li>
             </ul>

@@ -251,7 +251,13 @@ app.post("/api/roster/generate", (req, res) => {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
   }
-  const result = generateRoster({ year, month, keepLocked });
+  const seed = Number(req.body?.seed);
+  const result = generateRoster({
+    year,
+    month,
+    keepLocked,
+    seed: Number.isFinite(seed) && seed ? seed : undefined,
+  });
   persistGenerated(year, month, result.roster, keepLocked);
   res.json(currentRoster(year, month));
 });

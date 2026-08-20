@@ -147,7 +147,7 @@ export function CalendarPage({
           <p className="hint">
             点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
             {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。请假是硬约束，「想休」生成时优先排休。「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。
+            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。不要工作一天休息一天。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量平均（软）。请假是硬约束，「想休」生成时优先排休。「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。
           </p>
         </div>
         <div className="actions">
@@ -179,7 +179,7 @@ export function CalendarPage({
           <button className="btn primary" disabled={!!busy} onClick={() => void run(false)}>
             生成 {month} 月
           </button>
-          <button className="btn" disabled={!!busy} onClick={() => void run(true)}>
+          <button className="btn" disabled={!!busy} onClick={() => void run(true)} title="保住锁定格子，其余按同一规则另排一套">
             重排未锁定
           </button>
           <button className="btn danger" disabled={!!busy} onClick={() => void clearMonthRoster(false)}>
