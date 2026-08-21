@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import initSqlJs, { type Database } from "sql.js";
 import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
-import { HOLIDAYS_2026, RETIRED_OFFICIAL_DATES_2026 } from "./holidays.ts";
+import { OFFICIAL_HOLIDAYS } from "./holidays.ts";
 import { dataDir, dbPath, sqlWasmPath } from "./paths.ts";
 
 export function getDbPath(): string {
@@ -133,18 +133,12 @@ function migrate(database: Database): void {
   }
 }
 
-/** 只保留全年 13 天法定节假日；原先连休多放、调休日删掉，按周末/工作日排班 */
+/** 写入国务院办公厅放假调休日历（法定假日 + 连休 + 调休上班日） */
 function ensureOfficialHolidays(database: Database): void {
-  const keep = new Set(HOLIDAYS_2026.map((h) => h.date));
-  const del = database.prepare("DELETE FROM holidays WHERE date = ?");
-  for (const date of RETIRED_OFFICIAL_DATES_2026) {
-    if (!keep.has(date)) del.run([date]);
-  }
-  del.free();
   const upsert = database.prepare(
     "INSERT INTO holidays (date, name, kind) VALUES (?, ?, ?) ON CONFLICT(date) DO UPDATE SET name = excluded.name, kind = excluded.kind",
   );
-  for (const h of HOLIDAYS_2026) {
+  for (const h of OFFICIAL_HOLIDAYS) {
     upsert.run([h.date, h.name, h.kind]);
   }
   upsert.free();

@@ -259,7 +259,7 @@ app.post("/api/roster/generate", (req, res) => {
     seed: Number.isFinite(seed) && seed ? seed : undefined,
   });
   persistGenerated(year, month, result.roster, keepLocked);
-  res.json(currentRoster(year, month));
+  res.json(result);
 });
 
 app.post("/api/roster/clear", (req, res) => {

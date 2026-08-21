@@ -45,7 +45,7 @@ export function StatsPage({
         <div>
           <h1>统计</h1>
           <p className="hint">
-            看出勤、早/晚、周末次数、连班、加班和缺口。全年法定节假日 13 天不用上班，其余周末正常排班。无请假时目标为所选{" "}
+            看出勤、早/晚、周末次数、连班、加班和缺口。无请假无特殊加班时每人休息天数相同。放假日按国务院通知全员休息，调休上班日算法定工作日。无请假时目标为所选{" "}
             {year} 年 {month} 月法定工作日
             {data
               ? ` ${data.cells.filter((c) => c.kind === "workday" || c.kind === "makeup").length} 天`

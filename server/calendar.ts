@@ -31,6 +31,7 @@ export function buildMonthCells(
     const h = map.get(date);
     let kind: MonthCell["kind"] = weekday === 0 || weekday === 6 ? "weekend" : "workday";
     if (h?.kind === "holiday") kind = "holiday";
+    if (h?.kind === "bridge") kind = "bridge";
     if (h?.kind === "workday_makeup") kind = "makeup";
     cells.push({
       date,
@@ -49,14 +50,24 @@ export function lastWeekNum(cells: MonthCell[]): number {
 }
 
 export function isOffDay(cell: MonthCell): boolean {
-  return cell.kind === "weekend" || cell.kind === "holiday";
+  return cell.kind === "weekend" || cell.kind === "holiday" || cell.kind === "bridge";
 }
 
 export function isHoliday(cell: MonthCell): boolean {
   return cell.kind === "holiday";
 }
 
-/** 法定工作日：普通工作日或手工添加的调休上班，不含周末和 13 天法定节假日 */
+/** 通告连休日：非法定节假日，按周末值班 */
+export function isBridge(cell: MonthCell): boolean {
+  return cell.kind === "bridge";
+}
+
+/** 周末或通告连休，需要值班，不算法定工作日 */
+export function isWeekendLike(cell: MonthCell): boolean {
+  return cell.kind === "weekend" || cell.kind === "bridge";
+}
+
+/** 法定工作日：普通工作日或国务院调休上班，不含周末、法定假日和连休 */
 export function isLegalWorkDay(cell: MonthCell): boolean {
   return cell.kind === "workday" || cell.kind === "makeup";
 }

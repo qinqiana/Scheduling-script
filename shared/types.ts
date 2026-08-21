@@ -46,7 +46,7 @@ export interface Person {
 export interface Holiday {
   date: string;
   name: string;
-  kind: "holiday" | "workday_makeup";
+  kind: "holiday" | "bridge" | "workday_makeup";
 }
 
 export interface Leave {
@@ -77,7 +77,7 @@ export interface MonthCell {
   day: number;
   weekday: number;
   weekNum: number;
-  kind: "workday" | "weekend" | "holiday" | "makeup";
+  kind: "workday" | "weekend" | "holiday" | "bridge" | "makeup";
   holidayName?: string;
 }
 

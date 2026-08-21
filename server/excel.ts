@@ -193,7 +193,7 @@ function buildWorkbook(
         cell.font = { name: "微软雅黑", color: { argb: "FF6B6258" } };
       }
       cell.alignment = { horizontal: "center", vertical: "middle" };
-      if (c.kind === "weekend") {
+      if (c.kind === "weekend" || c.kind === "bridge") {
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF3EDE2" } };
       }
       if (c.kind === "holiday") {
@@ -338,7 +338,7 @@ function addStatsSheet(
     ]);
   }
   sheet.addRow([]);
-  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；月末最后三天每组最多休1人且至少2晚（法定假日除外）；全年法定节假日 13 天不排班，其余周末正常排班；满自然周默认上班${settings.maxWorkPerWeek}天，和其他硬约束冲突时可多排并记加班；无请假时出勤=当月法定工作日`]);
+  sheet.addRow(["规则摘要", `每组每天≥${settings.minMorningPerGroupPerDay}早+${settings.minNightPerGroupPerDay}晚；月末最后三天每组最多休1人且至少2晚（法定假日除外）；放假日按国务院通知不排班，调休上班日算法定工作日；满自然周默认上班${settings.maxWorkPerWeek}天，和其他硬约束冲突时可多排但不再记加班；无请假无特殊加班时出勤=当月法定工作日且休息天数相同`]);
   sheet.addRow(["冲突"]);
   if (!conflicts.length) sheet.addRow(["无"]);
   for (const c of conflicts) sheet.addRow([c.severity === "hard" ? "硬" : "软", c.message]);

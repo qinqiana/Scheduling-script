@@ -14,8 +14,9 @@ function legalWorkDaysOfMonth(year: number, month: number, holidays: Holiday[]):
     const date = `${year}-${pad(month)}-${pad(day)}`;
     const weekday = new Date(year, month - 1, day).getDay();
     const h = map.get(date);
-    let kind: "workday" | "weekend" | "holiday" | "makeup" = weekday === 0 || weekday === 6 ? "weekend" : "workday";
+    let kind: "workday" | "weekend" | "holiday" | "bridge" | "makeup" = weekday === 0 || weekday === 6 ? "weekend" : "workday";
     if (h?.kind === "holiday") kind = "holiday";
+    if (h?.kind === "bridge") kind = "bridge";
     if (h?.kind === "workday_makeup") kind = "makeup";
     if (kind === "workday" || kind === "makeup") count += 1;
   }
@@ -85,8 +86,9 @@ export function RulesPage({
         <div className="card form">
           <strong>硬约束 / 软约束</strong>
           <p className="hint">
-            无请假时，每人每月出勤必须等于所选自然月的法定工作日（普通工作日，不含周末和 13 天法定节假日）。有请假则减去请假占用的法定工作日。
-            {year} 年 {month} 月自动识别为 {legalWorkDaysOfMonth(year, month, holidays)} 天。
+            无请假、无手工加班/补休时，每人每月出勤必须等于所选自然月的法定工作日，休息天数也必须相同。有请假则减去请假占用的法定工作日。
+            法定工作日只按中国政府网刊登的国办发明电计算：当月日历天数减去周六日，再减去通告写明的放假日，加上通告写明「上班」的调休日。不采用无出处工时表。
+            {year} 年 {month} 月为 {legalWorkDaysOfMonth(year, month, holidays)} 天。
           </p>
           <label>
             每组每天最少出勤
@@ -113,7 +115,7 @@ export function RulesPage({
             />
           </label>
           <label>
-            每周上班天数（满周默认这些天，超过记加班）
+            每周上班天数（满周默认这些天，超过不再记加班）
             <input
               type="number"
               value={settings.maxWorkPerWeek}
@@ -143,7 +145,7 @@ export function RulesPage({
                 checked={settings.weekendNeedWork}
                 onChange={(e) => setSettings({ ...settings, weekendNeedWork: e.target.checked })}
               />{" "}
-              周末必须有人（法定节假日不用上班）
+              周末和通告连休必须有人（法定节假日不用上班）
             </span>
           </label>
           <label>
@@ -199,25 +201,59 @@ export function RulesPage({
               <li>班次写「早」「晚」「休」，请假写「假」。</li>
               <li>每组每天至少 1 个早班、1 个晚班（因此每天至少 2 人）。</li>
               <li>月末最后三天（法定假日除外）要多排人：每组最多休 1 人，且至少 2 个晚班在岗。</li>
-              <li>全年法定节假日共 13 天（元旦 1、春节 4、清明 1、劳动节 2、端午 1、中秋 1、国庆 3），这 13 天全员休息、不排班。国务院连休多放的日子按周末或工作日正常排班。</li>
-              <li>无请假时，出勤必须等于所选月份的法定工作日（普通工作日，不含周末和上述 13 天）；有请假则减去请假占用的法定工作日。</li>
-              <li>同一个自然周（周一至周日）默认上班 5 天、休息 2 天；周内的法定节假日不算应出勤。和其他硬约束冲突时可以多排，多出来的日期记加班。有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
+              <li>法定节假日全员休息、不排班。通告里为连休多放的日子按周末值班，不算法定工作日。周末调来上班的日子算法定工作日，要正常排班。</li>
+              <li>无请假、无手工加班/补休时，每人出勤必须等于当月法定工作日，休息天数也必须相同。月初月末不够一周的周末仍要有人值班，但值班计入出勤，不能因此每人多排一天。有请假则减去请假占用的法定工作日；格子上标了加班或补休的人按调整后的目标算出勤和休息。</li>
+              <li>同一个自然周（周一至周日）默认上班 5 天、休息 2 天；周内的法定节假日和通告连休都不算应出勤。和其他硬约束冲突时可以改成 4 上或 6 上，多出来的日期不再记加班。满周不能少于 4 天（节假日/连休/请假把应出勤压得更低时跟日期走）。有请假则上班不超过 5 天。月初月末不足一周只限制不超过 5 天。</li>
               <li>晚班后不接早班，可休或再排晚班。</li>
               <li>不要工作一天休息一天，单天上班要连着其他上班日。法定节假日夹在中间的不算。</li>
               <li>连续上班含加班也不能到 7 天；连满 6 天后至少再连休 2 天。</li>
               <li>每周两天休息尽量连在一起（软约束，覆盖和周 5 天优先）。</li>
               <li>除月末最后三天外，每组每天早晚班尽量平均（软约束）。月末三天仍按硬约束多排晚班。</li>
               <li>同组每个人每月晚班数量相差不能超过 3 天（硬约束）。</li>
-              <li>格子上标「加班」当月应出勤 +1，标「补休」当月应出勤 −1，其它硬约束不变。请假和锁定格子生成时不改。</li>
+              <li>格子上手工标「加班」当月应出勤 +1，标「补休」当月应出勤 −1，其它硬约束不变。请假和锁定格子生成时不改。</li>
             </ul>
           </div>
           <div className="card form" style={{ marginTop: 12 }}>
-            <strong>{year} 年法定节假日（全年 13 天）</strong>
+            <strong>{year} 年国务院放假调休日历</strong>
+            <p className="hint">
+              出处仅中国政府网：
+              <a href="https://www.gov.cn/zhengce/content/202310/content_6911527.htm" target="_blank" rel="noreferrer">
+                2024 国办发明电〔2023〕7号
+              </a>
+              、
+              <a href="https://www.gov.cn/zhengce/zhengceku/202411/content_6986383.htm" target="_blank" rel="noreferrer">
+                2025 国办发明电〔2024〕12号
+              </a>
+              、
+              <a href="https://www.gov.cn/zhengce/content/202511/content_7047090.htm" target="_blank" rel="noreferrer">
+                2026 国办发明电〔2025〕7号
+              </a>
+              。法定节假日记「法定假」，通告连休日记「连休」（按周末值班），通告写明上班的周日记「调休上班」。
+            </p>
+            <table className="roster" style={{ margin: "8px 0 12px", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th>月</th>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <th key={i}>{i + 1}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>法定工作日</td>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <td key={i}>{legalWorkDaysOfMonth(year, i + 1, holidays)}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
             <div className="actions">
               <input type="date" value={h.date} onChange={(e) => setH({ ...h, date: e.target.value })} />
               <input placeholder="名称" value={h.name} onChange={(e) => setH({ ...h, name: e.target.value })} />
               <select value={h.kind} onChange={(e) => setH({ ...h, kind: e.target.value as Holiday["kind"] })}>
-                <option value="holiday">放假</option>
+                <option value="holiday">法定假</option>
+                <option value="bridge">连休</option>
                 <option value="workday_makeup">调休上班</option>
               </select>
               <button
@@ -237,7 +273,7 @@ export function RulesPage({
                   <tr key={item.date}>
                     <td>{item.date}</td>
                     <td>{item.name}</td>
-                    <td>{item.kind === "holiday" ? "放假" : "上班"}</td>
+                    <td>{item.kind === "holiday" ? "法定假" : item.kind === "bridge" ? "连休" : "上班"}</td>
                     <td>
                       <button
                         className="btn danger"

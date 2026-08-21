@@ -188,7 +188,8 @@ table.roster .sticky { position: sticky; left: 0; background: #f7fbff; z-index: 
 table.roster th.sticky { z-index: 3; }
 table.roster td.day { min-width: 36px; cursor: pointer; }
 table.roster td.day:hover { outline: 2px solid var(--teal); outline-offset: -2px; }
-table.roster th.weekend, table.roster td.weekend { background: var(--weekend); }
+table.roster th.weekend, table.roster td.weekend,
+table.roster th.bridge, table.roster td.bridge { background: var(--weekend); }
 table.roster th.holiday, table.roster td.holiday { background: var(--holiday); }
 table.roster th.makeup, table.roster td.makeup { background: #dff0ea; }
 table.roster .day-tag { font-size: 9px; color: var(--teal); line-height: 1.1; }

@@ -5,7 +5,7 @@ import type { Person, RosterCell, RosterPayload, ShiftMark } from "../types";
 const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
 
 function cellClass(kind: string, gap: boolean): string {
-  return ["day", kind === "weekend" ? "weekend" : "", kind === "holiday" ? "holiday" : "", gap ? "gap" : ""]
+  return ["day", kind === "weekend" || kind === "bridge" ? "weekend" : "", kind === "holiday" ? "holiday" : "", gap ? "gap" : ""]
     .filter(Boolean)
     .join(" ");
 }
@@ -147,7 +147,7 @@ export function CalendarPage({
           <p className="hint">
             点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
             {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （普通工作日，不含周末和全年 13 天法定节假日）。这 13 天不用上班，其余周末按周末正常排班。满周默认 5 上 2 休，和其他硬约束冲突时可以多排并标「加」。不要工作一天休息一天。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量平均（软）。请假是硬约束，「想休」生成时优先排休。「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。
+            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。不要工作一天休息一天。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量平均（软）。请假是硬约束，「想休」生成时优先排休。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
           </p>
         </div>
         <div className="actions">
@@ -231,6 +231,7 @@ export function CalendarPage({
                     <div>{WEEK[c.weekday]}</div>
                     {c.kind === "makeup" ? <div className="day-tag">班</div> : null}
                     {c.kind === "holiday" ? <div className="day-tag">假</div> : null}
+                    {c.kind === "bridge" ? <div className="day-tag">连休</div> : null}
                   </th>
                 ))}
               </tr>
