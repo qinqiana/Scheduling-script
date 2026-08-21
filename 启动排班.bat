@@ -1,22 +1,21 @@
 @echo off
 setlocal
-chcp 65001 >nul
-title 入网审核排班 1.7
 cd /d "%~dp0"
+title ��������Ű� 1.7
 
 where node >nul 2>&1
 if errorlevel 1 (
-  echo 未找到 Node.js。请先安装 Node.js 18 或更高版本后再双击本脚本。
-  echo 下载：https://nodejs.org/
+  echo δ�ҵ� Node.js�����Ȱ�װ Node.js 18 ����߰汾����˫�����ű���
+  echo ���أ�https://nodejs.org/
   pause
   exit /b 1
 )
 
 if not exist "node_modules" (
-  echo 正在安装依赖，请稍候...
+  echo ���ڰ�װ���������Ժ�...
   call npm install
   if errorlevel 1 (
-    echo 依赖安装失败。
+    echo ������װʧ�ܡ�
     pause
     exit /b 1
   )
@@ -30,10 +29,10 @@ if "%NEED_BUILD%"=="0" (
 )
 
 if "%NEED_BUILD%"=="1" (
-  echo 界面有更新，正在打包...
+  echo �����и��£����ڴ��...
   call npx --yes vite build
   if errorlevel 1 (
-    echo 打包失败。
+    echo ���ʧ�ܡ�
     pause
     exit /b 1
   )
@@ -41,13 +40,13 @@ if "%NEED_BUILD%"=="1" (
 
 curl.exe -s -o nul -w "%%{http_code}" http://127.0.0.1:8787/api/health | findstr /c:"200" >nul
 if %errorlevel%==0 (
-  echo 服务已在运行，正在打开浏览器...
+  echo �����������У����ڴ������...
   start "" "http://127.0.0.1:8787/"
   exit /b 0
 )
 
-echo 正在启动入网审核排班...
-echo 关闭本窗口即停止程序。
+echo ����������������Ű�...
+echo �رձ����ڼ�ֹͣ����
 start /b powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep 2; Start-Process 'http://127.0.0.1:8787/'"
 call npx --yes tsx server/index.ts
 pause
