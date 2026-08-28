@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title ��������Ű� 1.7
+title ��������Ű� 1.8
 
 where node >nul 2>&1
 if errorlevel 1 (
