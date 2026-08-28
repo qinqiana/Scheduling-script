@@ -12,6 +12,7 @@ import type {
 } from "../shared/types.ts";
 import { addDays, buildMonthCells, isHoliday, isLegalWorkDay, isOffDay, isWeekendLike, mondayKey } from "./calendar.ts";
 import { execSql, getSettings, persist, queryAll, queryOne, run, runMany } from "./db.ts";
+import { isSandwichAt, MAX_COUNTED_SANDWICH, sandwichCount } from "./sandwichRest.ts";
 import { blockPlans, isAvoidableInterleave, shiftSwitches } from "./shiftBlocks.ts";
 import { closedWorkRun, isShortClosedWork, MIN_WORK_BEFORE_REST } from "./workStreak.ts";
 
@@ -1626,29 +1627,27 @@ function fixMorningAfterNight(
   }
 }
 
-function personRestDates(
+function skipCountedSandwich(
   grid: Map<number, Map<string, GridMark>>,
   personId: number,
   cells: MonthCell[],
-  prevDayShifts: Map<number, string> = new Map(),
-): string[] {
-  const dates = cells
-    .filter((c) => isRestMark(markOf(grid, personId, c.date).mark))
-    .map((c) => c.date);
-  if (cells[0]) {
-    const prev = prevDayShifts.get(personId);
-    if (prev === "休" || prev === "假" || prev === "") dates.push(addDays(cells[0].date, -1));
-  }
-  return dates;
+  i: number,
+): boolean {
+  const cell = markOf(grid, personId, cells[i].date);
+  return !!cell.wantRest || isMonthEndCoverDay(cells[i], cells);
 }
 
-function hasPairedRest(restDates: string[]): boolean {
-  if (restDates.length < 2) return true;
-  const sorted = [...restDates].sort();
-  for (let i = 1; i < sorted.length; i += 1) {
-    if (addDays(sorted[i - 1], 1) === sorted[i]) return true;
-  }
-  return false;
+function countedSandwiches(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  cells: MonthCell[],
+  prevDayShifts: Map<number, string>,
+): number {
+  return sandwichCount(
+    personDaySeq(grid, personId, cells),
+    prevDayCode(prevDayShifts, personId),
+    (i) => skipCountedSandwich(grid, personId, cells, i),
+  );
 }
 
 function honorRestWishes(
@@ -1681,41 +1680,53 @@ function clusterWeeklyRest(
   prevDayShifts: Map<number, string>,
   prev: Map<number, Set<string>> = new Map(),
 ): void {
-  if (!settings.preferPairedRest) return;
   const groups = groupMembers(people);
 
   for (const p of people) {
     const members = groups.get(p.groupName) ?? [];
-    for (let attempt = 0; attempt < 12; attempt += 1) {
-      const restDates = personRestDates(grid, p.id, cells, prevDayShifts);
-      if (hasPairedRest(restDates)) break;
-      const isolatedRests = cells.filter((c) => {
+    for (let attempt = 0; attempt < 16; attempt += 1) {
+      const before = countedSandwiches(grid, p.id, cells, prevDayShifts);
+      if (before <= MAX_COUNTED_SANDWICH) break;
+      const seq = personDaySeq(grid, p.id, cells);
+      const prevCode = prevDayCode(prevDayShifts, p.id);
+      const isolatedRests = cells.filter((c, i) => {
         if (c.kind === "holiday") return false;
         const cell = markOf(grid, p.id, c.date);
         if (!canEdit(cell) || cell.mark !== "休" || cell.wantRest) return false;
-        return !restDates.some((d) => d !== c.date && (addDays(d, 1) === c.date || addDays(c.date, 1) === d));
+        if (skipCountedSandwich(grid, p.id, cells, i)) return false;
+        return isSandwichAt(seq, i, prevCode);
       });
       let moved = false;
+      const nightOk = () => {
+        const pool = members.filter((m) => m.canNight);
+        if (pool.length < 2) return true;
+        const nights = pool.map((m) => personNightCount(grid, m.id, cells));
+        return Math.max(...nights) - Math.min(...nights) <= settings.maxNightDiff;
+      };
       for (const from of isolatedRests) {
         const targets = cells.filter((c) => {
           const cell = markOf(grid, p.id, c.date);
           if (!canEdit(cell) || !isWork(cell.mark)) return false;
           if (!groupCoveredWithout(grid, members, c.date, p.id, settings, cells)) return false;
-          const nextRests = restDates.filter((d) => d !== from.date).concat(c.date);
-          return hasPairedRest(nextRests);
+          return true;
         });
-        const chosen = targets[0];
-        if (!chosen) continue;
         const yesterday = previousMark(grid, p.id, from.date, cells, prevDayShifts);
         const workMark = workMarkAfterPrev(p, yesterday, settings);
         if (!isWork(workMark)) continue;
         if (workMark === "晚" && nextMark(grid, p.id, from.date, cells) === "早") continue;
         if (consecutiveIf(grid, p.id, cells, from.date, workMark, prev) > settings.maxConsecutiveWork) continue;
         if (shortRestAfterMaxRun(grid, p.id, cells, prev, settings.maxConsecutiveWork, from.date, true)) continue;
-        markOf(grid, p.id, from.date).mark = workMark;
-        markOf(grid, p.id, chosen.date).mark = "休";
-        moved = true;
-        break;
+        for (const chosen of targets) {
+          const snap = snapshotMarks(grid, [p], cells);
+          markOf(grid, p.id, from.date).mark = workMark;
+          markOf(grid, p.id, chosen.date).mark = "休";
+          if (countedSandwiches(grid, p.id, cells, prevDayShifts) < before && nightOk()) {
+            moved = true;
+            break;
+          }
+          restoreMarks(grid, snap);
+        }
+        if (moved) break;
       }
       if (!moved) break;
     }
@@ -3242,15 +3253,13 @@ export function validateRoster(
         message: `${p.name} ${cells[i].day} 日起连续上班 ${run.length} 天就休息，连续工作 ${MIN_WORK_BEFORE_REST} 天才可以休息`,
       });
     }
-    if (!cached?.hardOnly && settings.preferPairedRest) {
-      const restDates = personRestDates(grid, p.id, cells, prevDayShifts);
-      if (restDates.length >= 2 && !hasPairedRest(restDates)) {
-        conflicts.push({
-          severity: "soft",
-          personId: p.id,
-          message: `${p.name} 休息未连在一起`,
-        });
-      }
+    const sandwiches = countedSandwiches(grid, p.id, cells, prevDayShifts);
+    if (sandwiches > MAX_COUNTED_SANDWICH) {
+      conflicts.push({
+        severity: "hard",
+        personId: p.id,
+        message: `${p.name} 夹心休 ${sandwiches} 天，生成排出的最多 ${MAX_COUNTED_SANDWICH} 天`,
+      });
     }
     const blocks = personShiftBlocks(grid, p.id, cells);
     if (isAvoidableInterleave(blocks.marks, blocks.locked)) {
@@ -3572,6 +3581,7 @@ function repairShiftBlocks(
     const plans = blockPlans(blocks.marks, blocks.locked, p.canNight, forbid);
     const snap = snapshotMarks(grid, people, cells);
     const beforeGaps = coverGapCount(grid, people, cells, settings);
+    const sandBefore = countedSandwiches(grid, p.id, cells, prevDayShifts);
     let kept = false;
     for (const plan of plans) {
       restoreMarks(grid, snap);
@@ -3597,6 +3607,8 @@ function repairShiftBlocks(
         }
       }
       const after = personShiftBlocks(grid, p.id, cells);
+      const sandAfter = countedSandwiches(grid, p.id, cells, prevDayShifts);
+      if (sandAfter > sandBefore && sandAfter > MAX_COUNTED_SANDWICH) continue;
       if (isAvoidableInterleave(after.marks, after.locked)) continue;
       if (coverGapCount(grid, people, cells, settings) > beforeGaps) continue;
       let morningAfter = false;
@@ -3614,6 +3626,23 @@ function repairShiftBlocks(
     }
     if (!kept) restoreMarks(grid, snap);
   }
+}
+
+function wouldWorsenSandwich(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  date: string,
+  next: "早" | "晚",
+  cells: MonthCell[],
+  prevDayShifts: Map<number, string>,
+): boolean {
+  const cell = markOf(grid, personId, date);
+  const old = cell.mark;
+  const before = countedSandwiches(grid, personId, cells, prevDayShifts);
+  cell.mark = next;
+  const after = countedSandwiches(grid, personId, cells, prevDayShifts);
+  cell.mark = old;
+  return after > before && after > MAX_COUNTED_SANDWICH;
 }
 
 function wouldWorsenBlocks(
@@ -3660,7 +3689,12 @@ function repairDailyShiftBalance(
       for (const p of extras) {
         const nightNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
         if (nightNow <= target || nightNow <= minNight) break;
-        if (wouldWorsenBlocks(grid, p.id, c.date, "早", cells)) continue;
+        if (
+          wouldWorsenBlocks(grid, p.id, c.date, "早", cells) ||
+          wouldWorsenSandwich(grid, p.id, c.date, "早", cells, prevDayShifts)
+        ) {
+          continue;
+        }
         markOf(grid, p.id, c.date).mark = "早";
       }
       const shorts = workers
@@ -3675,7 +3709,12 @@ function repairDailyShiftBalance(
         const nightNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
         const morningNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "早").length;
         if (nightNow >= target || morningNow <= settings.minMorningPerGroupPerDay) break;
-        if (wouldWorsenBlocks(grid, p.id, c.date, "晚", cells)) continue;
+        if (
+          wouldWorsenBlocks(grid, p.id, c.date, "晚", cells) ||
+          wouldWorsenSandwich(grid, p.id, c.date, "晚", cells, prevDayShifts)
+        ) {
+          continue;
+        }
         markOf(grid, p.id, c.date).mark = "晚";
       }
     }
@@ -3693,6 +3732,7 @@ function repairSoftRound(
   repairHardCover(grid, people, cells, settings, prev, prevDayShifts);
   repairNightDiff(grid, people, cells, settings, prev, prevDayShifts);
   repairDailyShiftBalance(grid, people, cells, settings, prevDayShifts);
+  clusterWeeklyRest(grid, people, cells, settings, prevDayShifts, prev);
   repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
   repairWeekCap(grid, people, cells, settings, prev, prevDayShifts);
   repairWeekFill(grid, people, cells, settings, prev, prevDayShifts);
@@ -3885,6 +3925,7 @@ function generateRosterGrid(input: GenerateInput, pack: MonthPack) {
   repairHardCover(grid, people, cells, settings, prev, prevDayShifts);
   repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
   repairIsolatedWork(grid, people, cells, settings, prev, prevDayShifts);
+  clusterWeeklyRest(grid, people, cells, settings, prevDayShifts, prev);
   repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
   applyUserMarks(grid, start, end, assignments, flags, wishes);
   return grid;
