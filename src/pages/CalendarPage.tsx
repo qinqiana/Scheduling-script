@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, exportUrl } from "../api";
-import type { Person, RosterCell, RosterPayload, ShiftMark } from "../types";
+import type { ImportResult, Person, RosterCell, RosterPayload, ShiftMark } from "../types";
 
 const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -38,6 +38,11 @@ export function CalendarPage({
   const [error, setError] = useState("");
   const [edit, setEdit] = useState<{ person: Person; date: string; cell: RosterCell } | null>(null);
   const [leaveReason, setLeaveReason] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importTargetY, setImportTargetY] = useState(year);
+  const [importTargetM, setImportTargetM] = useState(month);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   const load = async () => {
     setError("");
@@ -73,7 +78,7 @@ export function CalendarPage({
       ? confirm(
           `确定全部清空 ${year} 年 ${month} 月？将清除排班、想休、加班、补休和请假。人员和规则会保留。`,
         )
-      : confirm(`确定清空 ${year} 年 ${month} 月的全部排班和想休？请假、加班、补休、人员和规则会保留。`);
+      : confirm(`确定清空 ${year} 年 ${month} 月的未锁定排班？已锁定格子和想休会保留。请假、加班、补休、人员和规则会保留。`);
     if (!ok) return;
     setBusy(all ? `正在全部清空 ${month} 月…` : `正在清空 ${month} 月…`);
     setError("");
@@ -147,7 +152,7 @@ export function CalendarPage({
           <p className="hint">
             点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
             {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。不要工作一天休息一天。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量平均（软）。请假是硬约束，「想休」生成时优先排休。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
+            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。连续工作 3 天才可以休息。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量接近 2:1（软），每人早晚最多切一次（半硬；法定假加班不计入，锁定造成的除外）。月末三天本月不满一周也算。请假是硬约束，「想休」同时锁定为休，清空未锁定和重排未锁定时保留。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
           </p>
         </div>
         <div className="actions">
@@ -176,7 +181,7 @@ export function CalendarPage({
               ))}
             </select>
           </label>
-          <button className="btn primary" disabled={!!busy} onClick={() => void run(false)}>
+          <button className="btn primary" disabled={!!busy} onClick={() => void run(true)}>
             生成 {month} 月
           </button>
           <button className="btn" disabled={!!busy} onClick={() => void run(true)} title="保住锁定格子，其余按同一规则另排一套">
@@ -191,6 +196,9 @@ export function CalendarPage({
           <a className="btn" href={exportUrl(year, month)}>
             导出 Excel
           </a>
+          <button className="btn" disabled={!!busy} onClick={() => setImportOpen(true)}>
+            导入 Excel
+          </button>
           <a className="btn ghost" href="/api/backup">
             备份 data.db
           </a>
@@ -414,6 +422,100 @@ export function CalendarPage({
                   </button>
                 ))}
               </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {importOpen && (
+        <div className="drawer-back" onClick={() => setImportOpen(false)}>
+          <aside className="drawer" onClick={(e) => e.stopPropagation()}>
+            <h2>导入 Excel 排班</h2>
+            <div className="shift-picks" style={{ marginBottom: 8 }}>
+              <a className="btn" href="/api/roster/import-template">
+                下载考勤表模板
+              </a>
+            </div>
+            <p className="hint">
+              选择一份「系统同款考勤表模板」导出的 xlsx（第 2 行是日期 1~31，第 3 行起每行一个人），
+              导入时会用表里的格子覆盖 {importTargetY} 年 {importTargetM} 月对应排班。
+              识别：早 / 晚 / 休 / 8（按早班）、加班 / 节加（按早班+加班）、补休、假 / 病假 / 事假 / 年休 / 出差 / 婚假 / 陪产假 / 护理假（记为请假）。
+            </p>
+            <div className="form" style={{ marginTop: 12 }}>
+              <label>
+                年份
+                <input
+                  type="number"
+                  value={importTargetY}
+                  onChange={(e) => setImportTargetY(Number(e.target.value))}
+                />
+              </label>
+              <label>
+                月份
+                <select value={importTargetM} onChange={(e) => setImportTargetM(Number(e.target.value))}>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} 月
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                考勤表文件
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={(e) => {
+                    setImportFile(e.target.files?.[0] ?? null);
+                    setImportResult(null);
+                  }}
+                />
+              </label>
+            </div>
+
+            {importResult && (
+              <div className="card" style={{ marginTop: 12 }}>
+                <p>
+                  已导入 {importResult.imported} 格：班次 {importResult.shifts}、请假{" "}
+                  {importResult.leaves}、加班 {importResult.overtimes}、补休 {importResult.compRests}。
+                </p>
+                {importResult.skippedUnknown.length > 0 && (
+                  <p className="hint">未能识别（已跳过）：{importResult.skippedUnknown.join("、")}</p>
+                )}
+                {importResult.unmatchedNames.length > 0 && (
+                  <p className="hint">
+                    表里有人名不在当前人员名单（已跳过）：{importResult.unmatchedNames.join("、")}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="shift-picks" style={{ marginTop: 16 }}>
+              <button
+                className="btn primary"
+                disabled={!importFile || !!busy}
+                onClick={async () => {
+                  if (!importFile) return;
+                  setBusy(`正在导入 ${importTargetY} 年 ${importTargetM} 月…`);
+                  setError("");
+                  setImportResult(null);
+                  try {
+                    const res = await api.importExcel(importFile, importTargetY, importTargetM);
+                    setImportResult(res);
+                    setData(res.rosterCells);
+                    onChange();
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "导入失败");
+                  } finally {
+                    setBusy("");
+                  }
+                }}
+              >
+                确认导入
+              </button>
+              <button className="btn" disabled={!!busy} onClick={() => setImportOpen(false)}>
+                关闭
+              </button>
             </div>
           </aside>
         </div>

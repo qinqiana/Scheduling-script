@@ -12,6 +12,8 @@ import type {
 } from "../shared/types.ts";
 import { addDays, buildMonthCells, isHoliday, isLegalWorkDay, isOffDay, isWeekendLike, mondayKey } from "./calendar.ts";
 import { execSql, getSettings, persist, queryAll, queryOne, run, runMany } from "./db.ts";
+import { blockPlans, isAvoidableInterleave, shiftSwitches } from "./shiftBlocks.ts";
+import { closedWorkRun, isShortClosedWork, MIN_WORK_BEFORE_REST } from "./workStreak.ts";
 
 export interface GenerateInput {
   year: number;
@@ -97,7 +99,10 @@ function applyRestWishes(
   for (const w of wishes) {
     const row = grid.get(w.personId);
     const cell = row?.get(w.date);
-    if (cell) cell.wantRest = true;
+    if (!cell || cell.mark === "假") continue;
+    cell.wantRest = true;
+    cell.mark = "休";
+    cell.locked = true;
   }
 }
 
@@ -162,14 +167,14 @@ function applyFixed(
   grid: Map<number, Map<string, GridMark>>,
   leaves: Leave[],
   assignments: Assignment[],
-  keepLocked: boolean,
+  _keepLocked?: boolean,
 ): void {
   for (const a of assignments) {
     const row = grid.get(a.personId);
     if (!row) continue;
     const cell = row.get(a.date);
     if (!cell) continue;
-    if (keepLocked && a.locked) {
+    if (a.locked) {
       row.set(a.date, { mark: a.shift, locked: true });
     }
   }
@@ -464,7 +469,7 @@ function monthMeta(cells: MonthCell[]): MonthMeta {
   for (const c of cells) {
     if (isHoliday(c)) continue;
     if (c.day <= last - MONTH_END_COVER_DAYS) continue;
-    if ((weeks.get(mondayOf(c.date))?.length ?? 0) === 7) monthEndDates.add(c.date);
+    monthEndDates.add(c.date);
   }
   const meta: MonthMeta = {
     dateIndex,
@@ -488,6 +493,67 @@ function cellByDate(cells: MonthCell[], date: string): MonthCell | undefined {
 
 function isMonthEndCoverDay(cell: MonthCell, cells: MonthCell[]): boolean {
   return monthMeta(cells).monthEndDates.has(cell.date);
+}
+
+function isHolidayOvertime(cell: MonthCell, mark: GridMark): boolean {
+  return isHoliday(cell) && isWork(mark.mark) && !!(mark.manualOvertime || mark.overtime);
+}
+
+/** 除月末三天、假日加班外的早/晚序列。休/假跳过。 */
+function personShiftBlocks(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  cells: MonthCell[],
+): { marks: ("早" | "晚")[]; locked: boolean[]; dates: string[] } {
+  const marks: ("早" | "晚")[] = [];
+  const locked: boolean[] = [];
+  const dates: string[] = [];
+  for (const c of cells) {
+    if (isMonthEndCoverDay(c, cells)) continue;
+    const cell = markOf(grid, personId, c.date);
+    if (isHolidayOvertime(c, cell)) continue;
+    if (cell.mark !== "早" && cell.mark !== "晚") continue;
+    marks.push(cell.mark);
+    locked.push(!canEdit(cell));
+    dates.push(c.date);
+  }
+  return { marks, locked, dates };
+}
+
+function shiftBlockSwitches(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  cells: MonthCell[],
+): number {
+  return shiftSwitches(personShiftBlocks(grid, personId, cells).marks);
+}
+
+function nightClusterPenalty(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  date: string,
+  cells: MonthCell[],
+): number {
+  let last: "早" | "晚" | undefined;
+  let seenNight = false;
+  let morningAfterNight = false;
+  for (const c of cells) {
+    if (c.date >= date) break;
+    if (isMonthEndCoverDay(c, cells)) continue;
+    const cell = markOf(grid, personId, c.date);
+    if (isHolidayOvertime(c, cell)) continue;
+    const mark = cell.mark;
+    if (mark === "晚") {
+      last = "晚";
+      seenNight = true;
+    } else if (mark === "早") {
+      last = "早";
+      if (seenNight) morningAfterNight = true;
+    }
+  }
+  if (last === "晚") return 0;
+  if (morningAfterNight) return 8;
+  return 1;
 }
 
 function dayMinNight(cell: MonthCell, cells: MonthCell[], settings: Settings): number {
@@ -644,10 +710,37 @@ function isRestMark(mark: ShiftMark): boolean {
   return mark === "休" || mark === "假" || mark === "";
 }
 
-function isSoloRestNeighbor(cell: MonthCell | undefined, mark: ShiftMark | undefined): boolean {
-  if (!cell || mark == null) return false;
-  if (cell.kind === "holiday" || mark === "假") return false;
-  return mark === "休" || mark === "";
+function prevDayCode(prevDayShifts: Map<number, string>, personId: number): string | undefined {
+  const mark = prevDayShifts.get(personId);
+  if (mark == null) return undefined;
+  if (isWork(mark as ShiftMark)) return "W";
+  if (mark === "假") return "L";
+  return "R";
+}
+
+function personDaySeq(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  cells: MonthCell[],
+  probeWorkIdx = -1,
+): string {
+  let seq = "";
+  for (let i = 0; i < cells.length; i += 1) {
+    const cell = cells[i];
+    if (cell.kind === "holiday") {
+      seq += "H";
+      continue;
+    }
+    if (i === probeWorkIdx) {
+      seq += "W";
+      continue;
+    }
+    const mark = markOf(grid, personId, cell.date).mark;
+    if (mark === "假") seq += "L";
+    else if (isWork(mark)) seq += "W";
+    else seq += "R";
+  }
+  return seq;
 }
 
 function isIsolatedWorkDay(
@@ -657,23 +750,21 @@ function isIsolatedWorkDay(
   idx: number,
   prevDayShifts: Map<number, string>,
 ): boolean {
-  if (idx < 0 || idx >= cells.length) return false;
-  const cur = cells[idx];
-  if (!isWork(markOf(grid, personId, cur.date).mark)) return false;
-  const left = idx > 0 ? cells[idx - 1] : undefined;
-  const right = idx < cells.length - 1 ? cells[idx + 1] : undefined;
-  const leftMark = left
-    ? markOf(grid, personId, left.date).mark
-    : idx === 0
-      ? (prevDayShifts.get(personId) as ShiftMark | undefined)
-      : undefined;
-  const rightMark = right ? markOf(grid, personId, right.date).mark : undefined;
-  const leftRest =
-    left != null
-      ? isSoloRestNeighbor(left, leftMark)
-      : leftMark === "休" || leftMark === "";
-  const rightRest = isSoloRestNeighbor(right, rightMark);
-  return leftRest && rightRest;
+  return isShortClosedWork(personDaySeq(grid, personId, cells), idx, prevDayCode(prevDayShifts, personId));
+}
+
+function hasShortWorkRun(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  cells: MonthCell[],
+  prevDayShifts: Map<number, string>,
+): boolean {
+  const seq = personDaySeq(grid, personId, cells);
+  const prev = prevDayCode(prevDayShifts, personId);
+  for (let i = 0; i < cells.length; i += 1) {
+    if (isShortClosedWork(seq, i, prev)) return true;
+  }
+  return false;
 }
 
 function wouldBeIsolatedWork(
@@ -685,20 +776,11 @@ function wouldBeIsolatedWork(
 ): boolean {
   const idx = cellIdx(cells, date);
   if (idx < 0) return false;
-  const left = idx > 0 ? cells[idx - 1] : undefined;
-  const right = idx < cells.length - 1 ? cells[idx + 1] : undefined;
-  const leftMark = left
-    ? markOf(grid, personId, left.date).mark
-    : idx === 0
-      ? (prevDayShifts.get(personId) as ShiftMark | undefined)
-      : undefined;
-  const rightMark = right ? markOf(grid, personId, right.date).mark : undefined;
-  const leftRest =
-    left != null
-      ? isSoloRestNeighbor(left, leftMark)
-      : leftMark === "休" || leftMark === "";
-  const rightRest = isSoloRestNeighbor(right, rightMark);
-  return leftRest && rightRest;
+  return isShortClosedWork(
+    personDaySeq(grid, personId, cells, idx),
+    idx,
+    prevDayCode(prevDayShifts, personId),
+  );
 }
 
 function workMarkAfterPrev(
@@ -1028,7 +1110,7 @@ function balancedNightTarget(
   if (isMonthEndCoverDay(cell, cells) || !settings.preferBalancedShifts) {
     return Math.min(maxN, Math.max(minN, 0));
   }
-  return Math.min(maxN, Math.max(minN, Math.round(workers / 2)));
+  return Math.min(maxN, Math.max(minN, Math.round(workers / 3)));
 }
 
 function fillGroupCover(
@@ -1377,6 +1459,9 @@ function assignNights(
         const aSafe = aNext === "休" || aNext === "晚" || aNext === "假" || aNext == null ? 0 : 1;
         const bSafe = bNext === "休" || bNext === "晚" || bNext === "假" || bNext == null ? 0 : 1;
         if (aSafe !== bSafe) return aSafe - bSafe;
+        const cluster =
+          nightClusterPenalty(grid, a.id, c.date, cells) - nightClusterPenalty(grid, b.id, c.date, cells);
+        if (cluster !== 0) return cluster;
         const nightCmp = (nightCount.get(a.id) ?? 0) - (nightCount.get(b.id) ?? 0);
         if (nightCmp !== 0) return nightCmp;
         return salt(a.id, c.day) - salt(b.id, c.day);
@@ -1520,6 +1605,7 @@ function fixMorningAfterNight(
     for (const c of cells) {
       const cell = markOf(grid, p.id, c.date);
       if (!canEdit(cell) || cell.mark !== "早") continue;
+      if (isHolidayOvertime(c, cell)) continue;
       if (previousMark(grid, p.id, c.date, cells, prevDayShifts) !== "晚") continue;
       const members = groups.get(p.groupName) ?? [];
       const working = groupWork(grid, members, c.date);
@@ -1540,14 +1626,20 @@ function fixMorningAfterNight(
   }
 }
 
-function weekRestDates(
+function personRestDates(
   grid: Map<number, Map<string, GridMark>>,
   personId: number,
-  weekCells: MonthCell[],
+  cells: MonthCell[],
+  prevDayShifts: Map<number, string> = new Map(),
 ): string[] {
-  return weekCells
+  const dates = cells
     .filter((c) => isRestMark(markOf(grid, personId, c.date).mark))
     .map((c) => c.date);
+  if (cells[0]) {
+    const prev = prevDayShifts.get(personId);
+    if (prev === "休" || prev === "假" || prev === "") dates.push(addDays(cells[0].date, -1));
+  }
+  return dates;
 }
 
 function hasPairedRest(restDates: string[]): boolean {
@@ -1591,50 +1683,41 @@ function clusterWeeklyRest(
 ): void {
   if (!settings.preferPairedRest) return;
   const groups = groupMembers(people);
-  const weeks = new Map<string, MonthCell[]>();
-  for (const c of cells) {
-    const key = mondayOf(c.date);
-    const list = weeks.get(key) ?? [];
-    list.push(c);
-    weeks.set(key, list);
-  }
 
   for (const p of people) {
     const members = groups.get(p.groupName) ?? [];
-    for (const weekCells of weeks.values()) {
-      for (let attempt = 0; attempt < 12; attempt += 1) {
-        const restDates = weekRestDates(grid, p.id, weekCells);
-        if (hasPairedRest(restDates)) break;
-        const isolatedRests = weekCells.filter((c) => {
-          if (c.kind === "holiday") return false;
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const restDates = personRestDates(grid, p.id, cells, prevDayShifts);
+      if (hasPairedRest(restDates)) break;
+      const isolatedRests = cells.filter((c) => {
+        if (c.kind === "holiday") return false;
+        const cell = markOf(grid, p.id, c.date);
+        if (!canEdit(cell) || cell.mark !== "休" || cell.wantRest) return false;
+        return !restDates.some((d) => d !== c.date && (addDays(d, 1) === c.date || addDays(c.date, 1) === d));
+      });
+      let moved = false;
+      for (const from of isolatedRests) {
+        const targets = cells.filter((c) => {
           const cell = markOf(grid, p.id, c.date);
-          if (!canEdit(cell) || cell.mark !== "休" || cell.wantRest) return false;
-          return !restDates.some((d) => d !== c.date && (addDays(d, 1) === c.date || addDays(c.date, 1) === d));
+          if (!canEdit(cell) || !isWork(cell.mark)) return false;
+          if (!groupCoveredWithout(grid, members, c.date, p.id, settings, cells)) return false;
+          const nextRests = restDates.filter((d) => d !== from.date).concat(c.date);
+          return hasPairedRest(nextRests);
         });
-        let moved = false;
-        for (const from of isolatedRests) {
-          const targets = weekCells.filter((c) => {
-            const cell = markOf(grid, p.id, c.date);
-            if (!canEdit(cell) || !isWork(cell.mark)) return false;
-            if (!groupCoveredWithout(grid, members, c.date, p.id, settings, cells)) return false;
-            const nextRests = restDates.filter((d) => d !== from.date).concat(c.date);
-            return hasPairedRest(nextRests);
-          });
-          const chosen = targets[0];
-          if (!chosen) continue;
-          const yesterday = previousMark(grid, p.id, from.date, cells, prevDayShifts);
-          const workMark = workMarkAfterPrev(p, yesterday, settings);
-          if (!isWork(workMark)) continue;
-          if (workMark === "晚" && nextMark(grid, p.id, from.date, cells) === "早") continue;
-          if (consecutiveIf(grid, p.id, cells, from.date, workMark, prev) > settings.maxConsecutiveWork) continue;
-          if (shortRestAfterMaxRun(grid, p.id, cells, prev, settings.maxConsecutiveWork, from.date, true)) continue;
-          markOf(grid, p.id, from.date).mark = workMark;
-          markOf(grid, p.id, chosen.date).mark = "休";
-          moved = true;
-          break;
-        }
-        if (!moved) break;
+        const chosen = targets[0];
+        if (!chosen) continue;
+        const yesterday = previousMark(grid, p.id, from.date, cells, prevDayShifts);
+        const workMark = workMarkAfterPrev(p, yesterday, settings);
+        if (!isWork(workMark)) continue;
+        if (workMark === "晚" && nextMark(grid, p.id, from.date, cells) === "早") continue;
+        if (consecutiveIf(grid, p.id, cells, from.date, workMark, prev) > settings.maxConsecutiveWork) continue;
+        if (shortRestAfterMaxRun(grid, p.id, cells, prev, settings.maxConsecutiveWork, from.date, true)) continue;
+        markOf(grid, p.id, from.date).mark = workMark;
+        markOf(grid, p.id, chosen.date).mark = "休";
+        moved = true;
+        break;
       }
+      if (!moved) break;
     }
   }
 }
@@ -1701,6 +1784,8 @@ function tryAttachIsolated(
   if (!groupCoveredWithout(grid, members, cells[beyond].date, person.id, settings, cells)) return false;
   const beforeRun = maxCountedRun(grid, person.id, cells, prev);
   const beforeShort = shortRestAfterMaxRun(grid, person.id, cells, prev, settings.maxConsecutiveWork);
+  const prevCode = prevDayCode(prevDayShifts, person.id);
+  const beforeLen = closedWorkRun(personDaySeq(grid, person.id, cells), isolatedIdx, prevCode).length;
   const snap = snapshotMarks(grid, [person], cells);
   breakCell.mark = "休";
   markOf(grid, person.id, cells[adjIdx].date).mark = intended;
@@ -1708,8 +1793,9 @@ function tryAttachIsolated(
     resolveFollowingMorning(grid, person, cells[adjIdx].date, cells, settings, groups, prevDayShifts);
   }
   const afterShort = shortRestAfterMaxRun(grid, person.id, cells, prev, settings.maxConsecutiveWork);
+  const afterLen = closedWorkRun(personDaySeq(grid, person.id, cells), isolatedIdx, prevCode).length;
   const ok =
-    !isIsolatedWorkDay(grid, person.id, cells, isolatedIdx, prevDayShifts) &&
+    (afterLen >= MIN_WORK_BEFORE_REST || afterLen > beforeLen) &&
     maxCountedRun(grid, person.id, cells, prev) <= Math.max(settings.maxConsecutiveWork, beforeRun) &&
     (!afterShort || (beforeShort != null && afterShort.restDate === beforeShort.restDate)) &&
     (intended !== "早" || previousMark(grid, person.id, cells[adjIdx].date, cells, prevDayShifts) !== "晚");
@@ -1739,7 +1825,12 @@ function repairIsolatedWork(
         const fromCell = markOf(grid, p.id, from.date);
         if (!canEdit(fromCell) && !isWork(fromCell.mark)) continue;
 
-        const attachOrder = [i + 1, i - 1].filter((j) => j >= 0 && j < cells.length);
+        const nextOpen = (dir: number) => {
+          let j = i + dir;
+          while (j >= 0 && j < cells.length && cells[j].kind === "holiday") j += dir;
+          return j;
+        };
+        const attachOrder = [nextOpen(1), nextOpen(-1)].filter((j) => j >= 0 && j < cells.length);
         for (const j of attachOrder) {
           if (tryAttachIsolated(grid, p, members, i, j, cells, settings, prev, prevDayShifts, groups)) {
             changed = true;
@@ -1765,10 +1856,9 @@ function repairIsolatedWork(
             if (mark === "晚") {
               resolveFollowingMorning(grid, other, from.date, cells, settings, groups, prevDayShifts);
             }
-            const otherIdx = i;
             const ok =
-              !isIsolatedWorkDay(grid, p.id, cells, i, prevDayShifts) &&
-              !isIsolatedWorkDay(grid, other.id, cells, otherIdx, prevDayShifts) &&
+              !hasShortWorkRun(grid, p.id, cells, prevDayShifts) &&
+              !hasShortWorkRun(grid, other.id, cells, prevDayShifts) &&
               maxCountedRun(grid, other.id, cells, prev) <= settings.maxConsecutiveWork &&
               !shortRestAfterMaxRun(grid, p.id, cells, prev, settings.maxConsecutiveWork) &&
               !shortRestAfterMaxRun(grid, other.id, cells, prev, settings.maxConsecutiveWork);
@@ -1809,10 +1899,15 @@ function repairIsolatedWork(
         const chosen = targets[0];
         const mark =
           pickWorkMark(grid, p, chosen.c, cells, settings, prev, prevDayShifts, true, true) ?? "早";
+        const snap = snapshotMarks(grid, [p], cells);
         fromCell.mark = "休";
         markOf(grid, p.id, chosen.c.date).mark = mark;
         if (mark === "晚") {
           resolveFollowingMorning(grid, p, chosen.c.date, cells, settings, groups, prevDayShifts);
+        }
+        if (hasShortWorkRun(grid, p.id, cells, prevDayShifts)) {
+          restoreMarks(grid, snap);
+          continue;
         }
         changed = true;
         break;
@@ -2689,6 +2784,7 @@ function repairNightDiff(
   settings: Settings,
   prev: Map<number, Set<string>>,
   prevDayShifts: Map<number, string>,
+  onlyMonthEnd = false,
 ): void {
   const groups = groupMembers(people);
   for (const members of groups.values()) {
@@ -2715,13 +2811,27 @@ function repairNightDiff(
     const applyIfBetter = (action: () => void): boolean => {
       const before = nightBalanceScore(grid, pool, cells);
       const snap = snapshotMarks(grid, members, cells);
+      const badBefore = new Set(
+        pool
+          .filter((m) => {
+            const b = personShiftBlocks(grid, m.id, cells);
+            return isAvoidableInterleave(b.marks, b.locked);
+          })
+          .map((m) => m.id),
+      );
       action();
+      repairShiftBlocks(grid, members, cells, settings, prevDayShifts);
       const streakOk = members.every(
         (m) =>
           maxCountedRun(grid, m.id, cells, prev) <= settings.maxConsecutiveWork &&
           !shortRestAfterMaxRun(grid, m.id, cells, prev, settings.maxConsecutiveWork),
       );
-      if (betterScore(nightBalanceScore(grid, pool, cells), before) && coverOk() && streakOk) return true;
+      const blockOk = pool.every((m) => {
+        if (badBefore.has(m.id)) return true;
+        const b = personShiftBlocks(grid, m.id, cells);
+        return !isAvoidableInterleave(b.marks, b.locked);
+      });
+      if (betterScore(nightBalanceScore(grid, pool, cells), before) && coverOk() && streakOk && blockOk) return true;
       restoreMarks(grid, snap);
       return false;
     };
@@ -2740,6 +2850,7 @@ function repairNightDiff(
         for (const b of poor) {
           for (const c of cells) {
             if (c.kind === "holiday") continue;
+            if (onlyMonthEnd && !isMonthEndCoverDay(c, cells)) continue;
             const ca = markOf(grid, a.id, c.date);
             const cb = markOf(grid, b.id, c.date);
             if (!canEdit(ca) || !canEdit(cb)) continue;
@@ -3104,7 +3215,9 @@ export function validateRoster(
     }
     if (settings.noMorningAfterNight) {
       for (const c of cells) {
-        if (markOf(grid, p.id, c.date).mark !== "早") continue;
+        const morning = markOf(grid, p.id, c.date);
+        if (morning.mark !== "早") continue;
+        if (isHolidayOvertime(c, morning)) continue;
         if (previousMark(grid, p.id, c.date, cells, prevDayShifts) !== "晚") continue;
         conflicts.push({
           severity: "hard",
@@ -3114,46 +3227,48 @@ export function validateRoster(
         });
       }
     }
+    const seq = personDaySeq(grid, p.id, cells);
+    const prevCode = prevDayCode(prevDayShifts, p.id);
     for (let i = 0; i < cells.length; i += 1) {
-      if (!isIsolatedWorkDay(grid, p.id, cells, i, prevDayShifts)) continue;
+      const run = closedWorkRun(seq, i, prevCode);
+      if (run.length === 0 || run.length >= MIN_WORK_BEFORE_REST || !run.closed) continue;
+      let earlier = i - 1;
+      while (earlier >= 0 && seq[earlier] === "H") earlier -= 1;
+      if (earlier >= 0 && seq[earlier] === "W") continue;
       conflicts.push({
         severity: "hard",
         personId: p.id,
         date: cells[i].date,
-        message: `${p.name} ${cells[i].day} 日单天上班，不要工作一天休息一天`,
+        message: `${p.name} ${cells[i].day} 日起连续上班 ${run.length} 天就休息，连续工作 ${MIN_WORK_BEFORE_REST} 天才可以休息`,
       });
     }
     if (!cached?.hardOnly && settings.preferPairedRest) {
-      const byWeek = new Map<string, MonthCell[]>();
-      for (const c of cells) {
-        const key = mondayOf(c.date);
-        const list = byWeek.get(key) ?? [];
-        list.push(c);
-        byWeek.set(key, list);
-      }
-      for (const weekCells of byWeek.values()) {
-        const restDates = weekRestDates(grid, p.id, weekCells);
-        if (restDates.length >= 2 && !hasPairedRest(restDates)) {
-          conflicts.push({
-            severity: "soft",
-            personId: p.id,
-            date: weekCells[0]?.date,
-            message: `${p.name} ${weekCells[0]?.day} 日起该周休息未连在一起`,
-          });
-        }
+      const restDates = personRestDates(grid, p.id, cells, prevDayShifts);
+      if (restDates.length >= 2 && !hasPairedRest(restDates)) {
+        conflicts.push({
+          severity: "soft",
+          personId: p.id,
+          message: `${p.name} 休息未连在一起`,
+        });
       }
     }
-    if (!cached?.hardOnly) {
-      for (const c of cells) {
-        const cell = markOf(grid, p.id, c.date);
-        if (cell.wantRest && isWork(cell.mark)) {
-          conflicts.push({
-            severity: "soft",
-            personId: p.id,
-            date: c.date,
-            message: `${p.name} ${c.day} 日想休，因覆盖仍排了班`,
-          });
-        }
+    const blocks = personShiftBlocks(grid, p.id, cells);
+    if (isAvoidableInterleave(blocks.marks, blocks.locked)) {
+      conflicts.push({
+        severity: "hard",
+        personId: p.id,
+        message: `${p.name} 早班晚班穿插，除月末三天外最多切一次`,
+      });
+    }
+    for (const c of cells) {
+      const cell = markOf(grid, p.id, c.date);
+      if (cell.wantRest && isWork(cell.mark)) {
+        conflicts.push({
+          severity: "hard",
+          personId: p.id,
+          date: c.date,
+          message: `${p.name} ${c.day} 日已标想休，必须排休息`,
+        });
       }
     }
   }
@@ -3211,13 +3326,13 @@ export function validateRoster(
         !isHoliday(c) &&
         !isMonthEndCoverDay(c, cells) &&
         need.canSplit &&
-        Math.abs(morningsHere.length - nightsHere.length) > 1
+        nightsHere.length !== balancedNightTarget(working.length, c, cells, settings)
       ) {
         conflicts.push({
           severity: "soft",
           date: c.date,
           groupName: gName,
-          message: `${c.day} 日 ${gName} 早 ${morningsHere.length} / 晚 ${nightsHere.length}，除月末三天外尽量平均`,
+          message: `${c.day} 日 ${gName} 早 ${morningsHere.length} / 晚 ${nightsHere.length}，除月末三天外尽量接近 2:1`,
         });
       }
     }
@@ -3410,6 +3525,114 @@ function applyUserMarks(
   applyAttendanceFlags(grid, flagRows);
 }
 
+function coverGapCount(
+  grid: Map<number, Map<string, GridMark>>,
+  people: Person[],
+  cells: MonthCell[],
+  settings: Settings,
+): number {
+  const groups = groupMembers(people);
+  let n = 0;
+  for (const c of cells) {
+    if (isHoliday(c)) continue;
+    for (const members of groups.values()) {
+      const need = coverNeeds(c, cells, members, settings, grid);
+      const working = groupWork(grid, members, c.date);
+      if (working.length < need.work) n += 1;
+      if (!need.canSplit) continue;
+      const mornings = working.filter((p) => markOf(grid, p.id, c.date).mark === "早").length;
+      const nights = working.filter((p) => markOf(grid, p.id, c.date).mark === "晚").length;
+      if (mornings < need.morning) n += 1;
+      if (nights < need.night) n += 1;
+    }
+  }
+  return n;
+}
+
+function repairShiftBlocks(
+  grid: Map<number, Map<string, GridMark>>,
+  people: Person[],
+  cells: MonthCell[],
+  settings: Settings,
+  prevDayShifts: Map<number, string>,
+): void {
+  const groups = groupMembers(people);
+  for (const p of people) {
+    const blocks = personShiftBlocks(grid, p.id, cells);
+    if (!isAvoidableInterleave(blocks.marks, blocks.locked)) continue;
+    const forbid = new Set<number>();
+    if (
+      settings.noMorningAfterNight &&
+      cells[0] &&
+      blocks.dates[0] === cells[0].date &&
+      prevDayShifts.get(p.id) === "晚"
+    ) {
+      forbid.add(0);
+    }
+    const plans = blockPlans(blocks.marks, blocks.locked, p.canNight, forbid);
+    const snap = snapshotMarks(grid, people, cells);
+    const beforeGaps = coverGapCount(grid, people, cells, settings);
+    let kept = false;
+    for (const plan of plans) {
+      restoreMarks(grid, snap);
+      for (let i = 0; i < plan.length; i += 1) {
+        if (plan[i] !== blocks.marks[i]) markOf(grid, p.id, blocks.dates[i]).mark = plan[i] as "早" | "晚";
+      }
+      const members = groups.get(p.groupName) ?? [];
+      for (const c of cells) {
+        if (isHoliday(c)) continue;
+        const need = coverNeeds(c, cells, members, settings, grid);
+        if (!need.canSplit) continue;
+        const nights = groupWork(grid, members, c.date).filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
+        if (nights >= need.night) continue;
+        const mornings = groupWork(grid, members, c.date).filter((x) => markOf(grid, x.id, c.date).mark === "早").length;
+        if (mornings <= need.morning) continue;
+        for (const q of members) {
+          if (q.id === p.id || !q.canNight) continue;
+          const cell = markOf(grid, q.id, c.date);
+          if (!canEdit(cell) || cell.mark !== "早") continue;
+          if (wouldWorsenBlocks(grid, q.id, c.date, "晚", cells)) continue;
+          cell.mark = "晚";
+          break;
+        }
+      }
+      const after = personShiftBlocks(grid, p.id, cells);
+      if (isAvoidableInterleave(after.marks, after.locked)) continue;
+      if (coverGapCount(grid, people, cells, settings) > beforeGaps) continue;
+      let morningAfter = false;
+      for (const c of cells) {
+        const cell = markOf(grid, p.id, c.date);
+        if (cell.mark !== "早" || isHolidayOvertime(c, cell)) continue;
+        if (previousMark(grid, p.id, c.date, cells, prevDayShifts) === "晚") {
+          morningAfter = true;
+          break;
+        }
+      }
+      if (morningAfter) continue;
+      kept = true;
+      break;
+    }
+    if (!kept) restoreMarks(grid, snap);
+  }
+}
+
+function wouldWorsenBlocks(
+  grid: Map<number, Map<string, GridMark>>,
+  personId: number,
+  date: string,
+  next: "早" | "晚",
+  cells: MonthCell[],
+): boolean {
+  const cell = markOf(grid, personId, date);
+  const old = cell.mark;
+  const prev = personShiftBlocks(grid, personId, cells);
+  const wasBad = isAvoidableInterleave(prev.marks, prev.locked);
+  cell.mark = next;
+  const now = personShiftBlocks(grid, personId, cells);
+  cell.mark = old;
+  return isAvoidableInterleave(now.marks, now.locked) && !wasBad;
+}
+
 function repairDailyShiftBalance(
   grid: Map<number, Map<string, GridMark>>,
   people: Person[],
@@ -3437,6 +3660,7 @@ function repairDailyShiftBalance(
       for (const p of extras) {
         const nightNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
         if (nightNow <= target || nightNow <= minNight) break;
+        if (wouldWorsenBlocks(grid, p.id, c.date, "早", cells)) continue;
         markOf(grid, p.id, c.date).mark = "早";
       }
       const shorts = workers
@@ -3451,6 +3675,7 @@ function repairDailyShiftBalance(
         const nightNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
         const morningNow = workers.filter((x) => markOf(grid, x.id, c.date).mark === "早").length;
         if (nightNow >= target || morningNow <= settings.minMorningPerGroupPerDay) break;
+        if (wouldWorsenBlocks(grid, p.id, c.date, "晚", cells)) continue;
         markOf(grid, p.id, c.date).mark = "晚";
       }
     }
@@ -3468,6 +3693,7 @@ function repairSoftRound(
   repairHardCover(grid, people, cells, settings, prev, prevDayShifts);
   repairNightDiff(grid, people, cells, settings, prev, prevDayShifts);
   repairDailyShiftBalance(grid, people, cells, settings, prevDayShifts);
+  repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
   repairWeekCap(grid, people, cells, settings, prev, prevDayShifts);
   repairWeekFill(grid, people, cells, settings, prev, prevDayShifts);
   repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
@@ -3507,7 +3733,7 @@ export function generateRoster(input: GenerateInput) {
   const base = input.seed ?? (Date.now() ^ ((Math.random() * 0x100000000) >>> 0));
   let bestGrid: Map<number, Map<string, GridMark>> | undefined;
   let bestHard = Number.POSITIVE_INFINITY;
-  const maxAttempts = 12;
+  const maxAttempts = 24;
   for (let i = 0; i < maxAttempts; i += 1) {
     const seed = i === 0 ? base : (base + 17 + (i - 1) * 41) >>> 0;
     const grid = generateRosterGrid({ ...input, seed }, pack);
@@ -3578,6 +3804,7 @@ function generateRosterGrid(input: GenerateInput, pack: MonthPack) {
     fixMorningAfterNight(grid, people, cells, settings, prevDayShifts);
     repairNightDiff(grid, people, cells, settings, prev, prevDayShifts);
     repairDailyShiftBalance(grid, people, cells, settings, prevDayShifts);
+    repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
     repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
   }
   repairConsecutive(grid, people, cells, settings, prev, prevDayShifts);
@@ -3644,12 +3871,22 @@ function generateRosterGrid(input: GenerateInput, pack: MonthPack) {
   repairIsolatedWork(grid, people, cells, settings, prev, prevDayShifts);
   repairNightDiff(grid, people, cells, settings, prev, prevDayShifts);
   repairDailyShiftBalance(grid, people, cells, settings, prevDayShifts);
+  repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
   repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
   repairHardCover(grid, people, cells, settings, prev, prevDayShifts);
   repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
   repairConsecutive(grid, people, cells, settings, prev, prevDayShifts);
   fixMorningAfterNight(grid, people, cells, settings, prevDayShifts);
   fillRestAfterGenerate(grid, people, cells);
+  repairIsolatedWork(grid, people, cells, settings, prev, prevDayShifts);
+  repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
+  repairNightDiff(grid, people, cells, settings, prev, prevDayShifts);
+  repairNightDiff(grid, people, cells, settings, prev, prevDayShifts, true);
+  repairHardCover(grid, people, cells, settings, prev, prevDayShifts);
+  repairAttendance(grid, people, cells, settings, prev, prevDayShifts);
+  repairIsolatedWork(grid, people, cells, settings, prev, prevDayShifts);
+  repairShiftBlocks(grid, people, cells, settings, prevDayShifts);
+  applyUserMarks(grid, start, end, assignments, flags, wishes);
   return grid;
 }
 
@@ -3941,13 +4178,15 @@ function materialize(
 export function clearMonth(year: number, month: number, all = false): void {
   const prefix = `${year}-${String(month).padStart(2, "0")}-%`;
   runMany(() => {
-    execSql("DELETE FROM assignments WHERE date LIKE ?", [prefix]);
-    execSql("DELETE FROM rest_wishes WHERE date LIKE ?", [prefix]);
-    execSql("DELETE FROM generated_months WHERE year = ? AND month = ?", [year, month]);
     if (all) {
+      execSql("DELETE FROM assignments WHERE date LIKE ?", [prefix]);
+      execSql("DELETE FROM rest_wishes WHERE date LIKE ?", [prefix]);
       execSql("DELETE FROM attendance_flags WHERE date LIKE ?", [prefix]);
       execSql("DELETE FROM leaves WHERE date LIKE ?", [prefix]);
+    } else {
+      execSql("DELETE FROM assignments WHERE date LIKE ? AND locked = 0", [prefix]);
     }
+    execSql("DELETE FROM generated_months WHERE year = ? AND month = ?", [year, month]);
   });
 }
 
@@ -3960,16 +4199,12 @@ export function persistGenerated(
   const start = `${year}-${String(month).padStart(2, "0")}-01`;
   const end = `${year}-${String(month).padStart(2, "0")}-31`;
   runMany(() => {
-    if (keepLocked) {
-      execSql("DELETE FROM assignments WHERE date >= ? AND date <= ? AND locked = 0", [start, end]);
-    } else {
-      execSql("DELETE FROM assignments WHERE date >= ? AND date <= ?", [start, end]);
-    }
+    execSql("DELETE FROM assignments WHERE date >= ? AND date <= ? AND locked = 0", [start, end]);
     const insert = `
       INSERT INTO assignments (person_id, date, shift, locked)
       VALUES (?, ?, ?, ?)
       ON CONFLICT(person_id, date) DO UPDATE SET
-        shift = excluded.shift,
+        shift = CASE WHEN assignments.locked = 1 THEN assignments.shift ELSE excluded.shift END,
         locked = CASE WHEN assignments.locked = 1 THEN 1 ELSE excluded.locked END
     `;
     for (const cell of roster) {
@@ -3978,8 +4213,20 @@ export function persistGenerated(
         cell.personId,
         cell.date,
         cell.mark,
-        cell.locked ? 1 : 0,
+        cell.locked || cell.wantRest ? 1 : 0,
       ]);
+    }
+    const wishes = queryAll<{ person_id: number; date: string }>(
+      "SELECT person_id, date FROM rest_wishes WHERE date >= ? AND date <= ?",
+      [start, end],
+    );
+    for (const w of wishes) {
+      execSql(
+        `INSERT INTO assignments (person_id, date, shift, locked)
+         VALUES (?, ?, '休', 1)
+         ON CONFLICT(person_id, date) DO UPDATE SET shift = '休', locked = 1`,
+        [w.person_id, w.date],
+      );
     }
     execSql(
       "INSERT INTO generated_months (year, month) VALUES (?, ?) ON CONFLICT(year, month) DO NOTHING",

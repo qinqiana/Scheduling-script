@@ -6,11 +6,9 @@ import { daysInMonth } from "./calendar.ts";
 import type { currentRoster } from "./engine.ts";
 import { templatesDir } from "./paths.ts";
 
-const TEMPLATE_CANDIDATES = [
-  join(templatesDir(), "考勤表模板.xlsx"),
-  "d:\\个人文件\\项目\\排班\\考勤表模板.xlsx",
-  "D:\\工作\\2026\\综调集中化\\考核绩效相关\\考勤表\\考勤表模板.xlsx",
-];
+function importTemplatePath(): string {
+  return join(templatesDir(), "考勤表导入模板.xlsx");
+}
 
 const WEEKDAY = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -25,8 +23,13 @@ function colLetter(n: number): string {
   return s;
 }
 
-function findTemplate(): string | undefined {
-  return TEMPLATE_CANDIDATES.find((p) => existsSync(p));
+function dateColumns(ws: ExcelJS.Worksheet, days: number): Map<number, number> {
+  const cols = new Map<number, number>();
+  ws.getRow(2).eachCell({ includeEmpty: false }, (cell, col) => {
+    const day = headerDay(cell.value);
+    if (day != null && day <= days && !cols.has(day)) cols.set(day, col);
+  });
+  return cols;
 }
 
 function headerDay(value: unknown): number | null {
@@ -102,9 +105,12 @@ async function fillExistingTemplate(
 ): Promise<ExcelJS.Workbook | null> {
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(templatePath);
-  const sheetName = data.settings.sheetName;
-  const ws = wb.getWorksheet(sheetName) ?? wb.worksheets[0];
+  const ws = wb.worksheets[0];
   if (!ws) return null;
+
+  const days = daysInMonth(year, month);
+  const cols = dateColumns(ws, days);
+  if (cols.size === 0) return null;
 
   const nameToRow = new Map<string, number>();
   ws.eachRow((row, rowNumber) => {
@@ -113,24 +119,19 @@ async function fillExistingTemplate(
     if (name && name !== "合计") nameToRow.set(name, rowNumber);
   });
 
-  const missing = data.people.filter((p) => !nameToRow.has(p.name));
-  if (missing.length > 0) return null;
-
+  const lookup = new Map(data.roster.map((r) => [`${r.personId}|${r.date}`, r]));
   for (const person of data.people) {
     const rowNumber = nameToRow.get(person.name);
     if (!rowNumber) continue;
     for (const cell of data.cells) {
-      const col = 3 + cell.day;
-      const mark = data.roster.find((r) => r.personId === person.id && r.date === cell.date);
+      const col = cols.get(cell.day);
+      if (!col) continue;
+      const mark = lookup.get(`${person.id}|${cell.date}`);
       ws.getCell(rowNumber, col).value = excelMark(mark) ?? null;
     }
   }
 
-  const title = ws.getCell(1, 1);
-  if (typeof title.value === "string" || title.value == null) {
-    title.value = `${data.settings.title} ${year}年${month}月`;
-  }
-  removeExtraDayColumns(ws, daysInMonth(year, month));
+  removeExtraDayColumns(ws, days);
   return wb;
 }
 
@@ -352,9 +353,9 @@ export async function exportWorkbook(
   year: number,
   month: number,
 ): Promise<{ buffer: Buffer; filename: string }> {
-  const template = findTemplate();
+  const template = importTemplatePath();
   let wb: ExcelJS.Workbook | null = null;
-  if (template) {
+  if (existsSync(template)) {
     try {
       wb = await fillExistingTemplate(template, data, year, month);
     } catch {
@@ -362,10 +363,6 @@ export async function exportWorkbook(
     }
   }
   if (!wb) wb = buildWorkbook(data, year, month);
-  else {
-    addPersonSheet(wb, data.people, data.cells, data.roster, year, month);
-    addStatsSheet(wb, data.stats, data.conflicts, data.settings, year, month);
-  }
   const buffer = Buffer.from(await wb.xlsx.writeBuffer());
   return { buffer, filename: `入网审核排班-${year}年${month}月.xlsx` };
 }

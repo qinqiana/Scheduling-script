@@ -4,7 +4,7 @@ import type {
   Person,
   Settings,
 } from "../shared/types";
-import type { RosterPayload } from "./types";
+import type { ImportResult, RosterPayload } from "./types";
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   let res: Response;
@@ -69,6 +69,25 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ year, month, all }),
     }),
+  importExcel: (file: File, year: number, month: number) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("year", String(year));
+    fd.append("month", String(month));
+    return fetch("/api/roster/import", { method: "POST", body: fd }).then(async (res) => {
+      if (!res.ok) {
+        let message = res.statusText;
+        try {
+          const body = (await res.json()) as { error?: string };
+          if (body.error) message = body.error;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(message);
+      }
+      return (await res.json()) as ImportResult;
+    });
+  },
   setCell: (body: { personId: number; date: string; shift: "早" | "晚" | "休"; locked: boolean }) =>
     req<RosterPayload>("/api/roster/cell", { method: "PUT", body: JSON.stringify(body) }),
   clearCell: (body: { personId: number; date: string }) =>

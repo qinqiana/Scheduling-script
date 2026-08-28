@@ -8,3 +8,6 @@ data.db.bak
 *.log
 uploads
 .vscode
+.reasonix
+.scratch
+reasonix.toml

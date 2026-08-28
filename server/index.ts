@@ -21,8 +21,9 @@ import {
   saveSettings,
 } from "./db.ts";
 import { clearMonth, currentRoster, generateRoster, persistGenerated } from "./engine.ts";
+import { importRosterFromExcel } from "./importRoster.ts";
 import { exportWorkbook } from "./excel.ts";
-import { distDir } from "./paths.ts";
+import { distDir, templatesDir } from "./paths.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -273,6 +274,23 @@ app.post("/api/roster/clear", (req, res) => {
   res.json(currentRoster(year, month));
 });
 
+app.post("/api/roster/import", upload.single("file"), async (req, res) => {
+  if (!req.file?.buffer) {
+    res.status(400).json({ error: "请上传考勤表 xlsx" });
+    return;
+  }
+  try {
+    const result = await importRosterFromExcel(
+      req.file.buffer,
+      req.body?.year,
+      req.body?.month,
+    );
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e instanceof Error ? e.message : "导入失败" });
+  }
+});
+
 app.put("/api/roster/wish", (req, res) => {
   const { personId, date, want } = req.body ?? {};
   if (!personId || !date) {
@@ -291,21 +309,19 @@ app.put("/api/roster/wish", (req, res) => {
         [personId, date],
       );
       if (!leave && flag?.kind !== "overtime") {
-        const locked = queryOne<{ locked: number }>(
-          "SELECT locked FROM assignments WHERE person_id = ? AND date = ?",
+        execSql(
+          `INSERT INTO assignments (person_id, date, shift, locked)
+           VALUES (?, ?, '休', 1)
+           ON CONFLICT(person_id, date) DO UPDATE SET shift = '休', locked = 1`,
           [personId, date],
         );
-        if (!locked?.locked) {
-          execSql(
-            `INSERT INTO assignments (person_id, date, shift, locked)
-             VALUES (?, ?, '休', 0)
-             ON CONFLICT(person_id, date) DO UPDATE SET shift = '休'`,
-            [personId, date],
-          );
-        }
       }
     } else {
       execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
+      execSql(
+        "UPDATE assignments SET locked = 0 WHERE person_id = ? AND date = ? AND shift = '休'",
+        [personId, date],
+      );
     }
   });
   const [year, month] = String(date).split("-").map(Number);
@@ -459,6 +475,23 @@ app.get("/api/backup", (_req, res) => {
   res.setHeader("Content-Type", "application/octet-stream");
   res.setHeader("Content-Disposition", "attachment; filename=data.db");
   res.send(readFileSync(getDbPath()));
+});
+
+app.get("/api/roster/import-template", (_req, res) => {
+  const file = join(templatesDir(), "考勤表导入模板.xlsx");
+  if (!existsSync(file)) {
+    res.status(404).json({ error: "考勤表导入模板不存在" });
+    return;
+  }
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  );
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename*=UTF-8''${encodeURIComponent("考勤表导入模板.xlsx")}`,
+  );
+  res.send(readFileSync(file));
 });
 
 app.post("/api/restore", upload.single("file"), async (req, res) => {

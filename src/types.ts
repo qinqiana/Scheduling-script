@@ -23,6 +23,17 @@ export interface RosterPayload {
   generated?: boolean;
 }
 
+export interface ImportResult {
+  imported: number;
+  shifts: number;
+  leaves: number;
+  overtimes: number;
+  compRests: number;
+  skippedUnknown: string[];
+  unmatchedNames: string[];
+  rosterCells: RosterPayload;
+}
+
 export type {
   Conflict,
   DayCover,
