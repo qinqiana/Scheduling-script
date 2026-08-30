@@ -62,7 +62,7 @@ export const api = {
   generate: (year: number, month: number, keepLocked: boolean) =>
     req<RosterPayload>("/api/roster/generate", {
       method: "POST",
-      body: JSON.stringify({ year, month, keepLocked, seed: Date.now() ^ ((Math.random() * 0x100000000) >>> 0) }),
+      body: JSON.stringify({ year, month, keepLocked }),
     }),
   clear: (year: number, month: number, all = false) =>
     req<RosterPayload>("/api/roster/clear", {

@@ -148,6 +148,3 @@ export const OFFICIAL_HOLIDAYS: Holiday[] = [
   ...off("2026-10-01", "2026-10-07", "国庆"),
   work("2026-10-10", "国庆调休上班"),
 ];
-
-/** @deprecated 使用 OFFICIAL_HOLIDAYS */
-export const HOLIDAYS_2026 = OFFICIAL_HOLIDAYS.filter((h) => h.date.startsWith("2026-"));

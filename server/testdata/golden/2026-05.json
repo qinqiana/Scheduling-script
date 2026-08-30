@@ -1,0 +1,3235 @@
+{
+  "seed": 20260831,
+  "year": 2026,
+  "month": 5,
+  "roster": [
+    {
+      "personId": 1,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-05",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-06",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-09",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-12",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-15",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-16",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-18",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-19",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-21",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-23",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-26",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-29",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-30",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 1,
+      "date": "2026-05-31",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-01",
+      "mark": "早",
+      "locked": true,
+      "overtime": true,
+      "manualOvertime": true,
+      "compRest": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-06",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-12",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-16",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-17",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-18",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-19",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-20",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-21",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-23",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-24",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-26",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-27",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-28",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-06",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-12",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-13",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-14",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-15",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-17",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-18",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-19",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-20",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-21",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-22",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-23",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-28",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-29",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-30",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 3,
+      "date": "2026-05-31",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-04",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-10",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-12",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-13",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-14",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-15",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-17",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-18",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-19",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-20",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-21",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-23",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-24",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-27",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-28",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-29",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-30",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 4,
+      "date": "2026-05-31",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-03",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-06",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-07",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-08",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-09",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-10",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-11",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-12",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-13",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-14",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-16",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-18",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-19",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-20",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-21",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-22",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-24",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-26",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-03",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-04",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-05",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-07",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-08",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-09",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-11",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-12",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-15",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-17",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-18",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-19",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-21",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-24",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-25",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-26",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 6,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-04",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-08",
+      "mark": "假",
+      "locked": true,
+      "overtime": false,
+      "leaveReason": "事假"
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-10",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-12",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-13",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-16",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-18",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-19",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-21",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-22",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-23",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-28",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 7,
+      "date": "2026-05-31",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-03",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-06",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-07",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-08",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-09",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-12",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-13",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-14",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-15",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-18",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-19",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-20",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-21",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-22",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-24",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-26",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-30",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-03",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-04",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-05",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-07",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-08",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-09",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-10",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-11",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-12",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-13",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-14",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-15",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-16",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-17",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-18",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-19",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-20",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-21",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-22",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-25",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-26",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-28",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-29",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-30",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 9,
+      "date": "2026-05-31",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-03",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-05",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-06",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-09",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-11",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-12",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-14",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-16",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-18",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-19",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-20",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-21",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-23",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-24",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-28",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-29",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 10,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-07",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-10",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-11",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-12",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-17",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-18",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-19",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-21",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-22",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-23",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-28",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 11,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-03",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-04",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-05",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-06",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-07",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-08",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-10",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-11",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-12",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-14",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-15",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-16",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-17",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-18",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-19",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-21",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-24",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-28",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-30",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 12,
+      "date": "2026-05-31",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-03",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-04",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-05",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-06",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-07",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-08",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-09",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-10",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-11",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-12",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-13",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-14",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-15",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-16",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-17",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-18",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-19",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-20",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-21",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-22",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-24",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-25",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-26",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-28",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-30",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-05-31",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-01",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-02",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-03",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-04",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-05",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-07",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-08",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-09",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-10",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-11",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-12",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-13",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-14",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-15",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-16",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-17",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-18",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-19",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-20",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-21",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-22",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-23",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-24",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-26",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-29",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-30",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-05-31",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    }
+  ],
+  "conflicts": [
+    {
+      "severity": "hard",
+      "personId": 1,
+      "message": "冯宝儿 夹心休 2 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 6,
+      "message": "毛佩凤 出勤 21 天、休息 10 天，无请假无特殊加班时应出勤 19 天、休息 12 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 6,
+      "message": "毛佩凤 夹心休 4 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 9,
+      "message": "周秋艳 夹心休 2 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 10,
+      "message": "杨礼 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 19 天、休息 12 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 10,
+      "message": "杨礼 夹心休 2 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 11,
+      "message": "俞观权 夹心休 3 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 12,
+      "message": "陆威婷 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 19 天、休息 12 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 12,
+      "message": "陆威婷 夹心休 3 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 13,
+      "message": "李珊珊 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 19 天、休息 12 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 13,
+      "message": "李珊珊 夹心休 3 天，生成排出的最多 1 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 13,
+      "message": "李珊珊 早班晚班穿插，除月末三天外最多切一次"
+    },
+    {
+      "severity": "hard",
+      "groupName": "中山清远",
+      "message": "中山清远 晚班极差 4 天，不能超过 3 天"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-03",
+      "groupName": "广州",
+      "message": "3 日 广州 早 4 / 晚 1，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-03",
+      "groupName": "佛山",
+      "message": "3 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-09",
+      "groupName": "佛山",
+      "message": "9 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-09",
+      "groupName": "中山清远",
+      "message": "9 日 中山清远 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-12",
+      "groupName": "广州",
+      "message": "12 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-15",
+      "groupName": "广州",
+      "message": "15 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-18",
+      "groupName": "广州",
+      "message": "18 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-18",
+      "groupName": "中山清远",
+      "message": "18 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-19",
+      "groupName": "广州",
+      "message": "19 日 广州 早 3 / 晚 3，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-20",
+      "groupName": "广州",
+      "message": "20 日 广州 早 2 / 晚 3，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-21",
+      "groupName": "广州",
+      "message": "21 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-24",
+      "groupName": "广州",
+      "message": "24 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-25",
+      "groupName": "广州",
+      "message": "25 日 广州 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-25",
+      "groupName": "中山清远",
+      "message": "25 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-26",
+      "groupName": "广州",
+      "message": "26 日 广州 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-26",
+      "groupName": "佛山",
+      "message": "26 日 佛山 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-26",
+      "groupName": "中山清远",
+      "message": "26 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-27",
+      "groupName": "佛山",
+      "message": "27 日 佛山 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-27",
+      "groupName": "中山清远",
+      "message": "27 日 中山清远 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-05-28",
+      "groupName": "佛山",
+      "message": "28 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    }
+  ]
+}

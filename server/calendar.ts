@@ -45,21 +45,12 @@ export function buildMonthCells(
   return cells;
 }
 
-export function lastWeekNum(cells: MonthCell[]): number {
-  return cells.length ? cells[cells.length - 1].weekNum : 1;
-}
-
 export function isOffDay(cell: MonthCell): boolean {
   return cell.kind === "weekend" || cell.kind === "holiday" || cell.kind === "bridge";
 }
 
 export function isHoliday(cell: MonthCell): boolean {
   return cell.kind === "holiday";
-}
-
-/** 通告连休日：非法定节假日，按周末值班 */
-export function isBridge(cell: MonthCell): boolean {
-  return cell.kind === "bridge";
 }
 
 /** 周末或通告连休，需要值班，不算法定工作日 */
@@ -70,10 +61,6 @@ export function isWeekendLike(cell: MonthCell): boolean {
 /** 法定工作日：普通工作日或国务院调休上班，不含周末、法定假日和连休 */
 export function isLegalWorkDay(cell: MonthCell): boolean {
   return cell.kind === "workday" || cell.kind === "makeup";
-}
-
-export function legalWorkDayCount(cells: MonthCell[]): number {
-  return cells.filter(isLegalWorkDay).length;
 }
 
 /** 该日所在自然周（周一到周日）的周一日期 */

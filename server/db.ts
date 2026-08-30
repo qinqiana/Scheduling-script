@@ -3,29 +3,13 @@ import initSqlJs, { type Database } from "sql.js";
 import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
 import { OFFICIAL_HOLIDAYS } from "./holidays.ts";
 import { dataDir, dbPath, sqlWasmPath } from "./paths.ts";
+import { SEED_PEOPLE } from "./seedPeople.ts";
 
 export function getDbPath(): string {
   return dbPath();
 }
 
 let db: Database | null = null;
-
-const SEED_PEOPLE: { name: string; groupName: string }[] = [
-  { name: "冯宝儿", groupName: "广州" },
-  { name: "钟梓枫", groupName: "广州" },
-  { name: "钟龙", groupName: "广州" },
-  { name: "姚炎兰", groupName: "广州" },
-  { name: "骆成奕", groupName: "广州" },
-  { name: "毛佩凤", groupName: "广州" },
-  { name: "刘文达", groupName: "佛山" },
-  { name: "陈彩怡", groupName: "佛山" },
-  { name: "周秋艳", groupName: "佛山" },
-  { name: "杨礼", groupName: "佛山" },
-  { name: "俞观权", groupName: "中山清远" },
-  { name: "陆威婷", groupName: "中山清远" },
-  { name: "李珊珊", groupName: "中山清远" },
-  { name: "江金岚", groupName: "中山清远" },
-];
 
 export async function getDb(): Promise<Database> {
   if (db) return db;

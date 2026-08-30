@@ -9,7 +9,8 @@
     "dev:server": "tsx watch server/index.ts",
     "dev:web": "vite",
     "build": "tsc -p tsconfig.server.json && vite build",
-    "start": "tsx server/index.ts"
+    "start": "tsx server/index.ts",
+    "test": "tsx --test server/**/*.test.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

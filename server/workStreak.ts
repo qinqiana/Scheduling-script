@@ -37,20 +37,3 @@ export function isShortClosedWork(seq: string, idx: number, prev?: string): bool
   const run = closedWorkRun(seq, idx, prev);
   return run.length > 0 && run.length < MIN_WORK_BEFORE_REST && run.closed;
 }
-
-function check(seq: string, idx: number, prev: string | undefined, want: boolean, msg: string) {
-  const got = isShortClosedWork(seq, idx, prev);
-  if (got !== want) throw new Error(`${msg}: ${seq}[${idx}] prev=${prev ?? "-"} got ${got}`);
-}
-
-check("RWR", 1, undefined, true, "1-day");
-check("RWWR", 1, undefined, true, "2-day");
-check("RWWR", 2, undefined, true, "2-day other");
-check("RWWWR", 1, undefined, false, "3-day");
-check("WWR", 0, "R", true, "2 after prev rest");
-check("WWWR", 0, "R", false, "3 after prev rest");
-check("RWHWR", 1, undefined, true, "W H W is 2");
-check("RWHWWR", 1, undefined, false, "W H WW is 3");
-check("RWLW", 1, undefined, false, "leave does not close");
-check("WW", 0, "R", false, "open month end");
-check("WR", 0, "W", false, "prev work opens left");

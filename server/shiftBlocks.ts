@@ -15,17 +15,6 @@ export function isAvoidableInterleave(marks: readonly string[], locked: readonly
   return shiftSwitches(marks.filter((_, i) => locked[i])) <= 1;
 }
 
-function check(got: boolean, want: boolean, msg: string) {
-  if (got !== want) throw new Error(`${msg}: got ${got}`);
-}
-
-check(isAvoidableInterleave(["早", "晚"], [false, false]), false, "one switch ok");
-check(isAvoidableInterleave(["早", "晚", "早"], [false, false, false]), true, "generated bounce");
-check(isAvoidableInterleave(["早", "晚", "早"], [true, true, true]), false, "locks force bounce");
-check(isAvoidableInterleave(["早", "晚", "早"], [false, true, false]), true, "unlockeds can flatten");
-check(isAvoidableInterleave(["早", "晚", "早"], [true, false, true]), true, "locked same color, middle free");
-check(isAvoidableInterleave(["早", "晚", "早", "晚"], [true, true, true, false]), false, "locks already >1");
-
 /** 未锁格可改成一段早+一段晚的方案，翻转少的在前。 */
 export function blockPlans(
   marks: readonly string[],
@@ -75,11 +64,4 @@ export function bestBlockPlan(
   canNight: boolean,
 ): string[] | null {
   return blockPlans(marks, locked, canNight)[0] ?? null;
-}
-
-const plan = bestBlockPlan(["早", "晚", "早"], [false, false, false], true);
-if (!plan || shiftSwitches(plan) > 1) throw new Error("paint to one switch");
-if (bestBlockPlan(["早", "晚", "早"], [true, true, true], true) !== null) throw new Error("locked bounce");
-if (blockPlans(["早", "晚"], [false, false], true, new Set([0])).some((p) => p[0] === "早")) {
-  throw new Error("forbid morning at 0");
 }

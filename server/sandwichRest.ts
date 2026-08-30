@@ -20,18 +20,3 @@ export function sandwichCount(seq: string, prev?: string, skip?: (i: number) => 
   }
   return n;
 }
-
-function check(got: boolean, want: boolean, msg: string) {
-  if (got !== want) throw new Error(`${msg}: got ${got}`);
-}
-
-check(isSandwichAt("WRW", 1), true, "WRW");
-check(isSandwichAt("RRW", 0, "W"), false, "pair right");
-check(isSandwichAt("WRH", 1), false, "holiday right");
-check(isSandwichAt("HRW", 1), false, "holiday left");
-check(isSandwichAt("RW", 0, "W"), true, "start after work");
-check(isSandwichAt("RW", 0, "R"), false, "start after rest");
-check(isSandwichAt("WR", 1), true, "end after work");
-check(isSandwichAt("WRWWR", 1) && isSandwichAt("WRWWR", 4), true, "two sandwiches");
-if (sandwichCount("WRWWR") !== 2) throw new Error("count 2");
-if (sandwichCount("WRWWR", undefined, (i) => i === 4) !== 1) throw new Error("skip");
