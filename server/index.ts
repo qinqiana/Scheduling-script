@@ -536,7 +536,7 @@ export async function startServer(preferredPort = PORT): Promise<number> {
       });
     });
   const actual = await listen(preferredPort);
-  console.log(`入网审核排班  http://127.0.0.1:${actual}`);
+  console.log(`入网审核排班 1.9  http://127.0.0.1:${actual}`);
   return actual;
 }
 
