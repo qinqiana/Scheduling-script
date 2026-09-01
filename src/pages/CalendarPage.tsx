@@ -92,11 +92,11 @@ export function CalendarPage({
     }
   };
 
-  const run = async (keepLocked: boolean) => {
-    setBusy(keepLocked ? `正在重排 ${month} 月未锁定格子…` : `正在生成 ${year} 年 ${month} 月…`);
+  const run = async () => {
+    setBusy(`正在生成 ${year} 年 ${month} 月…`);
     setError("");
     try {
-      setData(await api.generate(year, month, keepLocked));
+      setData(await api.generate(year, month));
       onChange();
     } catch (e) {
       setError(e instanceof Error ? e.message : "生成失败");
@@ -152,7 +152,7 @@ export function CalendarPage({
           <p className="hint">
             点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
             {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。连续工作 3 天才可以休息。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量接近 2:1（软），每人早晚最多切一次（半硬；法定假加班不计入，锁定造成的除外）。夹心休每人最多 1 天（半硬，并休优先于集中）。月末三天本月不满一周也算。请假是硬约束，「想休」同时锁定为休，清空未锁定和重排未锁定时保留。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
+            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。连续工作 3 天才可以休息。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量接近 2:1（软），每人早晚最多切一次（半硬；法定假加班不计入，锁定造成的除外）。夹心休每人最多 1 天，覆盖不够时允许第 2 天（半硬，并休优先于集中）。月末三天本月不满一周也算。请假是硬约束，「想休」同时锁定为休，清空未锁定时保留。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
           </p>
         </div>
         <div className="actions">
@@ -181,11 +181,8 @@ export function CalendarPage({
               ))}
             </select>
           </label>
-          <button className="btn primary" disabled={!!busy} onClick={() => void run(true)}>
+          <button className="btn primary" disabled={!!busy} onClick={() => void run()}>
             生成 {month} 月
-          </button>
-          <button className="btn" disabled={!!busy} onClick={() => void run(true)} title="保住锁定格子，其余按同一规则另排一套">
-            重排未锁定
           </button>
           <button className="btn danger" disabled={!!busy} onClick={() => void clearMonthRoster(false)}>
             清空 {month} 月

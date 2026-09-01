@@ -1,5 +1,6 @@
-/** 生成自己排出的夹心休上限（锁定/月末/贴假的不计）。 */
+/** 生成自己排出的夹心休上限（锁定/月末/贴假的不计）。覆盖不够时硬约束放宽到 HARD_SANDWICH_LIMIT。 */
 export const MAX_COUNTED_SANDWICH = 1;
+export const HARD_SANDWICH_LIMIT = 2;
 
 /** seq：W 上班 / R 休 / H 法定假 / L 请假。prev 是月初前一天。 */
 export function isSandwichAt(seq: string, idx: number, prev?: string): boolean {

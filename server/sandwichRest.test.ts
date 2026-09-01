@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isSandwichAt, sandwichCount } from "./sandwichRest.ts";
+import { HARD_SANDWICH_LIMIT, isSandwichAt, MAX_COUNTED_SANDWICH, sandwichCount } from "./sandwichRest.ts";
 
 test("上班中间单独一天休是夹心休", () => {
   assert.equal(isSandwichAt("WRW", 1), true);
@@ -22,4 +22,9 @@ test("夹心休按天计数，可跳过指定日", () => {
   assert.equal(isSandwichAt("WRWWR", 1) && isSandwichAt("WRWWR", 4), true);
   assert.equal(sandwichCount("WRWWR"), 2);
   assert.equal(sandwichCount("WRWWR", undefined, (i) => i === 4), 1);
+});
+
+test("生成尽量 1 个，覆盖不够时硬约束最多 2 个", () => {
+  assert.equal(MAX_COUNTED_SANDWICH, 1);
+  assert.equal(HARD_SANDWICH_LIMIT, 2);
 });

@@ -2761,11 +2761,6 @@
     },
     {
       "severity": "hard",
-      "personId": 6,
-      "message": "毛佩凤 夹心休 2 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
       "personId": 8,
       "message": "陈彩怡 出勤 17 天、休息 11 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
     },
@@ -2773,16 +2768,6 @@
       "severity": "hard",
       "personId": 11,
       "message": "俞观权 出勤 19 天、休息 9 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 11,
-      "message": "俞观权 夹心休 2 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 12,
-      "message": "陆威婷 夹心休 2 天，生成排出的最多 1 天"
     },
     {
       "severity": "hard",

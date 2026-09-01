@@ -247,7 +247,6 @@ app.get("/api/roster", (req, res) => {
 app.post("/api/roster/generate", (req, res) => {
   const year = Number(req.body?.year);
   const month = Number(req.body?.month);
-  const keepLocked = req.body?.keepLocked !== false;
   if (!year || !month) {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
@@ -256,10 +255,9 @@ app.post("/api/roster/generate", (req, res) => {
   const result = generateRoster({
     year,
     month,
-    keepLocked,
     seed: Number.isFinite(seed) && seed ? seed : undefined,
   });
-  persistGenerated(year, month, result.roster, keepLocked);
+  persistGenerated(year, month, result.roster);
   res.json(result);
 });
 

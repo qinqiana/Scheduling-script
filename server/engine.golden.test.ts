@@ -30,7 +30,7 @@ const MONTHS = [
 ] as const;
 
 function capture(year: number, month: number): Golden {
-  const result = generateRoster({ year, month, keepLocked: true, seed: GOLDEN_SEED }, goldenPack(year, month));
+  const result = generateRoster({ year, month, seed: GOLDEN_SEED }, goldenPack(year, month));
   return JSON.parse(
     JSON.stringify({
       seed: GOLDEN_SEED,
@@ -81,7 +81,7 @@ test("同一 seed 两次生成结果一致", () => {
 
 test("黄金生成不打开数据库", () => {
   const pack = goldenPack(2026, 2);
-  const result = generateRoster({ year: 2026, month: 2, keepLocked: true, seed: GOLDEN_SEED }, pack);
+  const result = generateRoster({ year: 2026, month: 2, seed: GOLDEN_SEED }, pack);
   assert.equal(result.people.length, 14);
   assert.equal(result.roster.length, pack.cells.length * 14);
 });

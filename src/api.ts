@@ -59,10 +59,10 @@ export const api = {
     req<{ ok: boolean }>(`/api/leaves/cell/${personId}/${date}`, { method: "DELETE" }),
   roster: (year: number, month: number) =>
     req<RosterPayload>(`/api/roster?year=${year}&month=${month}`),
-  generate: (year: number, month: number, keepLocked: boolean) =>
+  generate: (year: number, month: number) =>
     req<RosterPayload>("/api/roster/generate", {
       method: "POST",
-      body: JSON.stringify({ year, month, keepLocked }),
+      body: JSON.stringify({ year, month }),
     }),
   clear: (year: number, month: number, all = false) =>
     req<RosterPayload>("/api/roster/clear", {
