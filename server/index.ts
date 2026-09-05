@@ -2,8 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { join } from "node:path";
 import type { AddressInfo } from "node:net";
-import cors from "cors";
-import express from "express";
+import express, { type ErrorRequestHandler } from "express";
 import multer from "multer";
 import { DEFAULT_SETTINGS, type Person, type Settings } from "../shared/types.ts";
 import {
@@ -24,13 +23,66 @@ import { clearMonth, currentRoster, generateRoster, persistGenerated } from "./e
 import { importRosterFromExcel } from "./importRoster.ts";
 import { exportWorkbook } from "./excel.ts";
 import { distDir, templatesDir } from "./paths.ts";
+import { validDate, validMonth, validateSettings } from "./validation.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-const app = express();
-app.use(cors());
+export const app = express();
+// 界面通过同源请求（开发时走 Vite 代理）访问本地数据。
+app.use("/api", (req, res, next) => {
+  const origin = req.get("origin");
+  if (origin && origin !== `http://${req.get("host")}`) {
+    res.status(403).json({ error: "不允许其他网站访问本地排班数据" });
+    return;
+  }
+  next();
+});
 app.use(express.json({ limit: "4mb" }));
+app.use("/api", (req, res, next) => {
+  const body = req.body ?? {};
+  if (typeof body !== "object" || Array.isArray(body)) {
+    res.status(400).json({ error: "请求内容必须为对象" });
+    return;
+  }
+  if (body.date !== undefined && !validDate(body.date)) {
+    res.status(400).json({ error: "日期必须为有效的 YYYY-MM-DD" });
+    return;
+  }
+  if (body.personId !== undefined && (!Number.isSafeInteger(body.personId) || body.personId < 1 ||
+    !queryOne("SELECT id FROM people WHERE id = ?", [body.personId]))) {
+    res.status(400).json({ error: "人员不存在或编号无效" });
+    return;
+  }
+  for (const key of ["locked", "want", "active", "canNight", "keepLocked", "all", "includeFlags"]) {
+    if (body[key] !== undefined && typeof body[key] !== "boolean") {
+      res.status(400).json({ error: `${key} 必须为布尔值` });
+      return;
+    }
+  }
+  for (const key of ["name", "groupName"]) {
+    if (body[key] !== undefined) {
+      if (typeof body[key] !== "string" || !body[key].trim()) {
+        res.status(400).json({ error: "姓名、组别或名称不能为空" });
+        return;
+      }
+      body[key] = body[key].trim();
+    }
+  }
+  if (body.targetDays != null && (!Number.isInteger(body.targetDays) || body.targetDays < 0 || body.targetDays > 31)) {
+    res.status(400).json({ error: "目标出勤天数须为 0～31 的整数" });
+    return;
+  }
+  if (body.sortOrder !== undefined && !Number.isSafeInteger(body.sortOrder)) {
+    res.status(400).json({ error: "排序须为整数" });
+    return;
+  }
+  if (body.reason !== undefined && typeof body.reason !== "string") {
+    res.status(400).json({ error: "请假原因须为文字" });
+    return;
+  }
+  next();
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
@@ -42,6 +94,12 @@ app.get("/api/settings", (_req, res) => {
 
 app.put("/api/settings", (req, res) => {
   const next = { ...DEFAULT_SETTINGS, ...getSettings(), ...req.body } as Settings;
+  try {
+    validateSettings(next);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+    return;
+  }
   res.json(saveSettings(next));
 });
 
@@ -138,6 +196,13 @@ app.post("/api/people/import", (req, res) => {
   }
   const header = lines[0];
   const start = /姓名/.test(header) ? 1 : 0;
+  if (lines.slice(start).some((line) => {
+    const [name, groupName, target] = line.split(/[,，\t]/).map((s) => s.trim());
+    return name && groupName && target && (!Number.isInteger(Number(target)) || Number(target) < 0 || Number(target) > 31);
+  })) {
+    res.status(400).json({ error: "目标出勤天数须为 0～31 的整数" });
+    return;
+  }
   let added = 0;
   runMany(() => {
     const max = queryOne<{ n: number }>("SELECT COALESCE(MAX(sort_order), 0) AS n FROM people");
@@ -176,7 +241,7 @@ app.get("/api/holidays", (req, res) => {
 
 app.post("/api/holidays", (req, res) => {
   const { date, name, kind } = req.body ?? {};
-  if (!date || !name || !kind) {
+  if (!date || !name || !["holiday", "bridge", "workday_makeup"].includes(kind)) {
     res.status(400).json({ error: "日期、名称、类型必填" });
     return;
   }
@@ -195,6 +260,10 @@ app.delete("/api/holidays/:date", (req, res) => {
 app.get("/api/leaves", (req, res) => {
   const year = Number(req.query.year);
   const month = Number(req.query.month);
+  if (!validMonth(year, month)) {
+    res.status(400).json({ error: "需要有效的 year 和 month" });
+    return;
+  }
   const prefix = `${year}-${String(month).padStart(2, "0")}`;
   const rows = queryAll<{ id: number; person_id: number; date: string; reason: string }>(
     "SELECT id, person_id, date, reason FROM leaves WHERE date LIKE ? ORDER BY date, person_id",
@@ -237,7 +306,7 @@ app.delete("/api/leaves/:id", (req, res) => {
 app.get("/api/roster", (req, res) => {
   const year = Number(req.query.year);
   const month = Number(req.query.month);
-  if (!year || !month) {
+  if (!validMonth(year, month)) {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
   }
@@ -248,7 +317,7 @@ app.post("/api/roster/generate", (req, res) => {
   const year = Number(req.body?.year);
   const month = Number(req.body?.month);
   const keepLocked = req.body?.keepLocked !== false;
-  if (!year || !month) {
+  if (!validMonth(year, month)) {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
   }
@@ -266,7 +335,7 @@ app.post("/api/roster/generate", (req, res) => {
 app.post("/api/roster/clear", (req, res) => {
   const year = Number(req.body?.year);
   const month = Number(req.body?.month);
-  if (!year || !month) {
+  if (!validMonth(year, month)) {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
   }
@@ -454,18 +523,22 @@ app.put("/api/roster/flag", (req, res) => {
   res.json(currentRoster(year, month));
 });
 
-app.get("/api/export", async (req, res) => {
-  const year = Number(req.query.year);
-  const month = Number(req.query.month);
-  if (!year || !month) {
-    res.status(400).json({ error: "需要 year 和 month" });
-    return;
+app.get("/api/export", async (req, res, next) => {
+  try {
+    const year = Number(req.query.year);
+    const month = Number(req.query.month);
+    if (!validMonth(year, month)) {
+      res.status(400).json({ error: "需要 year 和 month" });
+      return;
+    }
+    const data = currentRoster(year, month);
+    const { buffer, filename } = await exportWorkbook(data, year, month);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
+    res.send(buffer);
+  } catch (error) {
+    next(error);
   }
-  const data = currentRoster(year, month);
-  const { buffer, filename } = await exportWorkbook(data, year, month);
-  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-  res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
-  res.send(buffer);
 });
 
 app.get("/api/backup", (_req, res) => {
@@ -494,13 +567,17 @@ app.get("/api/roster/import-template", (_req, res) => {
   res.send(readFileSync(file));
 });
 
-app.post("/api/restore", upload.single("file"), async (req, res) => {
+app.post("/api/restore", upload.single("file"), (req, res) => {
   if (!req.file?.buffer) {
     res.status(400).json({ error: "请上传 data.db" });
     return;
   }
-  restoreFrom(req.file.buffer);
-  await getDb();
+  try {
+    restoreFrom(req.file.buffer);
+  } catch {
+    res.status(400).json({ error: "备份无效或恢复失败，原数据已保留" });
+    return;
+  }
   res.json({ ok: true });
 });
 
@@ -519,6 +596,15 @@ app.use((req, res) => {
   res.status(503).type("html").send(`<!doctype html><meta charset="utf-8"><p>界面尚未打包。请先运行启动脚本或执行 npm run build。</p>`);
 });
 
+const handleError: ErrorRequestHandler = (error, _req, res, _next) => {
+  const status = error instanceof multer.MulterError
+    ? (error.code === "LIMIT_FILE_SIZE" ? 413 : 400)
+    : error.status === 400 || error.status === 413 ? error.status : 500;
+  if (status === 500) console.error(error);
+  res.status(status).json({ error: status === 413 ? "上传内容过大" : status === 400 ? "请求内容无效" : "操作失败，请检查服务日志" });
+};
+app.use(handleError);
+
 export async function startServer(preferredPort = PORT): Promise<number> {
   await getDb();
   const listen = (port: number) =>
@@ -536,7 +622,7 @@ export async function startServer(preferredPort = PORT): Promise<number> {
       });
     });
   const actual = await listen(preferredPort);
-  console.log(`入网审核排班 1.9  http://127.0.0.1:${actual}`);
+  console.log(`入网审核排班 1.9.1  http://127.0.0.1:${actual}`);
   return actual;
 }
 

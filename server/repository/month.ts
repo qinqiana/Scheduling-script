@@ -1,6 +1,6 @@
 import type { Assignment, Holiday, Leave, MonthCell, Person, RosterCell, Settings, ShiftMark } from "../../shared/types.ts";
 import { addDays, buildMonthCells, mondayKey } from "../calendar.ts";
-import { execSql, getSettings, persist, queryAll, queryOne, runMany } from "../db.ts";
+import { execSql, getSettings, queryAll, queryOne, runMany } from "../db.ts";
 
 const PREV_LOOKBACK = 6 + 2;
 
@@ -230,6 +230,5 @@ export function persistGenerated(year: number, month: number, roster: RosterCell
       year,
       month,
     ]);
-    persist();
   });
 }

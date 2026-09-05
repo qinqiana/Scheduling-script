@@ -1,6 +1,7 @@
 import ExcelJS from "exceljs";
-import { execSql, queryAll, runMany, persist } from "./db.ts";
+import { execSql, queryAll, runMany } from "./db.ts";
 import { daysInMonth } from "./calendar.ts";
+import { validMonth } from "./validation.ts";
 
 /** 模板数据格可识别符号 → 动作 */
 type Action =
@@ -63,7 +64,7 @@ export async function importRosterFromExcel(
 }> {
   const year = Number(yearRaw);
   const month = Number(monthRaw);
-  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+  if (!validMonth(year, month)) {
     throw new Error("需要合法的 year 和 month");
   }
   const days = daysInMonth(year, month);
@@ -182,8 +183,8 @@ export async function importRosterFromExcel(
       }
       const shift = item.shift!;
       execSql(
-        "INSERT INTO assignments (person_id, date, shift, locked) VALUES (?, ?, ?, 0)",
-        [personId, date, shift],
+        "INSERT INTO assignments (person_id, date, shift, locked) VALUES (?, ?, ?, ?)",
+        [personId, date, shift, item.overtime ? 1 : 0],
       );
       if (item.overtime) {
         execSql("INSERT INTO attendance_flags (person_id, date, kind) VALUES (?, ?, 'overtime')", [
@@ -201,7 +202,6 @@ export async function importRosterFromExcel(
       "INSERT INTO generated_months (year, month) VALUES (?, ?) ON CONFLICT(year, month) DO NOTHING",
       [year, month],
     );
-    persist();
   });
 
   // 返回更新后的当月 roster，供前端刷新

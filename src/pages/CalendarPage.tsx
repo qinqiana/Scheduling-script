@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api, exportUrl } from "../api";
 import type { ImportResult, Person, RosterCell, RosterPayload, ShiftMark } from "../types";
 
@@ -43,18 +43,24 @@ export function CalendarPage({
   const [importTargetY, setImportTargetY] = useState(year);
   const [importTargetM, setImportTargetM] = useState(month);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const loadSequence = useRef(0);
 
   const load = async () => {
+    const sequence = ++loadSequence.current;
     setError("");
     try {
-      setData(await api.roster(year, month));
+      const next = await api.roster(year, month);
+      if (sequence === loadSequence.current) setData(next);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加载失败");
+      if (sequence === loadSequence.current) setError(e instanceof Error ? e.message : "加载失败");
     }
   };
 
   useEffect(() => {
+    setData(null);
+    setEdit(null);
     void load();
+    return () => { loadSequence.current += 1; };
   }, [year, month, tick]);
 
   const map = useMemo(() => {
@@ -158,11 +164,11 @@ export function CalendarPage({
         <div className="actions">
           <label className="field">
             年
-            <input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} />
+            <input type="number" disabled={!!busy} min={1000} max={9999} value={year} onChange={(e) => setYear(Number(e.target.value))} />
           </label>
           <label className="field">
             月
-            <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+            <select disabled={!!busy} value={month} onChange={(e) => setMonth(Number(e.target.value))}>
               {Array.from({ length: 12 }, (_, i) => (
                 <option key={i + 1} value={i + 1}>
                   {i + 1} 月
@@ -502,7 +508,7 @@ export function CalendarPage({
                   try {
                     const res = await api.importExcel(importFile, importTargetY, importTargetM);
                     setImportResult(res);
-                    setData(res.rosterCells);
+                    if (importTargetY === year && importTargetM === month) setData(res.rosterCells);
                     onChange();
                   } catch (e) {
                     setError(e instanceof Error ? e.message : "导入失败");

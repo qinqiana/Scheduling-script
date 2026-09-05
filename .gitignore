@@ -4,6 +4,7 @@ dist-server
 release
 data.db
 data.db.bak
+data.db.tmp
 .DS_Store
 *.log
 uploads

@@ -32,7 +32,7 @@ if (!existsSync(tsxCli)) {
 rmSync(out, { recursive: true, force: true });
 mkdirSync(join(app, "runtime"), { recursive: true });
 
-for (const name of ["server", "shared", "dist", "node_modules"]) {
+for (const name of ["server", "shared", "dist", "templates", "node_modules"]) {
   console.log("复制", name);
   copyTree(join(root, name), join(app, name));
 }

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, renameSync } from "node:fs";
 import initSqlJs, { type Database } from "sql.js";
 import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
 import { OFFICIAL_HOLIDAYS } from "./holidays.ts";
@@ -34,7 +34,9 @@ export async function getDb(): Promise<Database> {
 export function persist(): void {
   if (!db) return;
   mkdirSync(dataDir(), { recursive: true });
-  writeFileSync(dbPath(), Buffer.from(db.export()));
+  const temporary = `${dbPath()}.tmp`;
+  writeFileSync(temporary, Buffer.from(db.export()));
+  renameSync(temporary, dbPath());
 }
 
 function exec(database: Database, sql: string): void {
@@ -147,13 +149,14 @@ function seed(database: Database): void {
 export function queryAll<T>(sql: string, params: unknown[] = []): T[] {
   if (!db) throw new Error("db not ready");
   const stmt = db.prepare(sql);
-  stmt.bind(params as never[]);
-  const rows: T[] = [];
-  while (stmt.step()) {
-    rows.push(stmt.getAsObject() as T);
+  try {
+    stmt.bind(params as never[]);
+    const rows: T[] = [];
+    while (stmt.step()) rows.push(stmt.getAsObject() as T);
+    return rows;
+  } finally {
+    stmt.free();
   }
-  stmt.free();
-  return rows;
 }
 
 export function queryOne<T>(sql: string, params: unknown[] = []): T | undefined {
@@ -163,18 +166,37 @@ export function queryOne<T>(sql: string, params: unknown[] = []): T | undefined 
 export function execSql(sql: string, params: unknown[] = []): void {
   if (!db) throw new Error("db not ready");
   const stmt = db.prepare(sql);
-  stmt.run(params as never[]);
-  stmt.free();
+  try {
+    stmt.run(params as never[]);
+  } finally {
+    stmt.free();
+  }
 }
 
 export function run(sql: string, params: unknown[] = []): void {
-  execSql(sql, params);
-  persist();
+  runMany(() => execSql(sql, params));
 }
 
 export function runMany(actions: () => void): void {
-  actions();
-  persist();
+  if (!db) throw new Error("db not ready");
+  db.exec("BEGIN TRANSACTION");
+  try {
+    actions();
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  try {
+    persist();
+  } catch (error) {
+    // 落盘失败时回到磁盘上的最后成功版本，避免失败操作被下次保存带入。
+    const previous = readFileSync(dbPath());
+    const DatabaseClass = db.constructor as new (data: Uint8Array) => Database;
+    db.close();
+    db = new DatabaseClass(previous);
+    throw error;
+  }
 }
 
 export function getSettings(): Settings {
@@ -204,8 +226,29 @@ export function backupTo(target: string): void {
 }
 
 export function restoreFrom(source: Buffer): void {
-  persist();
-  writeFileSync(dbPath(), source);
-  db?.close();
-  db = null;
+  if (!db) throw new Error("db not ready");
+  const DatabaseClass = db.constructor as new (data: Uint8Array) => Database;
+  const candidate = new DatabaseClass(source);
+  const previous = db;
+  try {
+    const integrity = candidate.exec("PRAGMA integrity_check");
+    if (integrity[0]?.values[0]?.[0] !== "ok") throw new Error("备份数据库已损坏");
+    candidate.exec("SELECT id, name, group_name, active, target_days, can_night, sort_order FROM people LIMIT 0");
+    candidate.exec("SELECT key, value FROM settings LIMIT 0");
+    migrate(candidate);
+    // 旧备份允许缺少新增表，但已有表的列必须与当前读取路径兼容。
+    candidate.exec("SELECT person_id, date, shift, locked FROM assignments LIMIT 0");
+    candidate.exec("SELECT id, person_id, date, reason FROM leaves LIMIT 0");
+    candidate.exec("SELECT person_id, date FROM rest_wishes LIMIT 0");
+    candidate.exec("SELECT person_id, date, kind FROM attendance_flags LIMIT 0");
+    candidate.exec("SELECT year, month FROM generated_months LIMIT 0");
+    backupTo(`${dbPath()}.bak`);
+    db = candidate;
+    persist();
+  } catch (error) {
+    db = previous;
+    candidate.close();
+    throw error;
+  }
+  previous.close();
 }

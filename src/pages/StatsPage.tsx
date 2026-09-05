@@ -16,9 +16,18 @@ export function StatsPage({
   tick: number;
 }) {
   const [data, setData] = useState<RosterPayload | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    void api.roster(year, month).then(setData);
+    let active = true;
+    setData(null);
+    setError("");
+    void api.roster(year, month).then((next) => {
+      if (active) setData(next);
+    }).catch((e) => {
+      if (active) setError(e instanceof Error ? e.message : "加载失败");
+    });
+    return () => { active = false; };
   }, [year, month, tick]);
 
   const nightDiff = (() => {
@@ -41,6 +50,7 @@ export function StatsPage({
 
   return (
     <section>
+      {error && <div className="toast err" role="alert">{error}</div>}
       <div className="topbar">
         <div>
           <h1>统计</h1>
