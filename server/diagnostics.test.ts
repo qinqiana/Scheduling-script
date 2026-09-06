@@ -5,7 +5,7 @@ import { goldenPack } from "./testdata/goldenPack.ts";
 import { diagnose, inputBlockers } from "./diagnostics.ts";
 import type { Conflict } from "../shared/types.ts";
 
-test("逐条归类四个月份的全部 49 条硬冲突，不把未知可行性称为无解", () => {
+test("逐条归类四个月份的全部 35 条硬冲突，不把未知可行性称为无解", () => {
   let total = 0;
   for (const month of [2, 5, 8, 10]) {
     const snapshot = JSON.parse(readFileSync(new URL(`./testdata/golden/2026-${String(month).padStart(2, "0")}.json`, import.meta.url), "utf8")) as { conflicts: Conflict[] };
@@ -14,7 +14,7 @@ test("逐条归类四个月份的全部 49 条硬冲突，不把未知可行性�
     assert.ok(report.items.every((item) => item.category !== "其他"));
     total += report.items.length;
   }
-  assert.equal(total, 49);
+  assert.equal(total, 35);
 });
 
 test("识别锁定超过出勤目标，以及想休与加班矛盾", () => {

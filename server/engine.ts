@@ -12,7 +12,7 @@ import type {
   ShiftMark,
 } from "../shared/types.ts";
 import { addDays, isHoliday, isLegalWorkDay, isOffDay, isWeekendLike, mondayKey } from "./calendar.ts";
-import { isSandwichAt, MAX_COUNTED_SANDWICH, sandwichCount } from "./sandwichRest.ts";
+import { HARD_SANDWICH_LIMIT, isSandwichAt, MAX_COUNTED_SANDWICH, sandwichCount } from "./sandwichRest.ts";
 import { blockPlans, isAvoidableInterleave } from "./shiftBlocks.ts";
 import { closedWorkRun, isShortClosedWork, MIN_WORK_BEFORE_REST } from "./workStreak.ts";
 import {
@@ -44,7 +44,6 @@ interface GridMark {
 export interface GenerateInput {
   year: number;
   month: number;
-  keepLocked: boolean;
   seed?: number;
 }
 
@@ -65,7 +64,6 @@ export interface Ctx {
   prev: WorkSet;
   prevDay: Map<number, ShiftMark>;
   rng: Rng;
-  leftoverWeekendExtra: number;
   profile?: Record<string, { calls: number; ms: number; hardChange: number; unchanged: number }>;
 }
 
@@ -134,7 +132,6 @@ function applyFixed(
   grid: Map<number, Map<string, GridMark>>,
   leaves: Leave[],
   assignments: Assignment[],
-  _keepLocked?: boolean,
 ): void {
   for (const a of assignments) {
     const row = grid.get(a.personId);
@@ -198,10 +195,6 @@ function leftoverWeekendQuota(people: Person[], cells: MonthCell[], settings: Se
     settings.minMorningPerGroupPerDay + settings.minNightPerGroupPerDay,
   );
   return Math.ceil((days.length * groups * perDay) / people.length);
-}
-
-function setMonthWorkExtra(people: Person[], cells: MonthCell[], settings: Settings): number {
-  return leftoverWeekendQuota(people, cells, settings);
 }
 
 function personTarget(
@@ -561,7 +554,6 @@ function makeCtx(pack: MonthPack, grid: Grid, seed: number): Ctx {
     prev: pack.prev,
     prevDay: pack.prevDayShifts,
     rng: { seed: seed >>> 0 || 1 },
-    leftoverWeekendExtra: leftoverWeekendQuota(pack.people, pack.cells, pack.settings),
   };
 }
 
@@ -2954,7 +2946,6 @@ export function validateRoster(
     hardOnly?: boolean;
   },
 ): Conflict[] {
-  setMonthWorkExtra(people, cells, settings);
   const conflicts: Conflict[] = [];
   const groups = groupMembers(people);
   if (!monthHasSchedule(grid)) return conflicts;
@@ -3048,11 +3039,11 @@ export function validateRoster(
       });
     }
     const sandwiches = countedSandwiches(grid, p.id, cells, prevDayShifts);
-    if (sandwiches > MAX_COUNTED_SANDWICH) {
+    if (sandwiches > HARD_SANDWICH_LIMIT) {
       conflicts.push({
         severity: "hard",
         personId: p.id,
-        message: `${p.name} 夹心休 ${sandwiches} 天，生成排出的最多 ${MAX_COUNTED_SANDWICH} 天`,
+        message: `${p.name} 夹心休 ${sandwiches} 天，生成排出的最多 ${MAX_COUNTED_SANDWICH} 天，覆盖不够时最多 ${HARD_SANDWICH_LIMIT} 天`,
       });
     }
     const blocks = personShiftBlocks(grid, p.id, cells);
@@ -3158,7 +3149,6 @@ export function buildStats(
   settings: Settings,
   prevWork?: Map<number, Set<string>>,
 ): { people: PersonStat[]; days: DayCover[] } {
-  setMonthWorkExtra(people, cells, settings);
   const groups = groupMembers(people);
   const prev = prevWork ?? (cells[0] ? loadPrevWeekWork(cells[0].date) : new Map());
   const personStats: PersonStat[] = people.map((p) => {
@@ -3736,7 +3726,7 @@ export function currentRoster(year: number, month: number) {
   const pack = openMonthPack(year, month);
   const { settings, people, cells, start, end, leaves, assignments } = pack;
   const grid = emptyGrid(people, cells);
-  applyFixed(grid, leaves, assignments, true);
+  applyFixed(grid, leaves, assignments);
   for (const a of assignments) {
     const row = grid.get(a.personId);
     if (!row) continue;
@@ -3795,17 +3785,16 @@ export function generateRoster(input: GenerateInput, pack?: MonthPack, onProgres
 }
 
 export function generateRosterGrid(input: GenerateInput, pack: MonthPack, profile?: Ctx["profile"]) {
-  const { settings, people, cells, start, end, leaves, assignments, flags, wishes } = pack;
+  const { people, cells, start, end, leaves, assignments, flags, wishes } = pack;
   const grid = emptyGrid(people, cells);
   const ctx = makeCtx(pack, grid, input.seed ?? 1);
   ctx.profile = profile;
   const reapplyLocks: Pass = (c) =>
     applyUserMarks(c.grid, start, end, assignments, flags, wishes);
 
-  applyFixed(grid, leaves, assignments, input.keepLocked);
+  applyFixed(grid, leaves, assignments);
   reapplyLocks(ctx);
   passRestHolidays(ctx);
-  setMonthWorkExtra(people, cells, settings);
 
   // 铺班：种子出勤、组覆盖、晚班、想休、夹心休
   runPasses(ctx, SEED_PASSES);

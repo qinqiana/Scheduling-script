@@ -200,7 +200,7 @@ export function clearMonth(year: number, month: number, all = false): void {
   });
 }
 
-export function persistGenerated(year: number, month: number, roster: RosterCell[], _keepLocked: boolean): void {
+export function persistGenerated(year: number, month: number, roster: RosterCell[]): void {
   const start = `${year}-${String(month).padStart(2, "0")}-01`;
   const end = `${year}-${String(month).padStart(2, "0")}-31`;
   runMany(() => {

@@ -48,7 +48,7 @@ export function startGeneration(input: GenerateInput): Job {
     try {
       if (revision !== getRevision()) throw new Error("生成期间人员、规则或班表已修改，本次结果未保存，请重新生成");
       const result = message.result as ReturnType<typeof generateRoster>;
-      persistGenerated(input.year, input.month, result.roster, input.keepLocked);
+      persistGenerated(input.year, input.month, result.roster);
       job.result = { ...result, diagnostics: diagnose(pack, result.conflicts) };
       job.status = "completed";
       finish();

@@ -58,7 +58,7 @@ app.use("/api", (req, res, next) => {
     res.status(400).json({ error: "人员不存在或编号无效" });
     return;
   }
-  for (const key of ["locked", "want", "active", "canNight", "keepLocked", "all", "includeFlags"]) {
+  for (const key of ["locked", "want", "active", "canNight", "all", "includeFlags"]) {
     if (body[key] !== undefined && typeof body[key] !== "boolean") {
       res.status(400).json({ error: `${key} 必须为布尔值` });
       return;
@@ -309,7 +309,6 @@ app.get("/api/roster", (req, res) => {
 app.post("/api/roster/generate", (req, res) => {
   const year = Number(req.body?.year);
   const month = Number(req.body?.month);
-  const keepLocked = req.body?.keepLocked !== false;
   if (!validMonth(year, month)) {
     res.status(400).json({ error: "需要 year 和 month" });
     return;
@@ -318,7 +317,6 @@ app.post("/api/roster/generate", (req, res) => {
   const job = startGeneration({
     year,
     month,
-    keepLocked,
     seed: Number.isFinite(seed) && seed ? seed : undefined,
   });
   res.status(202).json(job);

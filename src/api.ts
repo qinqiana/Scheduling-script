@@ -59,10 +59,10 @@ export const api = {
     req<{ ok: boolean }>(`/api/leaves/cell/${personId}/${date}`, { method: "DELETE" }),
   roster: (year: number, month: number) =>
     req<RosterPayload>(`/api/roster?year=${year}&month=${month}`),
-  generate: (year: number, month: number, keepLocked: boolean) =>
+  generate: (year: number, month: number) =>
     req<GenerationJob>("/api/roster/generate", {
       method: "POST",
-      body: JSON.stringify({ year, month, keepLocked }),
+      body: JSON.stringify({ year, month }),
     }),
   generationJob: (id: string) => req<GenerationJob>(`/api/roster/jobs/${encodeURIComponent(id)}`),
   activeGeneration: () => req<GenerationJob | null>("/api/roster/jobs/active"),

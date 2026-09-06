@@ -48,7 +48,7 @@
     {
       "personId": 1,
       "date": "2026-10-07",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -69,7 +69,7 @@
     {
       "personId": 1,
       "date": "2026-10-10",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -83,14 +83,14 @@
     {
       "personId": 1,
       "date": "2026-10-12",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 1,
       "date": "2026-10-13",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -118,7 +118,7 @@
     {
       "personId": 1,
       "date": "2026-10-17",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -160,14 +160,14 @@
     {
       "personId": 1,
       "date": "2026-10-23",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 1,
       "date": "2026-10-24",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -188,7 +188,7 @@
     {
       "personId": 1,
       "date": "2026-10-27",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -244,28 +244,28 @@
     {
       "personId": 2,
       "date": "2026-10-04",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-05",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-06",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-07",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -286,28 +286,28 @@
     {
       "personId": 2,
       "date": "2026-10-10",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-11",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-12",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-13",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -321,14 +321,14 @@
     {
       "personId": 2,
       "date": "2026-10-15",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-16",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -349,35 +349,35 @@
     {
       "personId": 2,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-20",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-21",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-22",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-23",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -398,42 +398,42 @@
     {
       "personId": 2,
       "date": "2026-10-26",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 2,
-      "date": "2026-10-27",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 2,
-      "date": "2026-10-28",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 2,
-      "date": "2026-10-29",
       "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
+      "date": "2026-10-27",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-10-28",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
+      "date": "2026-10-29",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 2,
       "date": "2026-10-30",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 2,
       "date": "2026-10-31",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -519,7 +519,7 @@
     {
       "personId": 3,
       "date": "2026-10-12",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -547,7 +547,7 @@
     {
       "personId": 3,
       "date": "2026-10-16",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -645,14 +645,14 @@
     {
       "personId": 3,
       "date": "2026-10-30",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 3,
       "date": "2026-10-31",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -687,7 +687,7 @@
     {
       "personId": 4,
       "date": "2026-10-05",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -701,14 +701,14 @@
     {
       "personId": 4,
       "date": "2026-10-07",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 4,
       "date": "2026-10-08",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -729,7 +729,7 @@
     {
       "personId": 4,
       "date": "2026-10-11",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -743,7 +743,7 @@
     {
       "personId": 4,
       "date": "2026-10-13",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -771,14 +771,14 @@
     {
       "personId": 4,
       "date": "2026-10-17",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 4,
       "date": "2026-10-18",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -792,14 +792,14 @@
     {
       "personId": 4,
       "date": "2026-10-20",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 4,
       "date": "2026-10-21",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -813,21 +813,21 @@
     {
       "personId": 4,
       "date": "2026-10-23",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 4,
       "date": "2026-10-24",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 4,
       "date": "2026-10-25",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -848,7 +848,7 @@
     {
       "personId": 4,
       "date": "2026-10-28",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -897,63 +897,63 @@
     {
       "personId": 5,
       "date": "2026-10-04",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-05",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-06",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-07",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-08",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-09",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-10",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-11",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-12",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -967,42 +967,42 @@
     {
       "personId": 5,
       "date": "2026-10-14",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-15",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-16",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-17",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-18",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1023,42 +1023,42 @@
     {
       "personId": 5,
       "date": "2026-10-22",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 5,
-      "date": "2026-10-23",
       "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
+      "date": "2026-10-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 5,
       "date": "2026-10-24",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-25",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-26",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 5,
       "date": "2026-10-27",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1072,7 +1072,7 @@
     {
       "personId": 5,
       "date": "2026-10-29",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1114,7 +1114,7 @@
     {
       "personId": 6,
       "date": "2026-10-04",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1135,7 +1135,7 @@
     {
       "personId": 6,
       "date": "2026-10-07",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1163,7 +1163,7 @@
     {
       "personId": 6,
       "date": "2026-10-11",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1177,28 +1177,28 @@
     {
       "personId": 6,
       "date": "2026-10-13",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-14",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-15",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-16",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1268,42 +1268,42 @@
     {
       "personId": 6,
       "date": "2026-10-26",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-27",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-28",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-29",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-30",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 6,
       "date": "2026-10-31",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1331,28 +1331,28 @@
     {
       "personId": 7,
       "date": "2026-10-04",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-05",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-06",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-07",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1366,28 +1366,28 @@
     {
       "personId": 7,
       "date": "2026-10-09",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-10",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-11",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-12",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1401,77 +1401,77 @@
     {
       "personId": 7,
       "date": "2026-10-14",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-15",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-16",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-17",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-18",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-20",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-21",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-22",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-23",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-24",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -1492,14 +1492,14 @@
     {
       "personId": 7,
       "date": "2026-10-27",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-28",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -1513,14 +1513,14 @@
     {
       "personId": 7,
       "date": "2026-10-30",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 7,
       "date": "2026-10-31",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -1548,14 +1548,14 @@
     {
       "personId": 8,
       "date": "2026-10-04",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-05",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1569,42 +1569,42 @@
     {
       "personId": 8,
       "date": "2026-10-07",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 8,
-      "date": "2026-10-08",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 8,
-      "date": "2026-10-09",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 8,
-      "date": "2026-10-10",
       "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
+      "date": "2026-10-08",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-10-09",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
+      "date": "2026-10-10",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 8,
       "date": "2026-10-11",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-12",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1618,28 +1618,28 @@
     {
       "personId": 8,
       "date": "2026-10-14",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-15",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-16",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-17",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1653,91 +1653,91 @@
     {
       "personId": 8,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-20",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-21",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-22",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-23",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-24",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-25",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-26",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-27",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-28",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-29",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-30",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 8,
       "date": "2026-10-31",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1765,21 +1765,21 @@
     {
       "personId": 9,
       "date": "2026-10-04",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-05",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-06",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1800,42 +1800,42 @@
     {
       "personId": 9,
       "date": "2026-10-09",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-10",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-11",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-12",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-13",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-14",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1849,7 +1849,7 @@
     {
       "personId": 9,
       "date": "2026-10-16",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -1877,7 +1877,7 @@
     {
       "personId": 9,
       "date": "2026-10-20",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -1891,28 +1891,28 @@
     {
       "personId": 9,
       "date": "2026-10-22",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-23",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-24",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-25",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -1926,35 +1926,35 @@
     {
       "personId": 9,
       "date": "2026-10-27",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-28",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-29",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-30",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 9,
       "date": "2026-10-31",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -1982,91 +1982,91 @@
     {
       "personId": 10,
       "date": "2026-10-04",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-05",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-06",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-07",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-08",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-09",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-10",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-11",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-12",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-13",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-14",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-15",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-16",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2080,35 +2080,35 @@
     {
       "personId": 10,
       "date": "2026-10-18",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-19",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-20",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-21",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-22",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2122,21 +2122,21 @@
     {
       "personId": 10,
       "date": "2026-10-24",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-25",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-26",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2157,21 +2157,21 @@
     {
       "personId": 10,
       "date": "2026-10-29",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-30",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 10,
       "date": "2026-10-31",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2199,28 +2199,28 @@
     {
       "personId": 11,
       "date": "2026-10-04",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-05",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-06",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-07",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2242,21 +2242,21 @@
     {
       "personId": 11,
       "date": "2026-10-10",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-11",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-12",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2277,49 +2277,49 @@
     {
       "personId": 11,
       "date": "2026-10-15",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-16",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-17",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-18",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-19",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-20",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 11,
       "date": "2026-10-21",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2347,7 +2347,7 @@
     {
       "personId": 11,
       "date": "2026-10-25",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2424,7 +2424,7 @@
     {
       "personId": 12,
       "date": "2026-10-05",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2438,14 +2438,14 @@
     {
       "personId": 12,
       "date": "2026-10-07",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-08",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2488,7 +2488,7 @@
     {
       "personId": 12,
       "date": "2026-10-14",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2502,7 +2502,7 @@
     {
       "personId": 12,
       "date": "2026-10-16",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2516,28 +2516,28 @@
     {
       "personId": 12,
       "date": "2026-10-18",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-19",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-20",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-21",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2551,7 +2551,7 @@
     {
       "personId": 12,
       "date": "2026-10-23",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2565,42 +2565,42 @@
     {
       "personId": 12,
       "date": "2026-10-25",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-26",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-27",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-28",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-29",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 12,
       "date": "2026-10-30",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2635,49 +2635,49 @@
     {
       "personId": 13,
       "date": "2026-10-04",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-05",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-06",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-07",
       "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
+      "date": "2026-10-06",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-07",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
       "date": "2026-10-08",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-09",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-10",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2691,35 +2691,35 @@
     {
       "personId": 13,
       "date": "2026-10-12",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-13",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-14",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-15",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-16",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2733,14 +2733,14 @@
     {
       "personId": 13,
       "date": "2026-10-18",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2754,77 +2754,77 @@
     {
       "personId": 13,
       "date": "2026-10-21",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
       "date": "2026-10-22",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-23",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-24",
-      "mark": "休",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-25",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-26",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-27",
-      "mark": "晚",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-28",
-      "mark": "休",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-29",
-      "mark": "休",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 13,
-      "date": "2026-10-30",
       "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 13,
+      "date": "2026-10-23",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-24",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-25",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-26",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-27",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-28",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-29",
+      "mark": "早",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
+      "date": "2026-10-30",
+      "mark": "休",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 13,
       "date": "2026-10-31",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2852,63 +2852,63 @@
     {
       "personId": 14,
       "date": "2026-10-04",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-05",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-06",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-07",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-08",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-09",
-      "mark": "晚",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-10",
-      "mark": "晚",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-11",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-12",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2943,7 +2943,7 @@
     {
       "personId": 14,
       "date": "2026-10-17",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -2957,7 +2957,7 @@
     {
       "personId": 14,
       "date": "2026-10-19",
-      "mark": "休",
+      "mark": "早",
       "locked": false,
       "overtime": false
     },
@@ -2971,14 +2971,14 @@
     {
       "personId": 14,
       "date": "2026-10-21",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
       "date": "2026-10-22",
-      "mark": "早",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     },
@@ -2992,35 +2992,35 @@
     {
       "personId": 14,
       "date": "2026-10-24",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 14,
-      "date": "2026-10-25",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 14,
-      "date": "2026-10-26",
-      "mark": "早",
-      "locked": false,
-      "overtime": false
-    },
-    {
-      "personId": 14,
-      "date": "2026-10-27",
       "mark": "休",
       "locked": false,
       "overtime": false
     },
     {
       "personId": 14,
+      "date": "2026-10-25",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-10-26",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
+      "date": "2026-10-27",
+      "mark": "晚",
+      "locked": false,
+      "overtime": false
+    },
+    {
+      "personId": 14,
       "date": "2026-10-28",
-      "mark": "早",
+      "mark": "休",
       "locked": false,
       "overtime": false
     },
@@ -3041,7 +3041,7 @@
     {
       "personId": 14,
       "date": "2026-10-31",
-      "mark": "休",
+      "mark": "晚",
       "locked": false,
       "overtime": false
     }
@@ -3049,64 +3049,38 @@
   "conflicts": [
     {
       "severity": "hard",
-      "personId": 1,
-      "message": "冯宝儿 夹心休 3 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 3,
-      "message": "钟龙 夹心休 3 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 4,
-      "message": "姚炎兰 夹心休 2 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 5,
-      "message": "骆成奕 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 5,
-      "message": "骆成奕 夹心休 4 天，生成排出的最多 1 天"
+      "personId": 7,
+      "message": "刘文达 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
     },
     {
       "severity": "hard",
       "personId": 8,
-      "message": "陈彩怡 出勤 19 天、休息 12 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
+      "message": "陈彩怡 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
     },
     {
       "severity": "hard",
       "personId": 8,
-      "message": "陈彩怡 夹心休 3 天，生成排出的最多 1 天"
+      "message": "陈彩怡 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 9,
+      "message": "周秋艳 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 9,
+      "message": "周秋艳 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "hard",
+      "personId": 9,
+      "message": "周秋艳 早班晚班穿插，除月末三天外最多切一次"
     },
     {
       "severity": "hard",
       "personId": 11,
-      "message": "俞观权 夹心休 2 天，生成排出的最多 1 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 12,
-      "message": "陆威婷 出勤 19 天、休息 12 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 12,
-      "date": "2026-10-18",
-      "message": "陆威婷 18 日早班接在晚班后"
-    },
-    {
-      "severity": "hard",
-      "personId": 13,
-      "message": "李珊珊 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
-    },
-    {
-      "severity": "hard",
-      "personId": 13,
-      "message": "李珊珊 夹心休 3 天，生成排出的最多 1 天"
+      "message": "俞观权 出勤 19 天，目标 17 天"
     },
     {
       "severity": "hard",
@@ -3116,13 +3090,18 @@
     {
       "severity": "hard",
       "personId": 14,
-      "message": "江金岚 夹心休 3 天，生成排出的最多 1 天"
+      "message": "江金岚 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "hard",
+      "groupName": "佛山",
+      "message": "佛山 晚班极差 6 天，不能超过 3 天"
     },
     {
       "severity": "soft",
       "date": "2026-10-04",
       "groupName": "佛山",
-      "message": "4 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "message": "4 日 佛山 早 2 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
@@ -3132,81 +3111,69 @@
     },
     {
       "severity": "soft",
-      "date": "2026-10-06",
-      "groupName": "中山清远",
-      "message": "6 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
-    },
-    {
-      "severity": "soft",
-      "date": "2026-10-08",
-      "groupName": "中山清远",
-      "message": "8 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
-    },
-    {
-      "severity": "soft",
-      "date": "2026-10-09",
-      "groupName": "广州",
-      "message": "9 日 广州 早 4 / 晚 1，除月末三天外尽量接近 2:1"
-    },
-    {
-      "severity": "soft",
       "date": "2026-10-10",
       "groupName": "中山清远",
-      "message": "10 日 中山清远 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+      "message": "10 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
-      "date": "2026-10-11",
+      "date": "2026-10-13",
       "groupName": "佛山",
-      "message": "11 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "message": "13 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
-      "date": "2026-10-12",
-      "groupName": "广州",
-      "message": "12 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
-    },
-    {
-      "severity": "soft",
-      "date": "2026-10-12",
-      "groupName": "佛山",
-      "message": "12 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "date": "2026-10-13",
+      "groupName": "中山清远",
+      "message": "13 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-14",
-      "groupName": "广州",
-      "message": "14 日 广州 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+      "groupName": "佛山",
+      "message": "14 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-15",
-      "groupName": "广州",
-      "message": "15 日 广州 早 3 / 晚 3，除月末三天外尽量接近 2:1"
+      "groupName": "佛山",
+      "message": "15 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
-      "date": "2026-10-17",
-      "groupName": "广州",
-      "message": "17 日 广州 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "date": "2026-10-16",
+      "groupName": "佛山",
+      "message": "16 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-10-18",
+      "groupName": "中山清远",
+      "message": "18 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-19",
       "groupName": "广州",
-      "message": "19 日 广州 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "message": "19 日 广州 早 2 / 晚 3，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-10-19",
+      "groupName": "佛山",
+      "message": "19 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-20",
-      "groupName": "中山清远",
-      "message": "20 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "groupName": "佛山",
+      "message": "20 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-22",
       "groupName": "广州",
-      "message": "22 日 广州 早 2 / 晚 3，除月末三天外尽量接近 2:1"
+      "message": "22 日 广州 早 1 / 晚 3，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
@@ -3217,14 +3184,26 @@
     {
       "severity": "soft",
       "date": "2026-10-23",
-      "groupName": "中山清远",
-      "message": "23 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "groupName": "佛山",
+      "message": "23 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     },
     {
       "severity": "soft",
       "date": "2026-10-24",
       "groupName": "佛山",
-      "message": "24 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+      "message": "24 日 佛山 早 2 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-10-25",
+      "groupName": "中山清远",
+      "message": "25 日 中山清远 早 1 / 晚 2，除月末三天外尽量接近 2:1"
+    },
+    {
+      "severity": "soft",
+      "date": "2026-10-28",
+      "groupName": "佛山",
+      "message": "28 日 佛山 早 1 / 晚 2，除月末三天外尽量接近 2:1"
     }
   ]
 }

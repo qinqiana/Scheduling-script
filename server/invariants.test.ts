@@ -8,7 +8,7 @@ test("已知可行输入多种子生成：零硬冲突且通过独立规则检�
   for (const seed of [1, 17, 20260831]) {
     const pack = feasiblePack();
     pack.assignments.push({ id: 1, personId: 1, date: "2026-02-26", shift: "早", locked: true });
-    const result = generateRoster({ year: 2026, month: 2, keepLocked: true, seed }, pack);
+    const result = generateRoster({ year: 2026, month: 2, seed }, pack);
     assert.deepEqual(result.conflicts.filter((c) => c.severity === "hard"), []);
     assert.deepEqual(checkInvariants(pack, result.roster), []);
     const corrupt = structuredClone(result.roster);

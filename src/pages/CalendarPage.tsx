@@ -140,11 +140,11 @@ export function CalendarPage({
     }
   };
 
-  const run = async (keepLocked: boolean) => {
-    setBusy(keepLocked ? `正在重排 ${month} 月未锁定格子…` : `正在生成 ${year} 年 ${month} 月…`);
+  const run = async () => {
+    setBusy(`正在生成 ${year} 年 ${month} 月…`);
     setError("");
     try {
-      setJob(await api.generate(year, month, keepLocked));
+      setJob(await api.generate(year, month));
     } catch (e) {
       setError(e instanceof Error ? e.message : "生成失败");
       setBusy("");
@@ -229,11 +229,8 @@ export function CalendarPage({
               ))}
             </select>
           </label>
-          <button className="btn primary" disabled={!!busy} onClick={() => void run(true)}>
+          <button className="btn primary" disabled={!!busy} onClick={() => void run()}>
             生成 {month} 月
-          </button>
-          <button className="btn" disabled={!!busy} onClick={() => void run(true)} title="保住锁定格子，其余按同一规则另排一套">
-            重排未锁定
           </button>
           <button className="btn danger" disabled={!!busy} onClick={() => void clearMonthRoster(false)}>
             清空 {month} 月

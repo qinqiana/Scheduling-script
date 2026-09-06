@@ -25,7 +25,7 @@ test("后台生成成功、健康接口响应、并发拒绝、取消和旧结�
   await once(server, "listening");
   const addr = server.address(); assert.ok(addr && typeof addr !== "string");
   const base = `http://127.0.0.1:${addr.port}`;
-  const input = { year: 2026, month: 2, keepLocked: true, seed: 17 };
+  const input = { year: 2026, month: 2, seed: 17 };
   const wait = async (id: string) => {
     for (let i = 0; i < 200; i++) {
       const job = getJob(id)!;
