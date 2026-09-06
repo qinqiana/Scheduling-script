@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, exportUrl } from "../api";
-import type { ImportResult, Person, RosterCell, RosterPayload, ShiftMark } from "../types";
+import type { GenerationJob, ImportResult, Person, RosterCell, RosterPayload, ShiftMark } from "../types";
 
 const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -44,6 +44,39 @@ export function CalendarPage({
   const [importTargetM, setImportTargetM] = useState(month);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const loadSequence = useRef(0);
+  const [job, setJob] = useState<GenerationJob | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void api.activeGeneration().then((next) => { if (active && next) setJob(next); }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!job || job.status !== "running") return;
+    let active = true;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const next = await api.generationJob(job.id);
+        if (!active) return;
+        setJob(next);
+        if (next.status === "completed" && next.result) {
+          if (next.year === year && next.month === month) setData(next.result);
+          setBusy("");
+        } else if (next.status === "failed") {
+          setError(next.error ?? "生成失败"); setBusy("");
+        } else timer = setTimeout(poll, 500);
+      } catch (e) {
+        if (!active) return;
+        setError(e instanceof Error ? e.message : "查询生成进度失败");
+        timer = setTimeout(poll, 1500);
+      }
+    };
+    setBusy("正在后台生成，现有班表仍可查看…");
+    timer = setTimeout(poll, 0);
+    return () => { active = false; clearTimeout(timer); };
+  }, [job?.id, job?.status, year, month]);
 
   const load = async () => {
     const sequence = ++loadSequence.current;
@@ -79,6 +112,15 @@ export function CalendarPage({
   );
   const legalDays = (data?.cells ?? []).filter((c) => c.kind === "workday" || c.kind === "makeup").length;
 
+  const showConflict = (conflict: (typeof hard)[number]) => {
+    if (conflict.personId) {
+      setPersonId(conflict.personId);
+      const person = people.find((p) => p.id === conflict.personId);
+      const cell = conflict.date && map.get(`${conflict.personId}|${conflict.date}`);
+      if (person && conflict.date && cell) setEdit({ person, date: conflict.date, cell });
+    }
+  };
+
   const clearMonthRoster = async (all: boolean) => {
     const ok = all
       ? confirm(
@@ -102,11 +144,9 @@ export function CalendarPage({
     setBusy(keepLocked ? `正在重排 ${month} 月未锁定格子…` : `正在生成 ${year} 年 ${month} 月…`);
     setError("");
     try {
-      setData(await api.generate(year, month, keepLocked));
-      onChange();
+      setJob(await api.generate(year, month, keepLocked));
     } catch (e) {
       setError(e instanceof Error ? e.message : "生成失败");
-    } finally {
       setBusy("");
     }
   };
@@ -156,10 +196,12 @@ export function CalendarPage({
         <div>
           <h1>月历班表</h1>
           <p className="hint">
-            点「生成 {month} 月」只排顶部所选月份。{year} 年 {month} 月法定工作日{" "}
-            {data ? `${legalDays} 天` : "按该自然月自动识别"}
-            （按国务院办公厅放假调休通知：法定节假日和通告连休都不算，调休上班算）。法定节假日全员休息；通告连休日按周末值班。调休上班日按工作日排班。无请假无手工加班/补休时，每人出勤等于法定工作日，休息天数相同。月初月末不够一周的周末仍要值班，但不因此每人多排一天。满周默认 5 上 2 休，和其他硬约束冲突时可以改成 4 上或 6 上，不再因此记加班。连续工作 3 天才可以休息。含加班也不能连上 7 天，连续 6 天后至少再休 2 天。除月末三天外每组早晚尽量接近 2:1（软），每人早晚最多切一次（半硬；法定假加班不计入，锁定造成的除外）。夹心休每人最多 1 天（半硬，并休优先于集中）。月末三天本月不满一周也算。请假是硬约束，「想休」同时锁定为休，清空未锁定和重排未锁定时保留。格子上手工标「加班」把当月应出勤 +1，「补休」把当月应出勤 −1，其它规则不变。硬约束必须全部满足，否则会换种子重排。
+            点「生成 {month} 月」只排当前月份。{year} 年 {month} 月法定工作日 {data ? `${legalDays} 天` : "自动识别"}；请假和想休会保留，手工加班或补休会调整当月目标出勤。
           </p>
+          <details className="rule-details">
+            <summary>查看排班规则</summary>
+            <p>法定节假日全员休息，通告连休日按周末值班，调休上班日按工作日排班。满周默认 5 上 2 休；连续工作至少 3 天才休息，最多连续 6 天。除月末三天外早晚尽量按 2:1；每人早晚最多切一次，夹心休最多一天。硬约束不满足时会换种子重排。</p>
+          </details>
         </div>
         <div className="actions">
           <label className="field">
@@ -212,6 +254,11 @@ export function CalendarPage({
       </div>
 
       {busy && <div className="toast ok">{busy}</div>}
+      {job?.status === "running" && <div className="card generation-status" role="status" aria-live="polite">
+        {job.progress ? `已尝试 ${job.progress.attempt}/${job.progress.maxAttempts} 次，当前最少 ${job.progress.bestHard} 条硬冲突，用时 ${Math.round(job.progress.elapsedMs / 1000)} 秒` : "正在准备排班…"}
+        <progress max={job.progress?.maxAttempts ?? 24} value={job.progress?.attempt ?? 0} aria-label="排班尝试进度" />
+        <button className="btn" onClick={() => void api.cancelGeneration(job.id).catch((e) => setError(e instanceof Error ? e.message : "取消失败"))}>取消生成</button>
+      </div>}
       {error && <div className="toast err">{error}</div>}
 
       <div className="card">
@@ -290,11 +337,12 @@ export function CalendarPage({
 
       {hard.length > 0 && (
         <div className="banner after-table">
-          {hard.length} 条硬约束未满足
+          {hard.length} 条硬约束未满足。{data?.diagnostics?.conclusion ?? "可逐条查看并修改相关格子。"}
           <ul className="conflict-list">
             {hard.slice(0, 8).map((c) => (
               <li key={c.message} className="hard">
-                {c.message}
+                <span>{data?.diagnostics?.items.find((item) => item.message === c.message)?.category ? `［${data.diagnostics.items.find((item) => item.message === c.message)?.category}］ ` : ""}{c.message}</span>
+                {c.personId && <button className="btn ghost mini" onClick={() => showConflict(c)}>查看</button>}
               </li>
             ))}
           </ul>

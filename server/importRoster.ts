@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import { execSql, queryAll, runMany } from "./db.ts";
 import { daysInMonth } from "./calendar.ts";
 import { validMonth } from "./validation.ts";
+import { writeCellState } from "./cellState.ts";
 
 /** 模板数据格可识别符号 → 动作 */
 type Action =
@@ -169,34 +170,11 @@ export async function importRosterFromExcel(
     // 先清空本次会覆盖的对应格子（person+date）的旧数据，再写入；其它月份与格子不受影响
     for (const item of planned) {
       const { personId, date } = item;
-      execSql("DELETE FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
-      execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ?", [personId, date]);
-      execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
-      execSql("DELETE FROM assignments WHERE person_id = ? AND date = ?", [personId, date]);
-
-      if (item.leaveReason) {
-        execSql(
-          "INSERT INTO leaves (person_id, date, reason) VALUES (?, ?, ?) ON CONFLICT(person_id, date) DO UPDATE SET reason = excluded.reason",
-          [personId, date, item.leaveReason],
-        );
-        continue;
-      }
-      const shift = item.shift!;
-      execSql(
-        "INSERT INTO assignments (person_id, date, shift, locked) VALUES (?, ?, ?, ?)",
-        [personId, date, shift, item.overtime ? 1 : 0],
-      );
-      if (item.overtime) {
-        execSql("INSERT INTO attendance_flags (person_id, date, kind) VALUES (?, ?, 'overtime')", [
-          personId,
-          date,
-        ]);
-      } else if (item.compRest) {
-        execSql("INSERT INTO attendance_flags (person_id, date, kind) VALUES (?, ?, 'comp_rest')", [
-          personId,
-          date,
-        ]);
-      }
+      writeCellState(personId, date, {
+        shift: item.shift, locked: !!(item.overtime || item.compRest), wish: false,
+        leave: item.leaveReason,
+        flag: item.overtime ? "overtime" : item.compRest ? "comp_rest" : undefined,
+      });
     }
     execSql(
       "INSERT INTO generated_months (year, month) VALUES (?, ?) ON CONFLICT(year, month) DO NOTHING",

@@ -54,15 +54,9 @@ if not exist "%APP%\\runtime\\node.exe" (
 cd /d "%APP%"
 set "ROSTER_ROOT=%APP%\\"
 
-curl.exe -s -o nul -w "%%{http_code}" http://127.0.0.1:8787/api/health | findstr /c:"200" >nul
-if %errorlevel%==0 (
-  start "" "http://127.0.0.1:8787/"
-  exit /b 0
-)
-
 echo 正在打开排班，请稍候...
 echo 用完后关闭本窗口即可。
-start "roster-browser" /min cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:8787/"
+set "ROSTER_OPEN_BROWSER=1"
 "%APP%\\runtime\\node.exe" "%APP%\\node_modules\\tsx\\dist\\cli.mjs" "%APP%\\server\\index.ts"
 echo.
 echo 程序已结束。

@@ -192,7 +192,9 @@ export function clearMonth(year: number, month: number, all = false): void {
       execSql("DELETE FROM attendance_flags WHERE date LIKE ?", [prefix]);
       execSql("DELETE FROM leaves WHERE date LIKE ?", [prefix]);
     } else {
-      execSql("DELETE FROM assignments WHERE date LIKE ? AND locked = 0", [prefix]);
+      execSql(`DELETE FROM assignments WHERE date LIKE ? AND locked = 0
+        AND NOT EXISTS (SELECT 1 FROM rest_wishes w WHERE w.person_id = assignments.person_id AND w.date = assignments.date)
+        AND NOT EXISTS (SELECT 1 FROM attendance_flags f WHERE f.person_id = assignments.person_id AND f.date = assignments.date)`, [prefix]);
     }
     execSql("DELETE FROM generated_months WHERE year = ? AND month = ?", [year, month]);
   });

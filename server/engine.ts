@@ -1,6 +1,7 @@
 import type {
   Assignment,
   Conflict,
+  GenerationProgress,
   DayCover,
   Leave,
   MonthCell,
@@ -65,6 +66,7 @@ export interface Ctx {
   prevDay: Map<number, ShiftMark>;
   rng: Rng;
   leftoverWeekendExtra: number;
+  profile?: Record<string, { calls: number; ms: number; hardChange: number; unchanged: number }>;
 }
 
 function newGenerateSeed(): number {
@@ -520,7 +522,7 @@ function groupMinWork(
   date?: string,
   cells?: MonthCell[],
 ): number {
-  if (date && cells?.some((c) => c.date === date && c.kind === "holiday")) return 0;
+  if (date && cells && cellByDate(cells, date)?.kind === "holiday") return 0;
   const leave =
     grid && date ? members.filter((p) => markOf(grid, p.id, date).mark === "假").length : 0;
   const available = Math.max(0, members.length - leave);
@@ -3328,8 +3330,11 @@ function repairShiftBlocks(
       forbid.add(0);
     }
     const plans = blockPlans(blocks.marks, blocks.locked, p.canNight, forbid);
-    const snap = snapshotMarks(grid, people, cells);
-    const beforeGaps = coverGapCount(grid, people, cells, settings);
+    // 本次方案只改变本组的早/晚，其余组的覆盖和格子均不变。
+    const members = groups.get(p.groupName) ?? [];
+    const snap = snapshotMarks(grid, members, cells);
+    const beforeGaps = coverGapCount(grid, members, cells, settings);
+    const needs = new Map(cells.map((c) => [c.date, coverNeeds(c, cells, members, settings, grid)]));
     const sandBefore = countedSandwiches(grid, p.id, cells, prevDayShifts);
     let kept = false;
     for (const plan of plans) {
@@ -3337,10 +3342,9 @@ function repairShiftBlocks(
       for (let i = 0; i < plan.length; i += 1) {
         if (plan[i] !== blocks.marks[i]) markOf(grid, p.id, blocks.dates[i]).mark = plan[i] as "早" | "晚";
       }
-      const members = groups.get(p.groupName) ?? [];
       for (const c of cells) {
         if (isHoliday(c)) continue;
-        const need = coverNeeds(c, cells, members, settings, grid);
+        const need = needs.get(c.date)!;
         if (!need.canSplit) continue;
         const nights = groupWork(grid, members, c.date).filter((x) => markOf(grid, x.id, c.date).mark === "晚").length;
         if (nights >= need.night) continue;
@@ -3359,7 +3363,7 @@ function repairShiftBlocks(
       const sandAfter = countedSandwiches(grid, p.id, cells, prevDayShifts);
       if (sandAfter > sandBefore && sandAfter > MAX_COUNTED_SANDWICH) continue;
       if (isAvoidableInterleave(after.marks, after.locked)) continue;
-      if (coverGapCount(grid, people, cells, settings) > beforeGaps) continue;
+      if (coverGapCount(grid, members, cells, settings) > beforeGaps) continue;
       let morningAfter = false;
       for (const c of cells) {
         const cell = markOf(grid, p.id, c.date);
@@ -3494,7 +3498,19 @@ function gridMarks(ctx: Ctx): string {
 }
 
 function runPasses(ctx: Ctx, passes: readonly Pass[]): void {
-  for (const pass of passes) pass(ctx);
+  for (const pass of passes) {
+    if (!ctx.profile) { pass(ctx); continue; }
+    const before = hardCount(ctx);
+    const marks = gridMarks(ctx);
+    const start = performance.now();
+    pass(ctx);
+    const elapsed = performance.now() - start;
+    const metric = ctx.profile[pass.name] ??= { calls: 0, ms: 0, hardChange: 0, unchanged: 0 };
+    metric.calls++;
+    metric.ms += elapsed;
+    metric.hardChange += hardCount(ctx) - before;
+    if (marks === gridMarks(ctx)) metric.unchanged++;
+  }
 }
 
 /** 格子指纹不变就停。确定性 pass 再跑也是空转，与固定轮数等价。设 ROSTER_PIPELINE=1 看每轮硬冲突。 */
@@ -3732,7 +3748,7 @@ export function currentRoster(year: number, month: number) {
   return materialize(people, cells, grid, settings, isMonthGenerated(year, month), pack.prev, pack.prevDayShifts);
 }
 
-export function generateRoster(input: GenerateInput, pack?: MonthPack) {
+export function generateRoster(input: GenerateInput, pack?: MonthPack, onProgress?: (progress: GenerationProgress) => void) {
   const resolved = pack ?? openMonthPack(input.year, input.month);
   const base = input.seed ?? newGenerateSeed();
   const started = Date.now();
@@ -3740,10 +3756,11 @@ export function generateRoster(input: GenerateInput, pack?: MonthPack) {
   let bestHard = Number.POSITIVE_INFINITY;
   let attempts = 0;
   const maxAttempts = 24;
+  const profile: Ctx["profile"] = process.env.ROSTER_PROFILE === "1" ? {} : undefined;
   for (let i = 0; i < maxAttempts; i += 1) {
     attempts = i + 1;
     const seed = i === 0 ? base : (base + 17 + (i - 1) * 41) >>> 0;
-    const grid = generateRosterGrid({ ...input, seed }, resolved);
+    const grid = generateRosterGrid({ ...input, seed }, resolved, profile);
     const hard = countHardConflicts(
       resolved.people,
       resolved.cells,
@@ -3756,6 +3773,7 @@ export function generateRoster(input: GenerateInput, pack?: MonthPack) {
       bestHard = hard;
       bestGrid = hard === 0 ? grid : cloneGrid(grid);
     }
+    onProgress?.({ attempt: attempts, maxAttempts, bestHard, elapsedMs: Date.now() - started });
     if (hard === 0) break;
   }
   const result = materialize(
@@ -3772,13 +3790,15 @@ export function generateRoster(input: GenerateInput, pack?: MonthPack) {
   console.log(
     `排班 ${ym} seed=${base} attempts=${attempts} hard=${hard} leftoverWeekend=${leftoverWeekendQuota(resolved.people, resolved.cells, resolved.settings)} ${Date.now() - started}ms`,
   );
+  if (profile) console.log(JSON.stringify({ profile }));
   return result;
 }
 
-export function generateRosterGrid(input: GenerateInput, pack: MonthPack) {
+export function generateRosterGrid(input: GenerateInput, pack: MonthPack, profile?: Ctx["profile"]) {
   const { settings, people, cells, start, end, leaves, assignments, flags, wishes } = pack;
   const grid = emptyGrid(people, cells);
   const ctx = makeCtx(pack, grid, input.seed ?? 1);
+  ctx.profile = profile;
   const reapplyLocks: Pass = (c) =>
     applyUserMarks(c.grid, start, end, assignments, flags, wishes);
 

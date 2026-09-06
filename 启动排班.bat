@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title ��������Ű� 1.9.1
+title ��������Ű� 1.9.2
 
 where node >nul 2>&1
 if errorlevel 1 (
@@ -38,15 +38,6 @@ if "%NEED_BUILD%"=="1" (
   )
 )
 
-curl.exe -s -o nul -w "%%{http_code}" http://127.0.0.1:8787/api/health | findstr /c:"200" >nul
-if %errorlevel%==0 (
-  echo �����������У����ڴ������...
-  start "" "http://127.0.0.1:8787/"
-  exit /b 0
-)
-
-echo ����������������Ű�...
-echo �رձ����ڼ�ֹͣ����
-start /b powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep 2; Start-Process 'http://127.0.0.1:8787/'"
+set "ROSTER_OPEN_BROWSER=1"
 call npx --yes tsx server/index.ts
 pause

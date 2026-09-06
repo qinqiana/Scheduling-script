@@ -4,7 +4,7 @@ import type {
   Person,
   Settings,
 } from "../shared/types";
-import type { ImportResult, RosterPayload } from "./types";
+import type { GenerationJob, ImportResult, RosterPayload } from "./types";
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   let res: Response;
@@ -60,10 +60,13 @@ export const api = {
   roster: (year: number, month: number) =>
     req<RosterPayload>(`/api/roster?year=${year}&month=${month}`),
   generate: (year: number, month: number, keepLocked: boolean) =>
-    req<RosterPayload>("/api/roster/generate", {
+    req<GenerationJob>("/api/roster/generate", {
       method: "POST",
       body: JSON.stringify({ year, month, keepLocked }),
     }),
+  generationJob: (id: string) => req<GenerationJob>(`/api/roster/jobs/${encodeURIComponent(id)}`),
+  activeGeneration: () => req<GenerationJob | null>("/api/roster/jobs/active"),
+  cancelGeneration: (id: string) => req<{ ok: boolean }>(`/api/roster/jobs/${encodeURIComponent(id)}`, { method: "DELETE" }),
   clear: (year: number, month: number, all = false) =>
     req<RosterPayload>("/api/roster/clear", {
       method: "POST",

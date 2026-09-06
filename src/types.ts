@@ -1,5 +1,6 @@
 import type {
   Conflict,
+  GenerationProgress,
   DayCover,
   Holiday,
   Leave,
@@ -21,6 +22,17 @@ export interface RosterPayload {
   stats: { people: PersonStat[]; days: DayCover[] };
   settings: Settings;
   generated?: boolean;
+  diagnostics?: { conclusion: string; blockers: Conflict[]; items: (Conflict & { category: string })[] };
+}
+
+export interface GenerationJob {
+  id: string;
+  year: number;
+  month: number;
+  status: "running" | "completed" | "failed";
+  progress?: GenerationProgress;
+  result?: RosterPayload;
+  error?: string;
 }
 
 export interface ImportResult {

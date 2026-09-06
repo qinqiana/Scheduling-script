@@ -4,15 +4,27 @@ import { DEFAULT_SETTINGS, type Settings } from "../shared/types.ts";
 import { OFFICIAL_HOLIDAYS } from "./holidays.ts";
 import { dataDir, dbPath, sqlWasmPath } from "./paths.ts";
 import { SEED_PEOPLE } from "./seedPeople.ts";
+import { claimInstance, releaseInstance } from "./instance.ts";
 
 export function getDbPath(): string {
   return dbPath();
 }
 
 let db: Database | null = null;
+let revision = 0;
+export function getRevision(): number { return revision; }
 
+let opening: Promise<Database> | undefined;
 export async function getDb(): Promise<Database> {
   if (db) return db;
+  if (!opening) opening = openDb().catch((error) => {
+    db?.close(); db = null; opening = undefined; releaseInstance(); throw error;
+  });
+  return opening;
+}
+
+async function openDb(): Promise<Database> {
+  await claimInstance();
   const wasm = sqlWasmPath();
   const SQL = await initSqlJs({
     locateFile: (file) => (file.endsWith(".wasm") ? wasm : file),
@@ -189,6 +201,7 @@ export function runMany(actions: () => void): void {
   }
   try {
     persist();
+    revision++;
   } catch (error) {
     // 落盘失败时回到磁盘上的最后成功版本，避免失败操作被下次保存带入。
     const previous = readFileSync(dbPath());
@@ -251,4 +264,5 @@ export function restoreFrom(source: Buffer): void {
     throw error;
   }
   previous.close();
+  revision++;
 }

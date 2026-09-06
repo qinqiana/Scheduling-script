@@ -243,6 +243,13 @@ table.roster .comp-mark,
 .conflict-list { margin: 0; padding-left: 18px; }
 .conflict-list .hard { color: var(--gap); }
 .conflict-list .soft { color: var(--leave); }
+.rule-details { margin-top: 8px; max-width: 920px; color: var(--muted); font-size: 13px; }
+.rule-details summary { cursor: pointer; color: var(--blue); }
+.rule-details p { margin: 6px 0 0; line-height: 1.6; }
+.generation-status { display: grid; gap: 8px; margin-bottom: 12px; }
+.generation-status progress { width: min(420px, 100%); height: 12px; }
+.conflict-list .hard { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.mini { padding: 3px 7px; font-size: 12px; white-space: nowrap; }
 
 @media print {
   .side, .actions, .nav { display: none !important; }

@@ -1,5 +1,7 @@
+import { editCell } from "./cellState.ts";
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
+import { spawn } from "node:child_process";
 import { join } from "node:path";
 import type { AddressInfo } from "node:net";
 import express, { type ErrorRequestHandler } from "express";
@@ -19,11 +21,13 @@ import {
   runMany,
   saveSettings,
 } from "./db.ts";
-import { clearMonth, currentRoster, generateRoster, persistGenerated } from "./engine.ts";
+import { clearMonth, currentRoster } from "./engine.ts";
+import { activeJob, cancelGeneration, getJob, startGeneration } from "./generationJobs.ts";
 import { importRosterFromExcel } from "./importRoster.ts";
 import { exportWorkbook } from "./excel.ts";
 import { distDir, templatesDir } from "./paths.ts";
 import { validDate, validMonth, validateSettings } from "./validation.ts";
+import { InstanceInUse, setInstancePort } from "./instance.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
@@ -274,19 +278,8 @@ app.get("/api/leaves", (req, res) => {
 
 app.post("/api/leaves", (req, res) => {
   const { personId, date, reason = "" } = req.body ?? {};
-  if (!personId || !date) {
-    res.status(400).json({ error: "人员和日期必填" });
-    return;
-  }
-  runMany(() => {
-    execSql(
-      "INSERT INTO leaves (person_id, date, reason) VALUES (?, ?, ?) ON CONFLICT(person_id, date) DO UPDATE SET reason = excluded.reason",
-      [personId, date, reason],
-    );
-    execSql("DELETE FROM assignments WHERE person_id = ? AND date = ?", [personId, date]);
-    execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ?", [personId, date]);
-    execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
-  });
+  if (!personId || !date) { res.status(400).json({ error: "人员和日期必填" }); return; }
+  editCell(personId, date, { type: "leave", reason });
   res.json({ ok: true });
 });
 
@@ -322,14 +315,24 @@ app.post("/api/roster/generate", (req, res) => {
     return;
   }
   const seed = Number(req.body?.seed);
-  const result = generateRoster({
+  const job = startGeneration({
     year,
     month,
     keepLocked,
     seed: Number.isFinite(seed) && seed ? seed : undefined,
   });
-  persistGenerated(year, month, result.roster, keepLocked);
-  res.json(result);
+  res.status(202).json(job);
+});
+
+app.get("/api/roster/jobs/active", (_req, res) => res.json(activeJob() ?? null));
+app.get("/api/roster/jobs/:id", (req, res) => {
+  const job = getJob(req.params.id);
+  if (!job) { res.status(404).json({ error: "生成任务不存在，请刷新班表" }); return; }
+  res.json(job);
+});
+app.delete("/api/roster/jobs/:id", (req, res) => {
+  if (!cancelGeneration(req.params.id)) { res.status(409).json({ error: "任务已结束" }); return; }
+  res.json({ ok: true });
 });
 
 app.post("/api/roster/clear", (req, res) => {
@@ -362,164 +365,37 @@ app.post("/api/roster/import", upload.single("file"), async (req, res) => {
 
 app.put("/api/roster/wish", (req, res) => {
   const { personId, date, want } = req.body ?? {};
-  if (!personId || !date) {
-    res.status(400).json({ error: "人员和日期必填" });
-    return;
-  }
-  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
-  const flag = queryOne<{ kind: string }>(
-    "SELECT kind FROM attendance_flags WHERE person_id = ? AND date = ?",
-    [personId, date],
-  );
-  runMany(() => {
-    if (want) {
-      execSql(
-        "INSERT INTO rest_wishes (person_id, date) VALUES (?, ?) ON CONFLICT(person_id, date) DO NOTHING",
-        [personId, date],
-      );
-      if (!leave && flag?.kind !== "overtime") {
-        execSql(
-          `INSERT INTO assignments (person_id, date, shift, locked)
-           VALUES (?, ?, '休', 1)
-           ON CONFLICT(person_id, date) DO UPDATE SET shift = '休', locked = 1`,
-          [personId, date],
-        );
-      }
-    } else {
-      execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
-      execSql(
-        "UPDATE assignments SET locked = 0 WHERE person_id = ? AND date = ? AND shift = '休'",
-        [personId, date],
-      );
-    }
-  });
-  const [year, month] = String(date).split("-").map(Number);
+  if (!personId || !date || typeof want !== "boolean") { res.status(400).json({ error: "人员、日期和想休状态必填" }); return; }
+  editCell(personId, date, { type: "wish", want });
+  const [year, month] = date.split("-").map(Number);
   res.json(currentRoster(year, month));
 });
 
 app.put("/api/roster/cell", (req, res) => {
   const { personId, date, shift, locked } = req.body ?? {};
-  if (!personId || !date || !shift) {
-    res.status(400).json({ error: "人员、日期、班次必填" });
-    return;
+  if (!personId || !date || !["早", "晚", "休"].includes(shift) || typeof locked !== "boolean") {
+    res.status(400).json({ error: "人员、日期、班次和锁定状态必填" }); return;
   }
-  if (!["早", "晚", "休"].includes(shift)) {
-    res.status(400).json({ error: "班次只能是 早 / 晚 / 休" });
-    return;
-  }
-  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
-  if (leave) {
-    res.status(400).json({ error: "该日已请假，先撤销请假再改班" });
-    return;
-  }
-  const flag = queryOne<{ kind: string }>(
-    "SELECT kind FROM attendance_flags WHERE person_id = ? AND date = ?",
-    [personId, date],
-  );
-  const lock = Boolean(locked) || flag?.kind === "overtime";
-  runMany(() => {
-    execSql(
-      `INSERT INTO assignments (person_id, date, shift, locked)
-       VALUES (?, ?, ?, ?)
-       ON CONFLICT(person_id, date) DO UPDATE SET shift = excluded.shift, locked = excluded.locked`,
-      [personId, date, shift, lock ? 1 : 0],
-    );
-    if (shift === "休") {
-      execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ? AND kind = 'overtime'", [
-        personId,
-        date,
-      ]);
-    } else {
-      execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ? AND kind = 'comp_rest'", [
-        personId,
-        date,
-      ]);
-    }
-  });
+  editCell(personId, date, { type: "shift", shift, locked });
   const [year, month] = date.split("-").map(Number);
   res.json(currentRoster(year, month));
 });
 
 app.post("/api/roster/cell/clear", (req, res) => {
   const { personId, date } = req.body ?? {};
-  if (!personId || !date) {
-    res.status(400).json({ error: "人员和日期必填" });
-    return;
-  }
-  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
-  if (leave) {
-    res.status(400).json({ error: "该日已请假，先撤销请假再清空" });
-    return;
-  }
-  runMany(() => {
-    execSql("DELETE FROM assignments WHERE person_id = ? AND date = ?", [personId, date]);
-    execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
-    execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ?", [personId, date]);
-  });
-  const [year, month] = String(date).split("-").map(Number);
+  if (!personId || !date) { res.status(400).json({ error: "人员和日期必填" }); return; }
+  editCell(personId, date, { type: "clear" });
+  const [year, month] = date.split("-").map(Number);
   res.json(currentRoster(year, month));
 });
 
 app.put("/api/roster/flag", (req, res) => {
   const { personId, date, kind } = req.body ?? {};
-  if (!personId || !date) {
-    res.status(400).json({ error: "人员和日期必填" });
-    return;
+  if (!personId || !date || ![null, "overtime", "comp_rest"].includes(kind)) {
+    res.status(400).json({ error: "人员、日期和有效加班补休状态必填" }); return;
   }
-  if (kind != null && kind !== "overtime" && kind !== "comp_rest") {
-    res.status(400).json({ error: "标记只能是加班或补休" });
-    return;
-  }
-  const leave = queryOne("SELECT id FROM leaves WHERE person_id = ? AND date = ?", [personId, date]);
-  if (leave) {
-    res.status(400).json({ error: "该日已请假，先撤销请假再改" });
-    return;
-  }
-  runMany(() => {
-    execSql("DELETE FROM attendance_flags WHERE person_id = ? AND date = ?", [personId, date]);
-    if (kind === "overtime") {
-      execSql("DELETE FROM rest_wishes WHERE person_id = ? AND date = ?", [personId, date]);
-      execSql("INSERT INTO attendance_flags (person_id, date, kind) VALUES (?, ?, 'overtime')", [
-        personId,
-        date,
-      ]);
-      const cur = queryOne<{ shift: string; locked: number }>(
-        "SELECT shift, locked FROM assignments WHERE person_id = ? AND date = ?",
-        [personId, date],
-      );
-      if (cur && (cur.shift === "早" || cur.shift === "晚")) {
-        execSql("UPDATE assignments SET locked = 1 WHERE person_id = ? AND date = ?", [
-          personId,
-          date,
-        ]);
-      } else {
-        execSql(
-          `INSERT INTO assignments (person_id, date, shift, locked)
-           VALUES (?, ?, '早', 1)
-           ON CONFLICT(person_id, date) DO UPDATE SET shift = '早', locked = 1`,
-          [personId, date],
-        );
-      }
-    } else if (kind === "comp_rest") {
-      execSql("INSERT INTO attendance_flags (person_id, date, kind) VALUES (?, ?, 'comp_rest')", [
-        personId,
-        date,
-      ]);
-      const locked = queryOne<{ locked: number }>(
-        "SELECT locked FROM assignments WHERE person_id = ? AND date = ?",
-        [personId, date],
-      );
-      if (!locked?.locked) {
-        execSql(
-          `INSERT INTO assignments (person_id, date, shift, locked)
-           VALUES (?, ?, '休', 0)
-           ON CONFLICT(person_id, date) DO UPDATE SET shift = '休'`,
-          [personId, date],
-        );
-      }
-    }
-  });
-  const [year, month] = String(date).split("-").map(Number);
+  editCell(personId, date, { type: "flag", kind });
+  const [year, month] = date.split("-").map(Number);
   res.json(currentRoster(year, month));
 });
 
@@ -599,14 +475,21 @@ app.use((req, res) => {
 const handleError: ErrorRequestHandler = (error, _req, res, _next) => {
   const status = error instanceof multer.MulterError
     ? (error.code === "LIMIT_FILE_SIZE" ? 413 : 400)
-    : error.status === 400 || error.status === 413 ? error.status : 500;
+    : [400, 409, 413, 422].includes(error.status) ? error.status : 500;
   if (status === 500) console.error(error);
-  res.status(status).json({ error: status === 413 ? "上传内容过大" : status === 400 ? "请求内容无效" : "操作失败，请检查服务日志" });
+  res.status(status).json({ error: status === 413 ? "上传内容过大" : error.type === "entity.parse.failed" ? "请求内容无效" : status !== 500 ? error.message : "操作失败，请检查服务日志" });
 };
 app.use(handleError);
 
 export async function startServer(preferredPort = PORT): Promise<number> {
-  await getDb();
+  try { await getDb(); } catch (error) {
+    if (error instanceof InstanceInUse && error.existingPort) {
+      console.log(error.message);
+      openBrowser(error.existingPort);
+      return error.existingPort;
+    }
+    throw error;
+  }
   const listen = (port: number) =>
     new Promise<number>((resolve, reject) => {
       const server = createServer(app);
@@ -622,8 +505,20 @@ export async function startServer(preferredPort = PORT): Promise<number> {
       });
     });
   const actual = await listen(preferredPort);
-  console.log(`入网审核排班 1.9.1  http://127.0.0.1:${actual}`);
+  setInstancePort(actual);
+  console.log(`入网审核排班 1.9.2  http://127.0.0.1:${actual}`);
+  openBrowser(actual);
   return actual;
+}
+
+function openBrowser(port: number): void {
+  if (process.env.ROSTER_OPEN_BROWSER !== "1") return;
+  const url = `http://127.0.0.1:${port}/`;
+  const command = process.platform === "win32" ? "rundll32.exe" : process.platform === "darwin" ? "open" : "xdg-open";
+  const args = process.platform === "win32" ? ["url.dll,FileProtocolHandler", url] : [url];
+  const child = spawn(command, args, { windowsHide: true, detached: true, stdio: "ignore" });
+  child.on("error", () => console.error(`请手动打开 ${url}`));
+  child.unref();
 }
 
 if (!process.env.ELECTRON_RUN) {

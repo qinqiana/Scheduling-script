@@ -1,6 +1,13 @@
 export type ShiftMark = "早" | "晚" | "休" | "假" | "";
 export type ConflictSeverity = "hard" | "soft";
 
+export interface GenerationProgress {
+  attempt: number;
+  maxAttempts: number;
+  bestHard: number;
+  elapsedMs: number;
+}
+
 export interface Settings {
   maxNightDiff: number;
   maxConsecutiveWork: number;
