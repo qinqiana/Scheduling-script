@@ -18,3 +18,17 @@ test("已知可行输入多种子生成：零硬冲突且通过独立规则检�
     for (const rule of ["请假被覆盖", "锁定被覆盖", "不能晚班", "覆盖不足"]) assert.ok(failures.some((x) => x.includes(rule)), rule);
   }
 });
+
+test("关闭软约束后不生成软提示", () => {
+  const pack = feasiblePack();
+  pack.settings = {
+    ...pack.settings,
+    preferPairedRest: false,
+    preferBalancedShifts: false,
+    preferWeeklyWorkTarget: false,
+    preferSingleSandwichRest: false,
+  };
+  const result = generateRoster({ year: 2026, month: 2, seed: 17 }, pack);
+  assert.deepEqual(result.conflicts.filter((c) => c.severity === "soft"), []);
+  assert.deepEqual(result.conflicts.filter((c) => c.severity === "hard"), []);
+});

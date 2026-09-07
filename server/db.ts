@@ -222,13 +222,26 @@ export function getSettings(): Settings {
   delete parsed.requiredWorkDays;
   delete parsed.week2Preference;
   delete parsed.lastWeekPreference;
-  return { ...DEFAULT_SETTINGS, ...parsed };
+  return {
+    ...DEFAULT_SETTINGS,
+    ...parsed,
+    // 这三项是业务硬约束：不再向界面暴露开关，旧数据库中的值也不能关闭它们。
+    weekendNeedWork: true,
+    noMorningAfterNight: true,
+    nightRestRequired: false,
+  };
 }
 
 export function saveSettings(next: Settings): Settings {
+  const fixed = {
+    ...next,
+    weekendNeedWork: true,
+    noMorningAfterNight: true,
+    nightRestRequired: false,
+  };
   run(
     "INSERT INTO settings (key, value) VALUES ('settings', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-    [JSON.stringify(next)],
+    [JSON.stringify(fixed)],
   );
   return getSettings();
 }

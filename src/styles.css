@@ -228,7 +228,8 @@ table.roster .comp-mark,
 .shift-picks { display: flex; gap: 8px; margin: 12px 0; }
 .shift-picks button { flex: 1; }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.rule-stack { display: grid; gap: 12px; }
 .form { display: grid; gap: 8px; }
 .form label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
 .form input, .form select, .form textarea {
@@ -243,6 +244,14 @@ table.roster .comp-mark,
 .conflict-list { margin: 0; padding-left: 18px; }
 .conflict-list .hard { color: var(--gap); }
 .conflict-list .soft { color: var(--leave); }
+.rule-heading { margin: 14px 0 8px; font-size: 15px; }
+.rule-heading .hint { margin-left: 6px; font-size: 12px; font-weight: 400; }
+.rule-list { font-size: 13px; line-height: 1.55; }
+.rule-options { display: grid; gap: 8px; }
+.rule-choice { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 13px; }
+.rule-choice input { margin-top: 3px; }
+.rule-choice span { display: grid; gap: 2px; }
+.rule-choice small { color: var(--muted); }
 .rule-details { margin-top: 8px; max-width: 920px; color: var(--muted); font-size: 13px; }
 .rule-details summary { cursor: pointer; color: var(--blue); }
 .rule-details p { margin: 6px 0 0; line-height: 1.6; }

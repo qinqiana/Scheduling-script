@@ -3047,9 +3047,73 @@
   ],
   "conflicts": [
     {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-08-03",
+      "message": "冯宝儿 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-08-10",
+      "message": "冯宝儿 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-08-24",
+      "message": "冯宝儿 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 2,
       "message": "钟梓枫 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 21 天、休息 10 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "date": "2026-08-10",
+      "message": "钟梓枫 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "date": "2026-08-17",
+      "message": "钟梓枫 17 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "message": "钟梓枫 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-08-03",
+      "message": "钟龙 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-08-10",
+      "message": "钟龙 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-08-17",
+      "message": "钟龙 17 日起两天休息未相连"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-08-24",
+      "message": "钟龙 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "message": "钟龙 夹心休 2 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",
@@ -3057,9 +3121,107 @@
       "message": "姚炎兰 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 21 天、休息 10 天"
     },
     {
+      "severity": "soft",
+      "personId": 4,
+      "date": "2026-08-03",
+      "message": "姚炎兰 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 4,
+      "message": "姚炎兰 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-08-03",
+      "message": "骆成奕 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-08-10",
+      "message": "骆成奕 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-08-17",
+      "message": "骆成奕 17 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-08-24",
+      "message": "骆成奕 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "message": "骆成奕 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
       "severity": "hard",
       "personId": 6,
       "message": "毛佩凤 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 21 天、休息 10 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "date": "2026-08-10",
+      "message": "毛佩凤 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "date": "2026-08-17",
+      "message": "毛佩凤 17 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "date": "2026-08-24",
+      "message": "毛佩凤 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "message": "毛佩凤 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-08-03",
+      "message": "刘文达 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-08-10",
+      "message": "刘文达 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-08-24",
+      "message": "刘文达 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "message": "刘文达 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-08-03",
+      "message": "陈彩怡 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-08-10",
+      "message": "陈彩怡 10 日起该周上班 4 天，默认 5 天"
     },
     {
       "severity": "hard",
@@ -3067,9 +3229,26 @@
       "message": "陈彩怡 早班晚班穿插，除月末三天外最多切一次"
     },
     {
+      "severity": "soft",
+      "personId": 9,
+      "date": "2026-08-10",
+      "message": "周秋艳 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 9,
+      "date": "2026-08-24",
+      "message": "周秋艳 24 日起两天休息未相连"
+    },
+    {
       "severity": "hard",
       "personId": 9,
       "message": "周秋艳 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 9,
+      "message": "周秋艳 夹心休 3 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",
@@ -3077,9 +3256,32 @@
       "message": "周秋艳 早班晚班穿插，除月末三天外最多切一次"
     },
     {
+      "severity": "soft",
+      "personId": 10,
+      "date": "2026-08-03",
+      "message": "杨礼 3 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "date": "2026-08-10",
+      "message": "杨礼 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "date": "2026-08-17",
+      "message": "杨礼 17 日起两天休息未相连"
+    },
+    {
       "severity": "hard",
       "personId": 10,
       "message": "杨礼 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "message": "杨礼 夹心休 3 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",
@@ -3087,15 +3289,91 @@
       "message": "俞观权 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 21 天、休息 10 天"
     },
     {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-08-03",
+      "message": "俞观权 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-08-10",
+      "message": "俞观权 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-08-17",
+      "message": "俞观权 17 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-08-24",
+      "message": "俞观权 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "message": "俞观权 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-08-03",
+      "message": "陆威婷 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-08-17",
+      "message": "陆威婷 17 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-08-24",
+      "message": "陆威婷 24 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 13,
+      "date": "2026-08-10",
+      "message": "李珊珊 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 14,
       "message": "江金岚 出勤 22 天、休息 9 天，无请假无特殊加班时应出勤 21 天、休息 10 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-08-03",
+      "message": "江金岚 3 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-08-10",
+      "message": "江金岚 10 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-08-24",
+      "message": "江金岚 24 日起该周上班 6 天，默认 5 天"
     },
     {
       "severity": "hard",
       "personId": 14,
       "date": "2026-08-09",
       "message": "江金岚 9 日起连续上班 2 天就休息，连续工作 3 天才可以休息"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "message": "江金岚 夹心休 2 天，尽量不超过 1 天"
     },
     {
       "severity": "soft",

@@ -96,6 +96,8 @@ export function CalendarPage({
     return () => { loadSequence.current += 1; };
   }, [year, month, tick]);
 
+  useEffect(() => setPersonId(0), [year, month]);
+
   const map = useMemo(() => {
     const m = new Map<string, RosterCell>();
     for (const c of data?.roster ?? []) m.set(`${c.personId}|${c.date}`, c);

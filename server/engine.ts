@@ -202,11 +202,16 @@ function personTarget(
   cells: MonthCell[],
   grid: Map<number, Map<string, GridMark>>,
 ): number {
+  const cache = staticGridCounts(grid);
+  const cached = cache.targets.get(person.id);
+  if (cached != null) return cached;
   const base =
     person.targetDays != null
       ? person.targetDays
       : monthMeta(cells).legalDays - leaveOnLegalDays(grid, person.id, cells);
-  return Math.max(0, base + attendanceAdjust(grid, person.id, cells));
+  const target = Math.max(0, base + attendanceAdjust(grid, person.id, cells));
+  cache.targets.set(person.id, target);
+  return target;
 }
 
 function canEdit(cell: GridMark): boolean {
@@ -384,6 +389,20 @@ interface MonthMeta {
 }
 
 const monthMetaCache = new WeakMap<MonthCell[], MonthMeta>();
+const staticGridCountCache = new WeakMap<Grid, {
+  targets: Map<number, number>;
+  leaveByWeek: Map<number, Map<string, number>>;
+}>();
+
+/** 请假、补休和加班标记在生成前锁定，整个月内不变；缓存它们的派生计数。 */
+function staticGridCounts(grid: Grid) {
+  let cache = staticGridCountCache.get(grid);
+  if (!cache) {
+    cache = { targets: new Map(), leaveByWeek: new Map() };
+    staticGridCountCache.set(grid, cache);
+  }
+  return cache;
+}
 
 function monthMeta(cells: MonthCell[]): MonthMeta {
   const hit = monthMetaCache.get(cells);
@@ -719,7 +738,15 @@ function weekLeaveCount(
   personId: number,
   weekCells: MonthCell[],
 ): number {
-  return weekCells.filter((c) => markOf(grid, personId, c.date).mark === "假").length;
+  const cache = staticGridCounts(grid);
+  const byWeek = cache.leaveByWeek.get(personId) ?? new Map<string, number>();
+  cache.leaveByWeek.set(personId, byWeek);
+  const key = weekCells[0]?.date ?? "";
+  const cached = byWeek.get(key);
+  if (cached != null) return cached;
+  const leave = weekCells.filter((c) => markOf(grid, personId, c.date).mark === "假").length;
+  byWeek.set(key, leave);
+  return leave;
 }
 
 function weekWorkInMonth(
@@ -746,6 +773,12 @@ function fullWeekHardMin(weekCells: MonthCell[], leave: number, maxWork: number)
   return Math.min(FULL_WEEK_HARD_MIN, preferred);
 }
 
+/** 关闭「满周默认上班」后，只保留满周硬下限，不再把默认天数当成排班目标。 */
+function preferredWeekWorkTarget(weekCells: MonthCell[], leave: number, settings: Settings): number | null {
+  if (!settings.preferWeeklyWorkTarget) return null;
+  return fullWeekWorkTarget(weekCells, leave, settings.maxWorkPerWeek);
+}
+
 function partialDaysOf(cells: MonthCell[]): MonthCell[] {
   return monthMeta(cells).partialDays;
 }
@@ -770,7 +803,7 @@ function fullWeeksMinWork(
   for (const w of cellsByWeek(cells).values()) {
     if (w.length !== 7) continue;
     const leave = weekLeaveCount(grid, person.id, w);
-    fromFull += fullWeekWorkTarget(w, leave, settings.maxWorkPerWeek) ?? 0;
+    fromFull += preferredWeekWorkTarget(w, leave, settings) ?? 0;
   }
   return fromFull;
 }
@@ -847,7 +880,7 @@ function canTakeWork(
     return false;
   }
   const weekly = weekWorkCount(grid, person.id, cell.date, cells, prev);
-  return allowOvertime || weekly < settings.maxWorkPerWeek;
+  return allowOvertime || !settings.preferWeeklyWorkTarget || weekly < settings.maxWorkPerWeek;
 }
 
 function pickWorkMark(
@@ -910,11 +943,7 @@ function extraRestPriority(
 ): number {
   if (isMonthEndCoverDay(cell, cells)) return 6;
   const weekCells = weekCellsOf(cells, cell.date);
-  const weekTarget = fullWeekWorkTarget(
-    weekCells,
-    weekLeaveCount(grid, person.id, weekCells),
-    settings.maxWorkPerWeek,
-  );
+  const weekTarget = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, person.id, weekCells), settings);
   if (weekTarget != null) {
     const weekWork = weekWorkInMonth(grid, person.id, weekCells);
     if (weekWork > weekTarget) return 0;
@@ -935,13 +964,10 @@ function hasSixthWeek(
   cells: MonthCell[],
   settings: Settings,
 ): boolean {
+  if (!settings.preferWeeklyWorkTarget) return false;
   for (const weekCells of cellsByWeek(cells).values()) {
     if (weekCells.length !== 7) continue;
-    const target = fullWeekWorkTarget(
-      weekCells,
-      weekLeaveCount(grid, person.id, weekCells),
-      settings.maxWorkPerWeek,
-    );
+    const target = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, person.id, weekCells), settings);
     if (target != null && weekWorkInMonth(grid, person.id, weekCells) > target) return true;
   }
   return false;
@@ -1149,7 +1175,7 @@ function groupCoveredWithout(
   settings: Settings,
   cells: MonthCell[] = [],
 ): boolean {
-  const cell = cells.find((c) => c.date === date);
+  const cell = cellByDate(cells, date);
   if (!cell || cell.kind === "holiday") return true;
   const remain = groupWork(grid, members, date).filter((x) => x.id !== personId);
   const need = coverNeeds(cell, cells, members, settings, grid);
@@ -1177,11 +1203,7 @@ function adjustToTargets(
         .filter(({ c }) => {
           if (!groupCoveredWithout(grid, groups.get(p.groupName) ?? [], c.date, p.id, settings, cells)) return false;
           const weekCells = weekCellsOf(cells, c.date);
-          const target = fullWeekWorkTarget(
-            weekCells,
-            weekLeaveCount(grid, p.id, weekCells),
-            settings.maxWorkPerWeek,
-          );
+          const target = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, p.id, weekCells), settings);
           if (target != null && weekWorkCount(grid, p.id, c.date, cells, prev) <= target) return false;
           return true;
         })
@@ -1212,8 +1234,8 @@ function adjustToTargets(
         .sort((a, b) => {
           const weekA = weekCellsOf(cells, a.c.date);
           const weekB = weekCellsOf(cells, b.c.date);
-          const ta = fullWeekWorkTarget(weekA, weekLeaveCount(grid, p.id, weekA), settings.maxWorkPerWeek);
-          const tb = fullWeekWorkTarget(weekB, weekLeaveCount(grid, p.id, weekB), settings.maxWorkPerWeek);
+          const ta = preferredWeekWorkTarget(weekA, weekLeaveCount(grid, p.id, weekA), settings);
+          const tb = preferredWeekWorkTarget(weekB, weekLeaveCount(grid, p.id, weekB), settings);
           const deficitA = ta == null ? 0 : Math.max(0, ta - weekWorkInMonth(grid, p.id, weekA));
           const deficitB = tb == null ? 0 : Math.max(0, tb - weekWorkInMonth(grid, p.id, weekB));
           const leftover =
@@ -1546,12 +1568,13 @@ function clusterWeeklyRest(
 ): void {
   const { grid, people, cells, s: settings, prev, prevDay: prevDayShifts } = ctx;
   const groups = groupMembers(people);
+  const limit = settings.preferSingleSandwichRest ? MAX_COUNTED_SANDWICH : HARD_SANDWICH_LIMIT;
 
   for (const p of people) {
     const members = groups.get(p.groupName) ?? [];
     for (let attempt = 0; attempt < 16; attempt += 1) {
       const before = countedSandwiches(grid, p.id, cells, prevDayShifts);
-      if (before <= MAX_COUNTED_SANDWICH) break;
+      if (before <= limit) break;
       const seq = personDaySeq(grid, p.id, cells);
       const prevCode = prevDayCode(prevDayShifts, p.id);
       const isolatedRests = cells.filter((c, i) => {
@@ -2008,6 +2031,7 @@ function repairWeekCap(
   ctx: Ctx
 ): void {
   const { grid, people, cells, s: settings, prev, prevDay: prevDayShifts } = ctx;
+  if (!settings.preferWeeklyWorkTarget) return;
   const groups = groupMembers(people);
   for (const p of people) {
     let guard = 0;
@@ -2106,7 +2130,7 @@ function repairWeekFill(
   for (const p of people) {
     for (const weekCells of cellsByWeek(cells).values()) {
       const leave = weekLeaveCount(grid, p.id, weekCells);
-      const target = fullWeekWorkTarget(weekCells, leave, settings.maxWorkPerWeek);
+      const target = preferredWeekWorkTarget(weekCells, leave, settings) ?? fullWeekHardMin(weekCells, leave, settings.maxWorkPerWeek);
       if (target == null) continue;
       let guard = 0;
       while (weekWorkInMonth(grid, p.id, weekCells) < target && guard < 12) {
@@ -2194,11 +2218,7 @@ function canRestExtraDay(
   if (!canEdit(cell) || !isWork(cell.mark)) return false;
   if (!groupCoveredWithout(grid, members, date, person.id, settings, cells)) return false;
   const weekCells = weekCellsOf(cells, date);
-  const weekTarget = fullWeekWorkTarget(
-    weekCells,
-    weekLeaveCount(grid, person.id, weekCells),
-    settings.maxWorkPerWeek,
-  );
+  const weekTarget = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, person.id, weekCells), settings);
   if (weekTarget == null) return true;
   if (weekWorkInMonth(grid, person.id, weekCells) > weekTarget) return true;
   return monthAllowsShortWeek(person, cells, grid, settings);
@@ -2213,11 +2233,7 @@ function rebalanceWeeksAndAttendance(
     const members = groups.get(p.groupName) ?? [];
     const monthTarget = personTarget(p, cells, grid);
     for (const weekCells of cellsByWeek(cells).values()) {
-      const weekTarget = fullWeekWorkTarget(
-        weekCells,
-        weekLeaveCount(grid, p.id, weekCells),
-        settings.maxWorkPerWeek,
-      );
+      const weekTarget = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, p.id, weekCells), settings);
       if (weekTarget == null) continue;
       let guard = 0;
       while (weekWorkInMonth(grid, p.id, weekCells) < weekTarget && guard < 10) {
@@ -2235,8 +2251,8 @@ function rebalanceWeeksAndAttendance(
             .sort((a, b) => {
               const wa = weekCellsOf(cells, a.date);
               const wb = weekCellsOf(cells, b.date);
-              const ta = fullWeekWorkTarget(wa, weekLeaveCount(grid, p.id, wa), settings.maxWorkPerWeek);
-              const tb = fullWeekWorkTarget(wb, weekLeaveCount(grid, p.id, wb), settings.maxWorkPerWeek);
+              const ta = preferredWeekWorkTarget(wa, weekLeaveCount(grid, p.id, wa), settings);
+              const tb = preferredWeekWorkTarget(wb, weekLeaveCount(grid, p.id, wb), settings);
               const sa = ta == null ? 0 : weekWorkInMonth(grid, p.id, wa) > ta ? 1 : 2;
               const sb = tb == null ? 0 : weekWorkInMonth(grid, p.id, wb) > tb ? 1 : 2;
               return sa - sb;
@@ -2284,7 +2300,7 @@ function rebalanceWeeksAndAttendance(
       const dest =
         cells.find((c) => {
           const week = weekCellsOf(cells, c.date);
-          const t = fullWeekWorkTarget(week, weekLeaveCount(grid, p.id, week), settings.maxWorkPerWeek);
+          const t = preferredWeekWorkTarget(week, weekLeaveCount(grid, p.id, week), settings);
           return t != null && weekWorkInMonth(grid, p.id, week) < t && forceWorkMark(grid, p, c, cells, settings, prevDayShifts, prev);
         }) ?? cells.find((c) => forceWorkMark(grid, p, c, cells, settings, prevDayShifts, prev));
       if (!dest) break;
@@ -2367,13 +2383,13 @@ function restOneFullWeekDay(
   for (const weekCells of cellsByWeek(cells).values()) {
     if (weekCells.length !== 7) continue;
     const leave = weekLeaveCount(grid, person.id, weekCells);
-    const preferred = fullWeekWorkTarget(weekCells, leave, settings.maxWorkPerWeek);
+    const preferred = preferredWeekWorkTarget(weekCells, leave, settings);
     const hardMin = fullWeekHardMin(weekCells, leave, settings.maxWorkPerWeek);
     const weekWork = weekWorkInMonth(grid, person.id, weekCells);
-    if (preferred == null || hardMin == null || weekWork < 1) continue;
+    if (hardMin == null || weekWork < 1) continue;
     if (weekWork <= hardMin) continue;
     const overMonth = workCount(grid, person.id) > personTarget(person, cells, grid);
-    if (!overMonth && weekWork <= preferred) continue;
+    if (!overMonth && (!settings.preferWeeklyWorkTarget || weekWork <= preferred!)) continue;
     const options = weekCells
       .filter((c) => {
         if (skipDate && c.date === skipDate) return false;
@@ -2812,11 +2828,7 @@ function repairAttendance(
       let transferred = false;
       for (const { c, cell } of extras) {
         const weekCells = weekCellsOf(cells, c.date);
-        const weekTarget = fullWeekWorkTarget(
-          weekCells,
-          weekLeaveCount(grid, p.id, weekCells),
-          settings.maxWorkPerWeek,
-        );
+        const weekTarget = preferredWeekWorkTarget(weekCells, weekLeaveCount(grid, p.id, weekCells), settings);
         if (weekTarget != null && weekWorkInMonth(grid, p.id, weekCells) <= weekTarget) continue;
         const taker = members
           .filter((x) => {
@@ -2889,8 +2901,8 @@ function repairAttendance(
       const scoreDay = (a: MonthCell, b: MonthCell) => {
         const weekA = weekCellsOf(cells, a.date);
         const weekB = weekCellsOf(cells, b.date);
-        const ta = fullWeekWorkTarget(weekA, weekLeaveCount(grid, p.id, weekA), settings.maxWorkPerWeek);
-        const tb = fullWeekWorkTarget(weekB, weekLeaveCount(grid, p.id, weekB), settings.maxWorkPerWeek);
+        const ta = preferredWeekWorkTarget(weekA, weekLeaveCount(grid, p.id, weekA), settings);
+        const tb = preferredWeekWorkTarget(weekB, weekLeaveCount(grid, p.id, weekB), settings);
         const deficitA = ta == null ? 0 : Math.max(0, ta - weekWorkInMonth(grid, p.id, weekA));
         const deficitB = tb == null ? 0 : Math.max(0, tb - weekWorkInMonth(grid, p.id, weekB));
         const wish =
@@ -3009,6 +3021,34 @@ export function validateRoster(
         message: `${p.name} ${weekCells[0]?.day} 日起该周上班 ${work} 天、休息 ${rest} 天，满周至少 ${hardMin} 天（默认 ${target} 天）`,
       });
     }
+    if (!cached?.hardOnly) {
+      for (const weekCells of cellsByWeek(cells).values()) {
+        const leave = weekLeaveCount(grid, p.id, weekCells);
+        const target = fullWeekWorkTarget(weekCells, leave, settings.maxWorkPerWeek);
+        if (target == null) continue;
+        const work = weekWorkInMonth(grid, p.id, weekCells);
+        const hardMin = fullWeekHardMin(weekCells, leave, settings.maxWorkPerWeek);
+        if (settings.preferWeeklyWorkTarget && target > (hardMin ?? target) && work !== target) {
+          conflicts.push({
+            severity: "soft",
+            personId: p.id,
+            date: weekCells[0]?.date,
+            message: `${p.name} ${weekCells[0]?.day} 日起该周上班 ${work} 天，默认 ${target} 天`,
+          });
+        }
+        if (settings.preferPairedRest && target === 5) {
+          const rests = weekCells.filter((c) => markOf(grid, p.id, c.date).mark === "休");
+          if (rests.length === 2 && rests.every((c) => adjacentRestBonus(grid, p.id, c.date, cells) === 0)) {
+            conflicts.push({
+              severity: "soft",
+              personId: p.id,
+              date: weekCells[0]?.date,
+              message: `${p.name} ${weekCells[0]?.day} 日起两天休息未相连`,
+            });
+          }
+        }
+      }
+    }
     if (settings.noMorningAfterNight) {
       for (const c of cells) {
         const morning = markOf(grid, p.id, c.date);
@@ -3044,6 +3084,13 @@ export function validateRoster(
         severity: "hard",
         personId: p.id,
         message: `${p.name} 夹心休 ${sandwiches} 天，生成排出的最多 ${MAX_COUNTED_SANDWICH} 天，覆盖不够时最多 ${HARD_SANDWICH_LIMIT} 天`,
+      });
+    }
+    if (!cached?.hardOnly && settings.preferSingleSandwichRest && sandwiches > MAX_COUNTED_SANDWICH) {
+      conflicts.push({
+        severity: "soft",
+        personId: p.id,
+        message: `${p.name} 夹心休 ${sandwiches} 天，尽量不超过 ${MAX_COUNTED_SANDWICH} 天`,
       });
     }
     const blocks = personShiftBlocks(grid, p.id, cells);
@@ -3351,7 +3398,8 @@ function repairShiftBlocks(
       }
       const after = personShiftBlocks(grid, p.id, cells);
       const sandAfter = countedSandwiches(grid, p.id, cells, prevDayShifts);
-      if (sandAfter > sandBefore && sandAfter > MAX_COUNTED_SANDWICH) continue;
+      const sandwichLimit = settings.preferSingleSandwichRest ? MAX_COUNTED_SANDWICH : HARD_SANDWICH_LIMIT;
+      if (sandAfter > sandBefore && sandAfter > sandwichLimit) continue;
       if (isAvoidableInterleave(after.marks, after.locked)) continue;
       if (coverGapCount(grid, members, cells, settings) > beforeGaps) continue;
       let morningAfter = false;
@@ -3378,6 +3426,7 @@ function wouldWorsenSandwich(
   next: "早" | "晚",
   cells: MonthCell[],
   prevDayShifts: Map<number, ShiftMark>,
+  settings: Settings,
 ): boolean {
   const cell = markOf(grid, personId, date);
   const old = cell.mark;
@@ -3385,7 +3434,8 @@ function wouldWorsenSandwich(
   cell.mark = next;
   const after = countedSandwiches(grid, personId, cells, prevDayShifts);
   cell.mark = old;
-  return after > before && after > MAX_COUNTED_SANDWICH;
+  const limit = settings.preferSingleSandwichRest ? MAX_COUNTED_SANDWICH : HARD_SANDWICH_LIMIT;
+  return after > before && after > limit;
 }
 
 function wouldWorsenBlocks(
@@ -3431,7 +3481,7 @@ function repairDailyShiftBalance(
         if (nightNow <= target || nightNow <= minNight) break;
         if (
           wouldWorsenBlocks(grid, p.id, c.date, "早", cells) ||
-          wouldWorsenSandwich(grid, p.id, c.date, "早", cells, prevDayShifts)
+          wouldWorsenSandwich(grid, p.id, c.date, "早", cells, prevDayShifts, settings)
         ) {
           continue;
         }
@@ -3451,7 +3501,7 @@ function repairDailyShiftBalance(
         if (nightNow >= target || morningNow <= settings.minMorningPerGroupPerDay) break;
         if (
           wouldWorsenBlocks(grid, p.id, c.date, "晚", cells) ||
-          wouldWorsenSandwich(grid, p.id, c.date, "晚", cells, prevDayShifts)
+          wouldWorsenSandwich(grid, p.id, c.date, "晚", cells, prevDayShifts, settings)
         ) {
           continue;
         }

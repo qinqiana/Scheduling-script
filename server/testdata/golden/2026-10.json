@@ -3048,9 +3048,89 @@
   ],
   "conflicts": [
     {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-10-12",
+      "message": "冯宝儿 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "date": "2026-10-12",
+      "message": "钟梓枫 12 日起两天休息未相连"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "date": "2026-10-19",
+      "message": "钟梓枫 19 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "message": "钟梓枫 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-10-12",
+      "message": "钟龙 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-10-19",
+      "message": "钟龙 19 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "message": "钟龙 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-10-12",
+      "message": "骆成奕 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-10-19",
+      "message": "骆成奕 19 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "message": "骆成奕 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "date": "2026-10-12",
+      "message": "毛佩凤 12 日起两天休息未相连"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "message": "毛佩凤 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
       "severity": "hard",
       "personId": 7,
       "message": "刘文达 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-10-12",
+      "message": "刘文达 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-10-19",
+      "message": "刘文达 19 日起该周上班 4 天，默认 5 天"
     },
     {
       "severity": "hard",
@@ -3058,9 +3138,26 @@
       "message": "陈彩怡 出勤 20 天、休息 11 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
     },
     {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-10-12",
+      "message": "陈彩怡 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-10-19",
+      "message": "陈彩怡 19 日起该周上班 6 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 8,
       "message": "陈彩怡 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 8,
+      "message": "陈彩怡 夹心休 3 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",
@@ -3073,9 +3170,19 @@
       "message": "周秋艳 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
     },
     {
+      "severity": "soft",
+      "personId": 9,
+      "message": "周秋艳 夹心休 3 天，尽量不超过 1 天"
+    },
+    {
       "severity": "hard",
       "personId": 9,
       "message": "周秋艳 早班晚班穿插，除月末三天外最多切一次"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "message": "杨礼 夹心休 2 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",
@@ -3083,14 +3190,48 @@
       "message": "俞观权 出勤 19 天，目标 17 天"
     },
     {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-10-12",
+      "message": "俞观权 12 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-10-19",
+      "message": "陆威婷 19 日起两天休息未相连"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "message": "陆威婷 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 13,
+      "date": "2026-10-12",
+      "message": "李珊珊 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 14,
       "message": "江金岚 出勤 19 天、休息 12 天，无请假无特殊加班时应出勤 18 天、休息 13 天"
     },
     {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-10-12",
+      "message": "江金岚 12 日起该周上班 4 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 14,
       "message": "江金岚 夹心休 3 天，生成排出的最多 1 天，覆盖不够时最多 2 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "message": "江金岚 夹心休 3 天，尽量不超过 1 天"
     },
     {
       "severity": "hard",

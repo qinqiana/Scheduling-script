@@ -2750,9 +2750,51 @@
   ],
   "conflicts": [
     {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-02-02",
+      "message": "冯宝儿 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 1,
+      "date": "2026-02-09",
+      "message": "冯宝儿 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 2,
+      "date": "2026-02-09",
+      "message": "钟梓枫 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 3,
+      "date": "2026-02-02",
+      "message": "钟龙 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 4,
       "message": "姚炎兰 出勤 17 天、休息 11 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 4,
+      "date": "2026-02-02",
+      "message": "姚炎兰 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 4,
+      "date": "2026-02-09",
+      "message": "姚炎兰 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 5,
+      "date": "2026-02-02",
+      "message": "骆成奕 2 日起该周上班 4 天，默认 5 天"
     },
     {
       "severity": "hard",
@@ -2760,14 +2802,131 @@
       "message": "毛佩凤 出勤 17 天、休息 11 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
     },
     {
+      "severity": "soft",
+      "personId": 6,
+      "date": "2026-02-02",
+      "message": "毛佩凤 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 6,
+      "message": "毛佩凤 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-02-02",
+      "message": "刘文达 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 7,
+      "date": "2026-02-09",
+      "message": "刘文达 9 日起该周上班 6 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 8,
       "message": "陈彩怡 出勤 17 天、休息 11 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
     },
     {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-02-02",
+      "message": "陈彩怡 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 8,
+      "date": "2026-02-09",
+      "message": "陈彩怡 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 9,
+      "date": "2026-02-02",
+      "message": "周秋艳 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 9,
+      "date": "2026-02-09",
+      "message": "周秋艳 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "date": "2026-02-02",
+      "message": "杨礼 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 10,
+      "date": "2026-02-09",
+      "message": "杨礼 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
       "severity": "hard",
       "personId": 11,
       "message": "俞观权 出勤 19 天、休息 9 天，无请假无特殊加班时应出勤 16 天、休息 12 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-02-02",
+      "message": "俞观权 2 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "date": "2026-02-09",
+      "message": "俞观权 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 11,
+      "message": "俞观权 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-02-02",
+      "message": "陆威婷 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "date": "2026-02-09",
+      "message": "陆威婷 9 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 12,
+      "message": "陆威婷 夹心休 2 天，尽量不超过 1 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 13,
+      "date": "2026-02-02",
+      "message": "李珊珊 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 13,
+      "date": "2026-02-09",
+      "message": "李珊珊 9 日起该周上班 6 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-02-02",
+      "message": "江金岚 2 日起该周上班 4 天，默认 5 天"
+    },
+    {
+      "severity": "soft",
+      "personId": 14,
+      "date": "2026-02-09",
+      "message": "江金岚 9 日起该周上班 4 天，默认 5 天"
     },
     {
       "severity": "hard",

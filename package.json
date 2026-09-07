@@ -1,7 +1,7 @@
 {
   "name": "network-access-roster",
   "private": true,
-  "version": "1.9.2",
+  "version": "1.9.3",
   "description": "入网审核排班：早/晚两班，按组覆盖，导出考勤表",
   "type": "module",
   "scripts": {
