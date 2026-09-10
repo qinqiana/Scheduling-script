@@ -30,10 +30,20 @@ async function openDb(): Promise<Database> {
     locateFile: (file) => (file.endsWith(".wasm") ? wasm : file),
   });
   const path = dbPath();
-  if (existsSync(path)) {
-    db = new SQL.Database(readFileSync(path));
+  const load = (p: string): Database | null => {
+    if (!existsSync(p)) return null;
+    let candidate: Database;
+    try { candidate = new SQL.Database(readFileSync(p)); } catch { return null; }
+    try {
+      const check = candidate.exec("PRAGMA integrity_check");
+      if (check[0]?.values[0]?.[0] !== "ok") { candidate.close(); return null; }
+      return candidate;
+    } catch { candidate.close(); return null; }
+  };
+  db = load(path) ?? load(`${path}.bak`);
+  if (db) {
     migrate(db);
-    persist();
+    persist(); // 从 .bak 恢复后写回主库
   } else {
     db = new SQL.Database();
     migrate(db);
@@ -131,10 +141,10 @@ function migrate(database: Database): void {
   }
 }
 
-/** 写入国务院办公厅放假调休日历（法定假日 + 连休 + 调休上班日） */
+/** 首次写入国务院办公厅放假调休日历（法定假日 + 连休 + 调休上班日）；已有行（含用户手工改动）保留不覆盖 */
 function ensureOfficialHolidays(database: Database): void {
   const upsert = database.prepare(
-    "INSERT INTO holidays (date, name, kind) VALUES (?, ?, ?) ON CONFLICT(date) DO UPDATE SET name = excluded.name, kind = excluded.kind",
+    "INSERT INTO holidays (date, name, kind) VALUES (?, ?, ?) ON CONFLICT(date) DO NOTHING",
   );
   for (const h of OFFICIAL_HOLIDAYS) {
     upsert.run([h.date, h.name, h.kind]);

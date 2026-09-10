@@ -7,7 +7,7 @@ import { writeCellState } from "./cellState.ts";
 /** 模板数据格可识别符号 → 动作 */
 type Action =
   | { kind: "shift"; mark: "早" | "晚" | "休" }
-  | { kind: "overtime" }
+  | { kind: "overtime"; mark?: "早" | "晚" }
   | { kind: "compRest" }
   | { kind: "leave"; reason: string };
 
@@ -38,6 +38,8 @@ function parseAction(text: string): Action | undefined {
   if (leave !== undefined) return { kind: "leave", reason: leave === "假" ? "请假" : leave };
   const shift = SHIFT_MARKS.get(t);
   if (shift !== undefined) return { kind: "shift", mark: shift };
+  if (t === "早加") return { kind: "overtime", mark: "早" };
+  if (t === "晚加") return { kind: "overtime", mark: "晚" };
   if (t === "加班" || t === "节加") return { kind: "overtime" };
   if (t === "补休") return { kind: "compRest" };
   return undefined; // 旷工 / 其他 / 未知 → 跳过
@@ -158,7 +160,7 @@ export async function importRosterFromExcel(
       planned.push({ personId: c.personId, date: c.date, leaveReason: action.reason });
     } else if (action.kind === "overtime") {
       overtimes += 1;
-      planned.push({ personId: c.personId, date: c.date, shift: "早", overtime: true });
+      planned.push({ personId: c.personId, date: c.date, shift: action.mark ?? "早", overtime: true });
     } else if (action.kind === "compRest") {
       compRests += 1;
       planned.push({ personId: c.personId, date: c.date, shift: "休", compRest: true });

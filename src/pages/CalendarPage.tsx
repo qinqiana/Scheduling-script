@@ -44,6 +44,7 @@ export function CalendarPage({
   const [importTargetM, setImportTargetM] = useState(month);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const loadSequence = useRef(0);
+  const writeSeq = useRef(0);
   const [job, setJob] = useState<GenerationJob | null>(null);
 
   useEffect(() => {
@@ -158,10 +159,12 @@ export function CalendarPage({
     action: () => Promise<RosterPayload | void>,
     keepOpen = false,
   ) => {
+    const seq = ++writeSeq.current;
     setBusy(label);
     setError("");
     try {
       const next = (await action()) ?? (await api.roster(year, month));
+      if (seq !== writeSeq.current) return;
       setData(next);
       if (keepOpen && edit) {
         const cell = next.roster.find((c) => c.personId === edit.person.id && c.date === edit.date);
@@ -171,9 +174,10 @@ export function CalendarPage({
         setEdit(null);
       }
     } catch (e) {
+      if (seq !== writeSeq.current) return;
       setError(e instanceof Error ? e.message : label);
     } finally {
-      setBusy("");
+      if (seq === writeSeq.current) setBusy("");
     }
   };
 
@@ -366,6 +370,7 @@ export function CalendarPage({
                 <p>该日已请假，生成时不会排班。</p>
                 <button
                   className="btn"
+                  disabled={!!busy}
                   onClick={async () => {
                     setBusy("撤销请假…");
                     try {
@@ -387,7 +392,7 @@ export function CalendarPage({
               <>
                 <div className="shift-picks">
                   {(["早", "晚", "休"] as const).map((s) => (
-                    <button key={s} className="btn" onClick={() => void saveCell(s, edit.cell.locked)}>
+                    <button key={s} className="btn" disabled={!!busy} onClick={() => void saveCell(s, edit.cell.locked)}>
                       {s}
                     </button>
                   ))}
@@ -395,6 +400,7 @@ export function CalendarPage({
                 <div className="shift-picks">
                   <button
                     className="btn"
+                    disabled={!!busy}
                     onClick={() =>
                       void saveCell(
                         edit.cell.mark === "早" || edit.cell.mark === "晚" || edit.cell.mark === "休"
@@ -425,7 +431,7 @@ export function CalendarPage({
                 请假原因
                 <input value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder="调休 / 年假 / 病假" />
               </label>
-              <button className="btn" onClick={() => void addLeave()}>
+              <button className="btn" disabled={!!busy} onClick={() => void addLeave()}>
                 登记请假
               </button>
               <div className="shift-picks">
@@ -492,7 +498,7 @@ export function CalendarPage({
             <p className="hint">
               选择一份「系统同款考勤表模板」导出的 xlsx（第 2 行是日期 1~31，第 3 行起每行一个人），
               导入时会用表里的格子覆盖 {importTargetY} 年 {importTargetM} 月对应排班。
-              识别：早 / 晚 / 休 / 8（按早班）、加班 / 节加（按早班+加班）、补休、假 / 病假 / 事假 / 年休 / 出差 / 婚假 / 陪产假 / 护理假（记为请假）。
+              识别：早 / 晚 / 休 / 8（按早班）、早加 / 晚加 / 加班 / 节加（加班按早班，早加/晚加保留原班次）、补休、假 / 病假 / 事假 / 年休 / 出差 / 婚假 / 陪产假 / 护理假（记为请假）。
             </p>
             <div className="form" style={{ marginTop: 12 }}>
               <label>

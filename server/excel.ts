@@ -77,7 +77,8 @@ function removeExtraDayColumns(ws: ExcelJS.Worksheet, days: number): void {
 function excelMark(cell: RosterCell | undefined): string | undefined {
   if (!cell) return undefined;
   if (cell.compRest) return "补休";
-  if (cell.overtime && (cell.mark === "早" || cell.mark === "晚")) return "加班";
+  if (cell.overtime && cell.mark === "晚") return "晚加";
+  if (cell.overtime && cell.mark === "早") return "早加";
   if (cell.mark === "早" || cell.mark === "晚" || cell.mark === "假" || cell.mark === "休") return cell.mark;
   return undefined;
 }
@@ -213,7 +214,7 @@ function buildWorkbook(
       }
     }
     sheet.getCell(row, attendCol).value = {
-      formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"晚")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"加班")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"8")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*出差*")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*节加*")`,
+      formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"晚")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"早加")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"晚加")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"加班")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"8")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*出差*")+COUNTIF(${dateStart}${row}:${dateEnd}${row},"*节加*")`,
     };
     sheet.getCell(row, morningCol).value = {
       formula: `COUNTIF(${dateStart}${row}:${dateEnd}${row},"早")`,
