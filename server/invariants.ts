@@ -1,5 +1,6 @@
 import type { RosterCell } from "../shared/types.ts";
 import type { MonthPack } from "./repository/month.ts";
+import { MONTH_END_COVER_DAYS, MONTH_END_MIN_NIGHT } from "./engine.ts";
 
 /** 独立于引擎校验器，直接从输入和输出检查业务不变量。 */
 export function checkInvariants(pack: MonthPack, roster: RosterCell[]): string[] {
@@ -45,14 +46,14 @@ export function checkInvariants(pack: MonthPack, roster: RosterCell[]): string[]
     const legal = pack.cells.filter((c) => c.kind === "workday" || c.kind === "makeup").length;
     if (count !== Math.max(0, (p.targetDays ?? legal - leaveDays) + adjustment)) errors.push(`出勤天数不符 ${p.id}`);
   }
-  const monthEnd = new Set(pack.cells.filter((c) => c.kind !== "holiday").slice(-3).map((c) => c.date));
+  const monthEnd = new Set(pack.cells.filter((c) => c.kind !== "holiday").slice(-MONTH_END_COVER_DAYS).map((c) => c.date));
   for (const group of new Set(pack.people.map((p) => p.groupName))) {
     const members = pack.people.filter((p) => p.groupName === group);
     for (const day of pack.cells) {
       if (day.kind === "holiday") continue;
       const row = members.map((p) => map.get(key(p.id, day.date)));
       const available = row.filter((c) => c?.mark !== "假").length;
-      const night = monthEnd.has(day.date) ? Math.max(2, pack.settings.minNightPerGroupPerDay) : pack.settings.minNightPerGroupPerDay;
+      const night = monthEnd.has(day.date) ? Math.max(MONTH_END_MIN_NIGHT, pack.settings.minNightPerGroupPerDay) : pack.settings.minNightPerGroupPerDay;
       const morning = pack.settings.minMorningPerGroupPerDay;
       const needed = Math.min(available, Math.max(pack.settings.minPerGroupPerDay, monthEnd.has(day.date) ? Math.max(available - 1, morning + night) : 0));
       if (row.filter((c) => work(c?.mark)).length < needed || (members.length >= morning + night &&
