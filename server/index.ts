@@ -504,7 +504,7 @@ export async function startServer(preferredPort = PORT): Promise<number> {
     });
   const actual = await listen(preferredPort);
   setInstancePort(actual);
-  console.log(`入网审核排班 1.9.2  http://127.0.0.1:${actual}`);
+  console.log(`入网审核排班 1.9.4  http://127.0.0.1:${actual}`);
   openBrowser(actual);
   return actual;
 }
